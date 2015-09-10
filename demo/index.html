@@ -1,48 +1,57 @@
 <!doctype html>
 <!--
 @license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
 -->
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>seed-element Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../seed-element.html">
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-social-media-item Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-social-media-item.html">
+      <link rel="import" href="../../paper-input/paper-input.html">
+
+      <style is="custom-style">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+      </style>    
   </head>
   <body unresolved>
 
-    <p>An example of <code>&lt;seed-element&gt;</code>:</p>
+      <h4>An example of <code>&lt;xlime-social-media-item&gt;</code></h4>
+      <div class="vertical-section">
+          
+          <p><paper-input id="inputUrl" label="xLiMe Social Media Item URL" placeholder="e.g. http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f"></paper-input>
+          <button id="update">Update Item</button></p>
+      </div>
 
-    <p>Make words! <button id="saybtn">Say Something</button></p>
-    <p>Make lasers! <button id="laserbtn">Fire lasers</button></p>
-
-    <seed-element author='{"name": "Lord Meowser", "image": "http://placekitten.com/g/200/300"}' fancy>
-      <h2>Hello seed-element</h2>
-    </seed-element>
-
-    <script>
-      var seedElement = document.querySelector('seed-element');
+      <div class="vertical-section">
+          <xlime-social-media-item href='http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f' fancy>
+          </xlime-social-media-item>
+      </div>
       
-      document.querySelector('#saybtn').addEventListener('click', function() {
-        alert(seedElement.sayHello('Hallo!'));
-      });
-      
-      document.querySelector('#laserbtn').addEventListener('click', function() {
-        seedElement.fireLasers();
-      });
-      
-      document.addEventListener("seed-element-lasers", function(e) {
-        console.log(e.detail.sound);
-      });
-      
-    </script>
+      <script>
+       var socMediaItem = document.querySelector('xlime-social-media-item');
+       
+       document.querySelector('#update').addEventListener('click', function() {
+           console.log("updating media item component ", socMediaItem);
+           var inUrl = document.querySelector('#inputUrl');
+           console.log("using inputUrl:", inUrl);
+           console.log("old url: ", socMediaItem.href);
+           console.log("new url: ", inUrl.value.trim());
+           socMediaItem.href = inUrl.value.trim();
+       });
+       
+      </script>
 
   </body>
 </html>

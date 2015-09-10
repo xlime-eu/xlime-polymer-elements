@@ -1,16 +1,16 @@
 {
-  "name": "seed-element",
-  "version": "1.0.2",
+  "name": "xlime-social-media-item",
+  "version": "0.1.0",
   "authors": [
-    "Anonymous <anonymous@example.com>"
+    "Ronald Denaux <rdenaux@expertsystem.com>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "An element rendering a social media item from the xLiMe.",
   "keywords": [
     "web-component",
-    "polymer",
-    "seed"
+    "xLiMe",
+    "social media item"
   ],
-  "main": "seed-element.html",
+  "main": "xlime-social-media-item.html",
   "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/<USERNAME>/seed-element/",
   "ignore": [
@@ -18,10 +18,13 @@
     "/test/"
   ],
   "dependencies": {
+    "jassa-import": "..\\jassa-import\\",
+    "paper-card": "PolymerElements/paper-card#1.0.2",
     "polymer": "Polymer/polymer#^1.0.0"
   },
   "devDependencies": {
-    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+      "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+      "paper-input": "PolymerElements/paper-input#^1.0.0",
     "web-component-tester": "*"
   }
 }

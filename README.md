@@ -1,6 +1,6 @@
-# seed-element
+# xlime-social-media-item
 
-An element providing a starting point for your own reusable Polymer elements.
+An element providing a rendering for social-media items.
 
 
 ## Dependencies

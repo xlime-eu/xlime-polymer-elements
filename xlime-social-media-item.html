@@ -1,0 +1,363 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
+
+<!--
+`xlime-social-media-item` is a web component, which renders an xLiMe social-media item, i.e.
+
+The social-media-item is associated to a media-item URL, which is used to
+let the web-component know which media-item should be displayed and how. I.e.
+the component will analyse the URL and interact with the various xLiMe web-services
+in order to provide a rendering for the specified media-item URL.
+
+Example:
+
+    <xlime-social-media-item
+      href='http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f'>
+    </xlime-social-media-item>
+
+The rendered element will consist of a card, showing the following information about the
+social media item:
+- the content: if the content is very long, only a preview is shown
+- the language
+- the author/creator
+- the date-time (when the social media item was created)
+- the publisher
+- the following actions:
+  + a link to view the original content at the publisher's site
+  + if the content is long: a toggle to swap between the preview and the full content.
+
+This component uses an `xlime public webserver` to retrieve the information about the
+social media item.
+
+Height and width are specified as style attributes:
+
+    xlime-media-item {
+      height: 300px;
+      width: 50em;
+    }
+
+@group xLiMe
+@element xlime-social-media-item
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="xlime-social-media-item">
+
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+
+   paper-card {
+      width: 100%;
+      margin-bottom: 16px;
+   }
+
+   .avatar {
+           display: inline-block;
+           height: 64px;
+           width: 64px;
+           border-radius: 50%;
+           background: var(--paper-pink-500);
+           color: white;
+           line-height: 64px;
+           font-size: 30px;
+           text-align: center;
+       }
+       .fancy .title {
+           position: absolute;
+           top: 30px;
+           left: 100px;
+           color: var(--paper-indigo-500);
+       }
+       .fancy img {
+           width: 100%;
+       }
+       .fancy .big {
+           font-size: 22px;
+           padding: 8px 0 16px;
+           color: var(--google-grey-500);
+       }
+       .fancy .medium {
+           font-size: 16px;
+           padding-bottom: 8px;
+       }
+       .pink {
+           --paper-card-header-color: var(--paper-pink-500);
+       }
+  </style>
+
+  <template>
+      <iron-ajax id="ajax" handle-as="json"
+                 url="http://localhost:8080/services/mediaItem"
+                 on-response="_externalDataLoaded"
+                 on-error="_ajaxRequestFailed"></iron-ajax>
+    <content></content>
+    <paper-card id="socMediaItem" class='fancy'>
+      <div class="card-content">
+        <div class="avatar">{{itemObj.avatar}}</div>
+        <div class="title">
+            <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
+            <div class="small">on: <span>{{_formattedDate(itemObj.date)}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{itemObj.content.current}}</div>
+      </div>
+      <div class="card-actions">
+        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
+        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(itemObj.content)}}</paper-button>
+      </div>
+    </paper-card>
+    <paper-card id="errorMessage">
+        <div class="card-content">{{errorMessage}}<div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-social-media-item',
+
+    properties: {
+
+      /**
+       * Sets the URL for the xLiMe media item to display.
+       *
+       * Currently supported media items with example URLs
+       * - social media items: e.g. http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f
+       *
+       * Planned media items that will be supported in future versions:
+       * - zattoo videos: e.g. 
+       * - news articles: e.g. 
+       *
+       */
+      href: {
+        type: String,
+        observer: '_itemUrlChanged'
+      },
+        
+      /**
+       * The media item to be displayed. Normally, this value is calculated
+       * based on the value of the href property.
+       * The object will typically be something like: 
+       * {
+       *   avatar: "en", //2-letter language code 
+       *   content: { 
+       *       full: "some full content",
+       *       preview: "some ..",
+       *       current: "some full content";
+       *   },
+       *   date: "date",
+       *   publisher: {
+       *       label: "some publisher",
+       *       url: "http://example.com/"
+       *   },
+       *   creator: {
+       *       label: "creator",
+       *       url: "creator url"
+       *   },
+       *   source: {
+       *       label: "source label",
+       *       url: "http://example.com/article"
+       *   }
+       * }
+       */
+      itemObj: {
+          type: Object,
+      }, 
+
+      /**
+       * Stores an error message to show when the itemObj could not be calculated based 
+       * on the href
+       */
+      errorMessage: {
+          type: String,
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    isSocMediaItem: function(itemObj) {
+        if (itemObj && itemObj.publisher) return true;
+        else return false;
+    },
+
+    _itemUrlChanged: function() {
+        console.log("Need to refresh social media item");
+        this.errorMessage = null;
+        this.itemObj = null;
+
+        var params = {};
+        params.url = this.href;
+
+        this.$.ajax.params = params;
+        console.log("Set ajax params to ", params);
+        console.log("Generating ajax request for ", this.href);
+        this.$.ajax.generateRequest();
+        console.log("Generated ajax request for ", this.href);        
+    },
+
+    /**
+     * Handles responses from the iron-ajax element.
+     */  
+    _externalDataLoaded: function(e) {
+        function calcAvatarFromPublisher(publisher, sourceType) {
+            if (publisher.url.indexOf('www.twitter.com') > 0) return 'tw';
+            if (publisher.url.indexOf('plus.google.com') > 0) return 'g+';
+            if (publisher.url.indexOf('www.facebook.com') > 0) return 'fb';
+            if (sourceType === 'Blog') return 'blog';
+            return 'microPost';
+        }
+
+        function calcCurrent(content) {
+            console.log("Adding current to", content);
+            if (content.full) {
+                if (content.preview) {
+                    content.current = content.preview;
+                } else {
+                    content.current = content.full;
+                }
+            } else {
+                content.current = "Missing content";
+            }
+            console.log("With current:", content);
+            return content;
+        }
+
+        function asItemObj(mediaItem) {
+            var result = {};
+            result.avatar = mediaItem.lang; //calcAvatarFromPublisher(mediaItem.publisher);
+            result.date = mediaItem.created;
+            result.source = mediaItem.source;
+            result.publisher = mediaItem.publisher;
+            if (mediaItem.content)
+                result.content = mediaItem.content;
+            else result.content = {};
+            result.content = calcCurrent(result.content);
+            result.creator = mediaItem.creator;
+            console.log("created itemObj", result);
+            return result;
+        }
+        
+        function shouldHideTogglePreviewBtn(content) {
+            if (content && content.full && content.preview) return false;
+            else return true;
+        }
+
+        console.log('Ajax request response: ', e.detail.response);
+        if (e.detail.response) {
+            var mit = e.detail.response.mediaItem
+            if (mit) {
+                this.itemObj = asItemObj(mit);
+                this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
+                this.$.socMediaItem.hidden = false;
+                this.$.errorMessage.hidden = true;
+                console.log('updated itemObj ', this.itemObj);
+            } else {
+                this.errorMessage = "Error retrieving information about mediaItem  " + href;
+                this.$.errorMessage.hidden = false;
+            }
+        } else {
+            this.errorMessage = "Error retrieving information about mediaItem " + href;
+            this.$.errorMessage.hidden = false;
+        }
+    },
+      
+    _ajaxRequestFailed: function(e) {
+        console.log('Handle request error:', e);
+        this.$.socMediaItem.hidden = true;
+        this.errorMessage = e.detail.error.message
+        this.$.errorMessage.hidden = false;
+    },
+
+    _togglePreview: function() {
+        console.log('toggling preview');
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            if (contentObj.current === contentObj.full) {
+                console.log('Showing preview object');
+                contentObj.current = contentObj.preview;
+            } else {
+                console.log('Showing full object');
+                contentObj.current = contentObj.full;
+            }
+            var oldItemObj = this.itemObj;
+            this.itemObj = null;
+            this.itemObj = oldItemObj;
+        } else console.log('No itemObj available');
+    },
+
+    _togglePreviewLabel: function(contentObj) {
+        if (contentObj) {
+            if (contentObj.current === contentObj.full) {
+                return '-'
+            } else return '+';
+        } else return '+';
+    },
+
+    _formattedDate: function(dateStr) {
+        try {
+            var dateObj = new Date(dateStr);
+            return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
+        } catch(err) {
+            return dateStr;
+        }
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-social-media-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>
