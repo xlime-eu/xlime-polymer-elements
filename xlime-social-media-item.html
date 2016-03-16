@@ -17,7 +17,7 @@ in order to provide a rendering for the specified media-item URL.
 Example:
 
     <xlime-social-media-item
-      href='http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f'>
+      href='http://vico-research.com/social/478701d4-61fe-39f6-8422-6d3e6ae1d618'>
     </xlime-social-media-item>
 
 The rendered element will consist of a card, showing the following information about the
@@ -48,7 +48,16 @@ Height and width are specified as style attributes:
 -->
 <dom-module id="xlime-social-media-item">
 
-  <style>
+    <style>
+     :root {
+         --xlime-tag: #679B00;
+         --xlime-green-600: #65842E;
+         --xlime-green-500: #7D9B3C;
+         --xlime-green-400: #75AF00;
+         --xlime-light-yellow: #FFFFB2;
+         --xlime-gray-500: 	#787878;
+         --xlime-gray-200: #f5f5f5;
+     }
     :host {
       display: block;
       box-sizing: border-box;
@@ -64,33 +73,33 @@ Height and width are specified as style attributes:
            height: 64px;
            width: 64px;
            border-radius: 50%;
-           background: var(--paper-pink-500);
+           background: var(--xlime-green-600);
            color: white;
            line-height: 64px;
            font-size: 30px;
            text-align: center;
        }
-       .fancy .title {
+   .fancy .title {
            position: absolute;
            top: 30px;
            left: 100px;
-           color: var(--paper-indigo-500);
-       }
-       .fancy img {
+           color: var(--xlime-green-600);
+   }
+   .fancy img {
            width: 100%;
-       }
-       .fancy .big {
+   }
+   .fancy .big {
            font-size: 22px;
            padding: 8px 0 16px;
-           color: var(--google-grey-500);
-       }
-       .fancy .medium {
+           color: var(--xlime-grey-500);
+   }
+   .fancy .medium {
            font-size: 16px;
            padding-bottom: 8px;
-       }
-       .pink {
-           --paper-card-header-color: var(--paper-pink-500);
-       }
+   }
+   .xlime-card {
+           --paper-card-header-color: var(--xlime-green-500);
+   }
   </style>
 
   <template>
@@ -104,7 +113,7 @@ Height and width are specified as style attributes:
         <div class="avatar">{{itemObj.avatar}}</div>
         <div class="title">
             <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
-            <div class="small">on: <span>{{_formattedDate(itemObj.date)}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div class="small">on: <span>{{itemObj.date}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
         </div>
       </div>
 
@@ -268,7 +277,7 @@ Height and width are specified as style attributes:
         function asItemObj(mediaItem) {
             var result = {};
             result.avatar = mediaItem.lang; //calcAvatarFromPublisher(mediaItem.publisher);
-            result.date = mediaItem.created;
+            result.date = mediaItem.created.formatted;
             result.source = mediaItem.source;
             result.publisher = mediaItem.publisher;
             if (mediaItem.content)
@@ -286,8 +295,9 @@ Height and width are specified as style attributes:
         }
 
         console.log('Ajax request response: ', e.detail.response);
-        if (e.detail.response) {
-            var mit = e.detail.response.mediaItem
+        if (e.detail.response && e.detail.response.mediaItems && e.detail.response.mediaItems.length == 1) {
+            var mit = e.detail.response.mediaItems[0];
+            console.log('Found media item: ', mit);
             if (mit) {
                 this.itemObj = asItemObj(mit);
                 this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
