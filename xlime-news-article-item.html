@@ -1,22 +1,31 @@
 <!--
 @license
 Copyright (c) 2015 Expert System Iberia. All rights reserved.
+<link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<!--  
+<link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
+-->
+<link rel="import" href="../iron-icons/social-icons.html">
 
 <!--
-`xlime-social-media-item` is a web component, which renders an xLiMe social-media item.
+`xlime-news-article-item` is a web component, which renders an xLiMe news-article item, i.e.
+
+The news-article-item is associated to a news-article `itemObj`ect, which contains the information
+to be rendered by this component.
 
 Example:
 
-    <xlime-social-media-item
-      itemObj=' "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
-         "type": "http://rdfs.org/sioc/ns#MicroPost",
+    <xlime-news-article-item
+      itemObj='{
+         "url": "http://example.com", //xlime url for this media item
+         "type": "http://kdo.render-project.eu/kdo#NewsArticle",
+         "title": "Title of Article",
          "content": { 
-            "full": "some long.... full description",
+            "full": "some long.... full content",
             "preview": "short preview of full",
           },
           "created": {
@@ -30,13 +39,15 @@ Example:
              "url": "http://example.com/"
           },
           "creator": {
-             "url": "http://example.com/creator",
-             "label": "Some Name"
+             "label": "creator",
+             "url": "creator url"
           },
-          "source": "http://example.com/microPost",
-          "sourceType": "MicroBlog"
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          }
        }'>
-    </xlime-social-media-item>
+    </xlime-news-article-item>
 
 The rendered element will consist of a card, showing the following information about the
 social media item:
@@ -49,7 +60,8 @@ social media item:
   + a link to view the original content at the publisher's site
   + if the content is long: a toggle to swap between the preview and the full content.
 
-The `itemObj` follows the format returned by the `xlime public webserver`.
+This component uses an `xlime public webserver` to retrieve the information about the
+social media item.
 
 Height and width are specified as style attributes:
 
@@ -59,21 +71,27 @@ Height and width are specified as style attributes:
     }
 
 @group xLiMe
-@element xlime-social-media-item
-@demo demo/xlime-social-media-item.html
+@element xlime-news-article-item
+@demo demo/xlime-news-article-item.html
 @hero hero.svg
 -->
-<dom-module id="xlime-social-media-item">
+<dom-module id="xlime-news-article-item">
 
   <template>
     <style include="xlime-shared-styles"></style>
+
     <content></content>
-    <paper-card id="socMediaItem" class='fancy'>
+    <paper-card id="newsArticleCard" class='fancy'>
       <div class="card-content">
-        <div class="avatar">{{itemObj.lang}}</div>
+          <div class="avatar">
+              <iron-icon class='fancy' icon="social:public"></iron-icon>
+              <!--  
+              {{itemObj.lang}}
+              -->
+          </div>
         <div class="title">
-            <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
-            <div class="small">on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
+            <div class="small">published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
         </div>
       </div>
 
@@ -81,8 +99,7 @@ Height and width are specified as style attributes:
         <div class="medium">{{_currentContent}}</div>
       </div>
       <div class="card-actions">
-        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
-        <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
       </div>
     </paper-card>
   </template>
@@ -93,53 +110,52 @@ Height and width are specified as style attributes:
 
   Polymer({
 
-    is: 'xlime-social-media-item',
+    is: 'xlime-news-article-item',
 
     properties: {
-        
+
       /**
-       * The media item to be displayed. Normally, this value is calculated
-       * based on the value of the href property.
+       * The news media item to be displayed.
        * The object will typically be something like: 
        *
-       *
        *      {
-       *      lang: "en", //2-letter language code 
-       *      type: "http://rdfs.org/sioc/ns#MicroPost",
-       *      url: "http://vico-research.com/social/xxxxxxx",
-       *      content: { 
-       *          full: "some full content",
-       *          preview: "some ..",
-       *      },
-       *      created: {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://kdo.render-project.eu/kdo#NewsArticle",
+       *       title: "Title of Article",
+       *       content: { 
+       *         full: "some long.... full content",
+       *         preview: "short preview of full",
+       *       },
+       *       created: {
        *         "timestamp": 0,
        *         "formatted": "01/01/1970 00:00:00",
        *         "timeAgo": "46 years ago"
-       *      },
-       *      publisher: {
-       *          label: "some publisher",
-       *          url: "http://example.com/"
-       *      },
-       *      creator: {
-       *          label: "creator",
-       *          url: "creator url"
-       *      },
-       *      source: "http://example.com/article",
-       *      sourceType: "MicroBlog"
+       *       },
+       *       lang: "en", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       creator: {
+       *         label: "creator",
+       *         url: "creator url"
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/article"
+       *       }
        *      }
        */
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      }, 
-
+      },
       /**
        * Private variable used for toggling the full and preview modes of the content.
        */
       _currentContent: {
           type: String
       }
-
     },
       
     // Element Lifecycle
@@ -173,18 +189,7 @@ Height and width are specified as style attributes:
       // Use this to clean up anything you did in `attached`.
     },
 
-    /**
-     * Handles responses from the iron-ajax element.
-     */  
     _itemObjChanged: function(e) {
-        function calcAvatarFromPublisher(publisher, sourceType) {
-            if (publisher.url.indexOf('www.twitter.com') > 0) return 'tw';
-            if (publisher.url.indexOf('plus.google.com') > 0) return 'g+';
-            if (publisher.url.indexOf('www.facebook.com') > 0) return 'fb';
-            if (sourceType === 'Blog') return 'blog';
-            return 'microPost';
-        }
-
         function shouldHideTogglePreviewBtn(content) {
             if (content && content.full && content.preview) return false;
             else return true;
@@ -192,7 +197,7 @@ Height and width are specified as style attributes:
 
         function calcCurrent(content) {
             console.log("Calculating currentContent for", content);
-            if (content && content.full) {
+            if (content.full) {
                 if (content.preview) {
                     return content.preview;
                 } else {
@@ -205,34 +210,42 @@ Height and width are specified as style attributes:
         
         console.log('itemObjChanged evt', e);
         if (this.itemObj) {
-            var contentObj = this.itemObj.content;
-            this._currentContent = calcCurrent(contentObj);
-            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(contentObj);
-//            console.log('updated itemObj ', this.itemObj);
-//            console.log('itemObj.content', contentObj);
+            this._currentContent = calcCurrent(this.itemObj.content);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
+            console.log('updated itemObj ', this.itemObj);
+            console.log('itemObj.content', this.itemObj.content);
         } else this._currentContent = "Empty"
     },
-      
+
     _togglePreview: function() {
         console.log('toggling preview');
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
-            if (contentObj.current === contentObj.full) {
+            if (this._currentContent === contentObj.full) {
                 console.log('Showing preview object');
-                contentObj.current = contentObj.preview;
+                this._currentContent = contentObj.preview;
             } else {
                 console.log('Showing full object');
-                contentObj.current = contentObj.full;
+                this._currentContent = contentObj.full;
             }
         } else console.log('No itemObj available', this.itemObj);
     },
 
-    _togglePreviewLabel: function(contentContent) {
+    _togglePreviewLabel: function(currentContent) {
         if (this.itemObj && this.itemObj.content) {
             if (this._currentContent === this.itemObj.content.full) {
                 return 'Collapse'
             } else return 'Expand';
         } else return 'Expand';
+    },
+
+    _formattedDate: function(dateStr) {
+        try {
+            var dateObj = new Date(dateStr);
+            return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
+        } catch(err) {
+            return dateStr;
+        }
     },
       
     // Element Behavior
@@ -244,7 +257,7 @@ Height and width are specified as style attributes:
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-social-media-item says, ' + response;
+      return 'xlime-news-article-item says, ' + response;
     },
      */
 

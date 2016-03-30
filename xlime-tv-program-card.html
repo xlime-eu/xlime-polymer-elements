@@ -1,6 +1,6 @@
 <!--
 @license
-Copyright (c) 2015 Expert System Iberia. All rights reserved.
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="../polymer/polymer.html">
@@ -8,72 +8,77 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../paper-card/paper-card.html">
 
 <!--
-`xlime-social-media-item` is a web component, which renders an xLiMe social-media item.
+`xlime-tv-program-card` is a web component, which renders an xLiMe tv-program, i.e.
+
+zattoo-tv-program (or segment?).
 
 Example:
 
-    <xlime-social-media-item
-      itemObj=' "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
-         "type": "http://rdfs.org/sioc/ns#MicroPost",
-         "content": { 
+    <xlime-tv-program-card
+      itemObj='{
+         "url": "http://zattoo.com/program/111277860", //xlime url for this media item
+         "type": "http://www.w3.org/ns/ma-ont#MediaResource",
+         "title": "Title for TV programme",
+         "description": { 
             "full": "some long.... full description",
             "preview": "short preview of full",
           },
-          "created": {
+          "broadcastDate": {
              "timestamp": 0,
              "formatted": "01/01/1970 00:00:00",
              "timeAgo": "46 years ago"
           },
-          "lang": "en", //
+          "relatedImage": "http://example.com/example.png", //
           "publisher": {
              "label": "some publisher",
              "url": "http://example.com/"
           },
-          "creator": {
-             "url": "http://example.com/creator",
-             "label": "Some Name"
+          "duration": {
+             "totalSeconds": 1800,
+             "hours": 0,
+             "minutes": 30,
+             "seconds": 0
           },
-          "source": "http://example.com/microPost",
-          "sourceType": "MicroBlog"
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          },
+          "relatedLocation": {
+             "lon": 0,
+             "lat": 0,
+             "label": "GB"
+          }
        }'>
-    </xlime-social-media-item>
+    </xlime-tv-program-card>
 
-The rendered element will consist of a card, showing the following information about the
-social media item:
-- the content: if the content is very long, only a preview is shown
-- the language
-- the author/creator
-- the date-time (when the social media item was created)
-- the publisher
-- the following actions:
-  + a link to view the original content at the publisher's site
-  + if the content is long: a toggle to swap between the preview and the full content.
+Example using polymer binding (Where `myItemObj` is an object like the one shown above):
 
-The `itemObj` follows the format returned by the `xlime public webserver`.
-
-Height and width are specified as style attributes:
-
-    xlime-media-item {
-      height: 300px;
-      width: 50em;
-    }
+    <xlime-tv-program-card
+      itemObj='{{myItemObj}}'>
+    </xlime-tv-program-card>
 
 @group xLiMe
-@element xlime-social-media-item
-@demo demo/xlime-social-media-item.html
+@element xlime-tv-program-card
+@demo demo/xlime-tv-program-card.html
 @hero hero.svg
 -->
-<dom-module id="xlime-social-media-item">
+<dom-module id="xlime-tv-program-card">
 
   <template>
     <style include="xlime-shared-styles"></style>
+    
     <content></content>
-    <paper-card id="socMediaItem" class='fancy'>
+    <paper-card id="tvProgramCard" class='fancy'>
       <div class="card-content">
-        <div class="avatar">{{itemObj.lang}}</div>
+          <div class="avatar">
+              <iron-image class='fancy' src='{{itemObj.relatedImage}}'></iron-image>
+              <!-- 
+              <iron-icon class='fancy' icon="social:public"></iron-icon>
+               -->
+          </div>
         <div class="title">
-            <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
-            <div class="small">on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
+            <div class="small">broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
         </div>
       </div>
 
@@ -81,8 +86,7 @@ Height and width are specified as style attributes:
         <div class="medium">{{_currentContent}}</div>
       </div>
       <div class="card-actions">
-        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
-        <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
       </div>
     </paper-card>
   </template>
@@ -93,39 +97,42 @@ Height and width are specified as style attributes:
 
   Polymer({
 
-    is: 'xlime-social-media-item',
+    is: 'xlime-tv-program-card',
 
     properties: {
         
       /**
-       * The media item to be displayed. Normally, this value is calculated
-       * based on the value of the href property.
+       * The tv-program item to be displayed.
        * The object will typically be something like: 
        *
-       *
        *      {
-       *      lang: "en", //2-letter language code 
-       *      type: "http://rdfs.org/sioc/ns#MicroPost",
-       *      url: "http://vico-research.com/social/xxxxxxx",
-       *      content: { 
-       *          full: "some full content",
-       *          preview: "some ..",
-       *      },
-       *      created: {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://www.w3.org/ns/ma-ont#MediaResource",
+       *       title: "Title of TV Program",
+       *       description: { 
+       *         full: "some long.... full description",
+       *         preview: "short preview of full",
+       *       },
+       *       broadcastDate: {
        *         "timestamp": 0,
        *         "formatted": "01/01/1970 00:00:00",
        *         "timeAgo": "46 years ago"
-       *      },
-       *      publisher: {
-       *          label: "some publisher",
-       *          url: "http://example.com/"
-       *      },
-       *      creator: {
-       *          label: "creator",
-       *          url: "creator url"
-       *      },
-       *      source: "http://example.com/article",
-       *      sourceType: "MicroBlog"
+       *       },
+       *       relatedImage: "http://example.com/example.png", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       duration: {
+       *         totalSeconds: 1800,
+       *         hours: 0,
+       *         minutes: 30,
+       *         seconds: 0
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/tv-program"
+       *       }
        *      }
        */
       itemObj: {
@@ -139,7 +146,6 @@ Height and width are specified as style attributes:
       _currentContent: {
           type: String
       }
-
     },
       
     // Element Lifecycle
@@ -173,18 +179,7 @@ Height and width are specified as style attributes:
       // Use this to clean up anything you did in `attached`.
     },
 
-    /**
-     * Handles responses from the iron-ajax element.
-     */  
     _itemObjChanged: function(e) {
-        function calcAvatarFromPublisher(publisher, sourceType) {
-            if (publisher.url.indexOf('www.twitter.com') > 0) return 'tw';
-            if (publisher.url.indexOf('plus.google.com') > 0) return 'g+';
-            if (publisher.url.indexOf('www.facebook.com') > 0) return 'fb';
-            if (sourceType === 'Blog') return 'blog';
-            return 'microPost';
-        }
-
         function shouldHideTogglePreviewBtn(content) {
             if (content && content.full && content.preview) return false;
             else return true;
@@ -205,11 +200,10 @@ Height and width are specified as style attributes:
         
         console.log('itemObjChanged evt', e);
         if (this.itemObj) {
-            var contentObj = this.itemObj.content;
-            this._currentContent = calcCurrent(contentObj);
-            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(contentObj);
-//            console.log('updated itemObj ', this.itemObj);
-//            console.log('itemObj.content', contentObj);
+            this._currentContent = calcCurrent(this.itemObj.description);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
+            console.log('updated itemObj ', this.itemObj);
+            console.log('itemObj.description', this.itemObj.description);
         } else this._currentContent = "Empty"
     },
       
@@ -217,17 +211,17 @@ Height and width are specified as style attributes:
         console.log('toggling preview');
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
-            if (contentObj.current === contentObj.full) {
+            if (this._currentContent === contentObj.full) {
                 console.log('Showing preview object');
-                contentObj.current = contentObj.preview;
+                this._currentContent = contentObj.preview;
             } else {
                 console.log('Showing full object');
-                contentObj.current = contentObj.full;
+                this._currentContent = contentObj.full;
             }
         } else console.log('No itemObj available', this.itemObj);
     },
 
-    _togglePreviewLabel: function(contentContent) {
+    _togglePreviewLabel: function(currentContent) {
         if (this.itemObj && this.itemObj.content) {
             if (this._currentContent === this.itemObj.content.full) {
                 return 'Collapse'

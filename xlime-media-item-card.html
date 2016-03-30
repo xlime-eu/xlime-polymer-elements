@@ -1,0 +1,340 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-social-media-item.html">
+<link rel="import" href="xlime-tv-program-card.html">
+<link rel="import" href="xlime-news-article-item.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+
+<!--
+`xlime-media-item-card` is a web component, which renders an xLiMe media-item, i.e.
+
+Either a social-media-item, news-article or a tv-segment (or program).
+
+The media-item is associated to a URL, which is used to
+let the web-component know which media-item should be displayed and how. I.e.
+the component will analyse the URL and interact with the various xLiMe web-services
+in order to provide a rendering for the specified media-item URL.
+
+Example using an xLiMe media-item url:
+
+    <xlime-media-item-card
+      href='http://vico-research.com/social/478701d4-61fe-39f6-8422-6d3e6ae1d618'>
+    </xlime-media-item-card>
+
+Example using an xLiMe media-item object:
+
+    <xlime-media-item-card
+      itemObj='{
+         "url": "http://example.com", //xlime url for this media item
+         "type": "http://kdo.render-project.eu/kdo#NewsArticle",
+         "title": "Title of Article",
+         "content": { 
+            "full": "some long.... full content",
+            "preview": "short preview of full",
+          },
+          "created": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "lang": "en", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "creator": {
+             "label": "creator",
+             "url": "creator url"
+          },
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          }
+       }'>
+    </xlime-media-item-card>
+
+Example using polymer binding (Where `myItemObj` is an object like the one shown above):
+
+    <xlime-media-item-card
+      itemObj='{{myItemObj}}'>
+    </xlime-media-item-card>
+
+
+The rendered element will consist of either an `xlime-social-media-item-card`, `xlime-news-article-card` or `xlime-tv-segment-card`, depending on the type of the
+url or `itemObj` passed. If the `href` url could not be resolved to a valid media-item object, an error card will be shown instead.
+
+This component uses an `xlime public webserver` to retrieve the item-object for a given url.
+
+Height and width are specified as style attributes:
+
+    xlime-media-item-card {
+      height: 300px;
+      width: 50em;
+    }
+
+@group xLiMe
+@element xlime-media-item-card
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="xlime-media-item-card">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+        
+    <iron-ajax id="ajax" handle-as="json"
+                 url="http://localhost:8080/services/mediaItem"
+                 on-response="_externalDataLoaded"
+                 on-error="_ajaxRequestFailed"></iron-ajax>
+      <content></content>
+      <iron-pages id="delegateCard" selected="0">
+          <paper-card id="errorMessageCard">
+              <div class="card-content">{{_errorMessage}}</div>
+          </paper-card>
+              <xlime-social-media-item id="socMediaDelegateCard" itemObj='{}'></xlime-social-media-item>
+              <xlime-news-article-item id="newsDelegateCard" itemObj='{}'></xlime-news-article-item>
+              <xlime-tv-program-card id="tvDelegateCard" itemObj='{}'></xlime-tv-program-card>
+      </iron-pages>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-media-item-card',
+
+    properties: {
+
+      /**
+       * Sets the URL for the xLiMe media item to display. 
+       * Setting this value will trigger a request to retrieve an
+       * `itemObj` from the `xLiMe public server`.
+       *
+       * Currently supported media items with example URLs
+       *   * social media items: e.g. http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f
+       *   * news article item: e.g. http://ijs.si/article/367691732
+       *
+       * Planned media items that will be supported in future versions:
+       *   * zattoo videos: e.g. 
+       *
+       */
+      href: {
+        type: String,
+        observer: '_itemUrlChanged'
+      },
+        
+      /**
+       * The media item object to be displayed. You can set this value directly
+       * if you already have a suitable json object. Alternatively, you can just
+       * set the `href` property and this component will try to retrieve the itemObj value.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://kdo.render-project.eu/kdo#NewsArticle",
+       *       title: "Title of Article",
+       *       content: { 
+       *         full: "some long.... full content",
+       *         preview: "short preview of full",
+       *       },
+       *       created: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *       },
+       *       lang: "en", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       creator: {
+       *         label: "creator",
+       *         url: "creator url"
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/article"
+       *       }
+       *      }
+       */
+      itemObj: {
+          type: Object,
+          observer: '_itemObjChanged'
+      }, 
+
+      /**
+       * Stores an error message to show when the `itemObj` could not be calculated based 
+       * on the href. Or when the `itemObj` could not be mapped to one of the supported media-item types.
+       */
+      _errorMessage: {
+          type: String,
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created ');
+//        console.log("with local static map: ", this.$);        
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        console.log(this.localName + '#' + this.id + ' is ready');
+//        console.log("with local static map: ", this.$);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Triggered when the `href` property changes. Requests an item object for the new 
+     * `href` value from the `xLiMe public server`.
+     */
+    _itemUrlChanged: function() {
+        console.log("Item url changed");
+        if (typeof this.$ != 'undefined') {
+            this._errorMessage = null;
+            this.itemObj = null;
+
+            var params = {};
+            params.url = this.href;
+
+            this.$.ajax.params = params;
+            console.log("Set ajax params to ", params);
+            console.log("Generating ajax request for ", this.href);
+            this.$.ajax.generateRequest();
+            console.log("Generated ajax request for ", this.href);
+        } else {
+            console.log("Component not ready yet");
+        }
+    },
+
+    /**
+     * Triggered when the `itemObj` property changes. 
+     */
+    _itemObjChanged: function(e) {
+        function findDelegateIndex(aItemObj) {
+            if (aItemObj.url) {
+                if (aItemObj.url.startsWith("http://vico-research.com/social/")) return 1;
+                if (aItemObj.url.startsWith("http://ijs.si/article/")) return 2;
+                if (aItemObj.url.startsWith("http://zattoo.com/program/")) return 3;
+            }
+            return 0;
+        }
+
+        function findDelegateComponent(aDelegateIndex, staticMap) {
+            if (aDelegateIndex == 1) return staticMap.socMediaDelegateCard;
+            if (aDelegateIndex == 2) return staticMap.newsDelegateCard;
+            if (aDelegateIndex == 3) return staticMap.tvDelegateCard;
+            throw "Invalid delegatIndex " + aDelegateIndex;
+        }
+        
+        console.log("ItemObj changed");
+        if (typeof this.$ == 'undefined') {
+            console.log("component not ready yet");
+            return;
+        }
+//        console.log("Static map defined?", (typeof this.$));
+//        console.log("Static map", this.$);        
+        if (this.itemObj) {
+            var delegateIndex = findDelegateIndex(this.itemObj);
+            console.log("Determined delegateIndex " + delegateIndex);
+            var pages = this.$.delegateCard;
+            if (delegateIndex == 0) {
+                this._errorMessage = "Could not detect media item type for " + this.itemObj;
+                pages.select(delegateIndex);
+                return;
+            }
+            var delegateCard = findDelegateComponent(delegateIndex, this.$); //pages.items[delegateIndex]; //sometimes the items appear empty, so we get component by id
+//            console.log("DelegateCard to be selected", delegateCard);
+            delegateCard.itemObj = this.itemObj;
+            pages.selected = delegateIndex;
+        } else {
+            this._errorMessage = "Nothing to show/Null itemObj"
+//            console.log("Updating delegateCard to show error message since itemObj is null", this.$.delegateCard);
+//            console.log("What about doc querySelector?", document.querySelector('#delegateCard'));                    
+            
+            try {
+                this.$.delegateCard.selected = 0;
+//                this.$.delegateCard.select(0);
+            } catch (e) {
+               console.log("Caught error trying to select error: ", e);
+            }
+        }
+    },
+      
+    /**
+     * Handles responses from the `iron-ajax` element. This occurs when a 
+     * new `itemObj` arrives. This method analyses the response and updates 
+     * the `delegateCard` component.
+     */  
+    _externalDataLoaded: function(e) {
+        console.log('Ajax request response: ', e.detail.response);
+        if (e.detail.response && e.detail.response.mediaItems && e.detail.response.mediaItems.length == 1) {
+            var mit = e.detail.response.mediaItems[0];
+            console.log('Found media item: ', mit);
+            if (mit) {
+                this.itemObj = mit;
+                console.log('updated itemObj ', this.itemObj);
+            } else {
+                this._errorMessage = "Error retrieving information about mediaItem  " + href;
+                this.$.delegateCard.select(0);
+//                this.$.errorMessageCard.hidden = false;
+            }
+        } else {
+            this._errorMessage = "Error retrieving information about mediaItem " + href;
+            this.$.delegateCard.select(0);
+//            this.$.errorMessageCard.hidden = false;
+        }
+    },
+      
+    _ajaxRequestFailed: function(e) {
+        console.log('Handle request error:', e);
+        this._errorMessage = e.detail.error.message
+        this.$.delegateCard.select(0);
+//        this.$.errorMessageCard.hidden = false;
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-social-media-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

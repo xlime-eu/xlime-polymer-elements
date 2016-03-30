@@ -7,9 +7,9 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-      <title>xlime-social-media-item Demo</title>
+      <title>xlime-media-item-card Demo</title>
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-      <link rel="import" href="../xlime-social-media-item.html">
+      <link rel="import" href="../xlime-media-item-card.html">
       <link rel="import" href="../../paper-input/paper-input.html">
 
       <style is="custom-style">
@@ -23,34 +23,72 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            margin-left: auto;
            margin-right: auto;
        }
+       :root{
+           --iron-image-width: 80px;
+           --iron-image-height: 60px;
+       }
       </style>    
   </head>
   <body unresolved>
 
-      <h4>An example of <code>&lt;xlime-social-media-item&gt;</code></h4>
-      <div class="vertical-section">
-          
-          <p><paper-input id="inputUrl" label="xLiMe Social Media Item URL" placeholder="e.g. http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f"></paper-input>
-          <button id="update">Update Item</button></p>
-      </div>
+      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a social media item)</h4>
 
       <div class="vertical-section">
-          <xlime-social-media-item href='http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f' fancy>
-          </xlime-social-media-item>
+          <xlime-media-item-card id="card-one" href='http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6'>
+          </xlime-media-item-card>
+          <p>
+          <paper-input id="inputUrl-one" label="xLiMe Media Item URL" placeholder="e.g. http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6"></paper-input>
+          <button id="update-one">Update Item</button></p>
       </div>
+
+      <br>
       
+      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a news articles)</h4>
+      
+      <div class="vertical-section">
+          <xlime-media-item-card id="card-two" href='http://ijs.si/article/367691329'>
+          </xlime-media-item-card>
+          <p>
+          <paper-input id="inputUrl-two" label="xLiMe Media Item URL" placeholder="e.g. http://ijs.si/article/367691329"></paper-input>
+          <button id="update-two">Update Item</button></p>
+      </div>
+
+      <br>
+      
+      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a tv programme)</h4>
+
+      <div class="vertical-section">
+          <xlime-media-item-card id="card-three" href='http://zattoo.com/program/111277860'>
+          </xlime-media-item-card>
+          <p>
+          <paper-input id="inputUrl-three" label="xLiMe Media Item URL" placeholder="e.g. http://zattoo.com/program/111277860"></paper-input>
+          <button id="update-three">Update Item</button></p>
+      </div>
+
       <script>
-       var socMediaItem = document.querySelector('xlime-social-media-item');
-       
-       document.querySelector('#update').addEventListener('click', function() {
-           console.log("updating media item component ", socMediaItem);
-           var inUrl = document.querySelector('#inputUrl');
+       var updateCard = function(which) {
+           console.log("updating media item card ", which);
+           var cardElt = document.querySelector('#card-' + which);
+           console.log("updating media item component ", cardElt);
+           var inUrl = document.querySelector('#inputUrl-' + which);
            console.log("using inputUrl:", inUrl);
-           console.log("old url: ", socMediaItem.href);
+           console.log("old url: ", cardElt.href);
            console.log("new url: ", inUrl.value.trim());
-           socMediaItem.href = inUrl.value.trim();
+           cardElt.href = inUrl.value.trim();
+       }
+
+       document.querySelector('#update-one').addEventListener('click', function() {
+           updateCard("one");
        });
-       
+
+       document.querySelector('#update-two').addEventListener('click', function() {
+           updateCard("two");
+       });
+
+       document.querySelector('#update-three').addEventListener('click', function() {
+           updateCard("three");
+       });
+
       </script>
 
   </body>
