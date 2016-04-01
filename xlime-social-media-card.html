@@ -4,21 +4,16 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-item/paper-icon-item.html">
-<link rel="import" href="../paper-item/paper-item-body.html">
-<link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
 
 <!--
-`xlime-social-media-item` is a web component, which renders an xLiMe social-media post as an
-item intended to be included in a list. Hence it only renders the most basic information about
-the social-media post in order to help users to identify the contents, for a more complete view
-of the social-media post you should use the `xlime-social-media-card` component.
+`xlime-social-media-card` is a web component, which renders an xLiMe social-media item.
 
 Example:
 
-    <xlime-social-media-item
-      item-obj='{ "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
+    <xlime-social-media-card
+      item-obj=' "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
          "type": "http://rdfs.org/sioc/ns#MicroPost",
          "content": { 
             "full": "some long.... full description",
@@ -41,28 +36,55 @@ Example:
           "source": "http://example.com/microPost",
           "sourceType": "MicroBlog"
        }'>
-    </xlime-social-media-item>
+    </xlime-social-media-card>
+
+The rendered element will consist of a card, showing the following information about the
+social media item:
+- the content: if the content is very long, only a preview is shown
+- the language
+- the author/creator
+- the date-time (when the social media item was created)
+- the publisher
+- the following actions:
+  + a link to view the original content at the publisher's site
+  + if the content is long: a toggle to swap between the preview and the full content.
 
 The `itemObj` follows the format returned by the `xlime public webserver`.
 
+Height and width are specified as style attributes:
+
+    xlime-media-card {
+      height: 300px;
+      width: 50em;
+    }
+
 @group xLiMe
-@element xlime-social-media-item
-@demo demo/xlime-social-media-item.html
+@element xlime-social-media-card
+@demo demo/xlime-social-media-card.html
 @hero hero.svg
 -->
-<dom-module id="xlime-social-media-item">
+<dom-module id="xlime-social-media-card">
 
   <template>
     <style include="xlime-shared-styles"></style>
-    <paper-icon-item id="socMediaItem" class='fancy'>
-        <div class="small-avatar" item-icon>{{itemObj.lang}}</div>
-        <paper-item-body two-line>
-            <div>{{_currentContent}}</div>
-            <div secondary>on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
-        </paper-item-body>
-        <paper-icon-button icon="star" alt="favourite this!">
-        </paper-icon-button>
-    </paper-icon-item>
+    <content></content>
+    <paper-card id="socMediaCard" class='fancy'>
+      <div class="card-content">
+        <div class="avatar">{{itemObj.lang}}</div>
+        <div class="title">
+            <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
+            <div class="small">on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{_currentContent}}</div>
+      </div>
+      <div class="card-actions">
+        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
+        <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+      </div>
+    </paper-card>
   </template>
 
 </dom-module>
@@ -71,7 +93,7 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
 
   Polymer({
 
-    is: 'xlime-social-media-item',
+    is: 'xlime-social-media-card',
 
     properties: {
         
@@ -163,6 +185,11 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
             return 'microPost';
         }
 
+        function shouldHideTogglePreviewBtn(content) {
+            if (content && content.full && content.preview) return false;
+            else return true;
+        }
+
         function calcCurrent(content) {
             console.log("Calculating currentContent for", content);
             if (content && content.full) {
@@ -180,11 +207,34 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             this._currentContent = calcCurrent(contentObj);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(contentObj);
 //            console.log('updated itemObj ', this.itemObj);
 //            console.log('itemObj.content', contentObj);
         } else this._currentContent = "Empty"
     },
-            
+      
+    _togglePreview: function() {
+        console.log('toggling preview');
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            if (contentObj.current === contentObj.full) {
+                console.log('Showing preview object');
+                contentObj.current = contentObj.preview;
+            } else {
+                console.log('Showing full object');
+                contentObj.current = contentObj.full;
+            }
+        } else console.log('No itemObj available', this.itemObj);
+    },
+
+    _togglePreviewLabel: function(contentContent) {
+        if (this.itemObj && this.itemObj.content) {
+            if (this._currentContent === this.itemObj.content.full) {
+                return 'Collapse'
+            } else return 'Expand';
+        } else return 'Expand';
+    },
+      
     // Element Behavior
 
     /**
@@ -194,7 +244,7 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-social-media-item says, ' + response;
+      return 'xlime-social-media-card says, ' + response;
     },
      */
 

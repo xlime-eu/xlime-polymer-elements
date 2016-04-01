@@ -3,9 +3,9 @@
 Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
-<link rel="import" href="xlime-social-media-item.html">
+<link rel="import" href="xlime-social-media-card.html">
 <link rel="import" href="xlime-tv-program-card.html">
-<link rel="import" href="xlime-news-article-item.html">
+<link rel="import" href="xlime-news-article-card.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-card/paper-card.html">
@@ -30,7 +30,7 @@ Example using an xLiMe media-item url:
 Example using an xLiMe media-item object:
 
     <xlime-media-item-card
-      itemObj='{
+      item-obj='{
          "url": "http://example.com", //xlime url for this media item
          "type": "http://kdo.render-project.eu/kdo#NewsArticle",
          "title": "Title of Article",
@@ -62,7 +62,7 @@ Example using an xLiMe media-item object:
 Example using polymer binding (Where `myItemObj` is an object like the one shown above):
 
     <xlime-media-item-card
-      itemObj='{{myItemObj}}'>
+      item-obj='{{myItemObj}}'>
     </xlime-media-item-card>
 
 
@@ -97,9 +97,9 @@ Height and width are specified as style attributes:
           <paper-card id="errorMessageCard">
               <div class="card-content">{{_errorMessage}}</div>
           </paper-card>
-              <xlime-social-media-item id="socMediaDelegateCard" itemObj='{}'></xlime-social-media-item>
-              <xlime-news-article-item id="newsDelegateCard" itemObj='{}'></xlime-news-article-item>
-              <xlime-tv-program-card id="tvDelegateCard" itemObj='{}'></xlime-tv-program-card>
+          <xlime-social-media-card id="socMediaDelegateCard" item-obj='{}'></xlime-social-media-card>
+          <xlime-news-article-card id="newsDelegateCard" item-obj='{}'></xlime-news-article-card>
+          <xlime-tv-program-card id="tvDelegateCard" item-obj='{}'></xlime-tv-program-card>
       </iron-pages>
   </template>
 
@@ -331,7 +331,7 @@ Height and width are specified as style attributes:
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-social-media-item says, ' + response;
+      return 'xlime-media-item-card says, ' + response;
     },
      */
 

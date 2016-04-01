@@ -4,15 +4,20 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
-<link rel="import" href="../paper-card/paper-card.html">
-<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <!--  
 <link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
 -->
 <link rel="import" href="../iron-icons/social-icons.html">
 
 <!--
-`xlime-news-article-item` is a web component, which renders an xLiMe news-article item, i.e.
+`xlime-news-article-item` is a web component, which renders an xLiMe news-article item as an
+item intended to be included in a list. Hence it only renders the most basic information about
+the news article in order to help users to identify the contents. For a more complete view of
+the news article you should use the `xlime-news-article-card` component.
+
 
 The news-article-item is associated to a news-article `itemObj`ect, which contains the information
 to be rendered by this component.
@@ -20,7 +25,7 @@ to be rendered by this component.
 Example:
 
     <xlime-news-article-item
-      itemObj='{
+      item-obj='{
          "url": "http://example.com", //xlime url for this media item
          "type": "http://kdo.render-project.eu/kdo#NewsArticle",
          "title": "Title of Article",
@@ -49,27 +54,6 @@ Example:
        }'>
     </xlime-news-article-item>
 
-The rendered element will consist of a card, showing the following information about the
-social media item:
-- the content: if the content is very long, only a preview is shown
-- the language
-- the author/creator
-- the date-time (when the social media item was created)
-- the publisher
-- the following actions:
-  + a link to view the original content at the publisher's site
-  + if the content is long: a toggle to swap between the preview and the full content.
-
-This component uses an `xlime public webserver` to retrieve the information about the
-social media item.
-
-Height and width are specified as style attributes:
-
-    xlime-media-item {
-      height: 300px;
-      width: 50em;
-    }
-
 @group xLiMe
 @element xlime-news-article-item
 @demo demo/xlime-news-article-item.html
@@ -79,29 +63,15 @@ Height and width are specified as style attributes:
 
   <template>
     <style include="xlime-shared-styles"></style>
-
-    <content></content>
-    <paper-card id="newsArticleCard" class='fancy'>
-      <div class="card-content">
-          <div class="avatar">
-              <iron-icon class='fancy' icon="social:public"></iron-icon>
-              <!--  
-              {{itemObj.lang}}
-              -->
-          </div>
-        <div class="title">
-            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
-            <div class="small">published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
-        </div>
-      </div>
-
-      <div class="card-content">
-        <div class="medium">{{_currentContent}}</div>
-      </div>
-      <div class="card-actions">
-        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
-      </div>
-    </paper-card>
+    <paper-icon-item id="newsArticleItem" class='fancy'>
+        <div class="small-avatar" item-icon><iron-icon icon="social:public"></iron-icon></div>
+        <paper-item-body two-line>
+            <div>{{itemObj.title}}</div>
+            <div secondary>published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </paper-item-body>
+        <paper-icon-button icon="star" alt="favourite this!">
+        </paper-icon-button>
+    </paper-icon-item>
   </template>
 
 </dom-module>
@@ -149,12 +119,6 @@ Height and width are specified as style attributes:
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      },
-      /**
-       * Private variable used for toggling the full and preview modes of the content.
-       */
-      _currentContent: {
-          type: String
       }
     },
       
@@ -189,63 +153,12 @@ Height and width are specified as style attributes:
       // Use this to clean up anything you did in `attached`.
     },
 
-    _itemObjChanged: function(e) {
-        function shouldHideTogglePreviewBtn(content) {
-            if (content && content.full && content.preview) return false;
-            else return true;
-        }
-
-        function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
-            if (content.full) {
-                if (content.preview) {
-                    return content.preview;
-                } else {
-                    return content.full;
-                }
-            } else {
-                return "Missing content";
-            }
-        }
-        
+    _itemObjChanged: function(e) {        
         console.log('itemObjChanged evt', e);
         if (this.itemObj) {
-            this._currentContent = calcCurrent(this.itemObj.content);
-            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
             console.log('updated itemObj ', this.itemObj);
             console.log('itemObj.content', this.itemObj.content);
         } else this._currentContent = "Empty"
-    },
-
-    _togglePreview: function() {
-        console.log('toggling preview');
-        if (this.itemObj) {
-            var contentObj = this.itemObj.content;
-            if (this._currentContent === contentObj.full) {
-                console.log('Showing preview object');
-                this._currentContent = contentObj.preview;
-            } else {
-                console.log('Showing full object');
-                this._currentContent = contentObj.full;
-            }
-        } else console.log('No itemObj available', this.itemObj);
-    },
-
-    _togglePreviewLabel: function(currentContent) {
-        if (this.itemObj && this.itemObj.content) {
-            if (this._currentContent === this.itemObj.content.full) {
-                return 'Collapse'
-            } else return 'Expand';
-        } else return 'Expand';
-    },
-
-    _formattedDate: function(dateStr) {
-        try {
-            var dateObj = new Date(dateStr);
-            return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
-        } catch(err) {
-            return dateStr;
-        }
     },
       
     // Element Behavior

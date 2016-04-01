@@ -7,11 +7,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-      <title>xlime-news-article-item Demo</title>
+      <title>xlime-news-article-media-card Demo</title>
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-      <link rel="import" href="../xlime-news-article-item.html">
+      <link rel="import" href="../xlime-news-article-card.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
-      <link rel="import" href="../../paper-item/paper-item.html">
 
       <style is="custom-style">
        body {
@@ -26,20 +25,45 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
        }
       </style>    
   </head>
-  <body onload="updateItem()" unresolved>
+  <body onload="updateCard()" unresolved>
 
-      <h4>An example of <code>&lt;xlime-news-article-item&gt;</code></h4>
+      <h4>An example of <code>&lt;xlime-news-article-card&gt;</code></h4>
       <div class="vertical-section">
-          <div role="listbox">
-              <paper-item>First item</paper-item>
-              <xlime-news-article-item item-obj='{}'>
-              </xlime-news-article-item>
-              <paper-item>Last item</paper-item>
-          </div>
+          <xlime-news-article-card item-obj="{}" fancy>
+          </xlime-news-article-card>
       </div>
+      
+      <script>
+       var newsArtCard = document.querySelector('xlime-news-article-card');
+
+       function updateCard() {
+           console.log("updating media item component ", newsArtCard);
+           var inElt = document.querySelector('#inputObj');
+           console.log("using inputObj:", inElt);
+           if (newsArtCard.itemObj) {
+    //           console.log("old obj: ", newsArtCard.itemObj);
+//           var newObj = JSON.parse(inElt.value.trim());
+               //         console.log("new obj: ", newObj);
+           }
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               window.alert("error parsing input value: " + err);
+               newObj = {};
+           }
+           console.log("Parsed object as ", newObj);
+           newsArtCard.itemObj = newObj;
+       }
+       
+//       document.querySelector('#update').addEventListener('click', updateCard());
+       
+      </script>
       <div class="vertical-section">
-          <p><paper-textarea id="inputObj" label="xLiMe News Article Object"
-                          value='{
+          
+          <p><paper-textarea id="inputObj" label="xLime News Article Item Object"
+                             value='{
 "url": "http://ijs.si/article/367691732",
 "content": {
        "full": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
@@ -60,36 +84,9 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 "location": null,
 "type": "http://kdo.render-project.eu/kdo#NewsArticle"
 }'></paper-textarea>
-          <button id="update">Update Item</button></p>
+          <button id="update" onclick="updateCard()">Update Item</button></p>
       </div>
 
-      
-      <script>
-       var newsItem = document.querySelector('xlime-news-article-item');
-
-       function updateItem() {
-           console.log("updating media item component ", newsItem);
-           var inElt = document.querySelector('#inputObj');
-           if (newsItem.itemObj) {
-               console.log("using inputObj:", inElt);
-               console.log("old itemObj: ", newsItem.itemObj);
-               console.log("new itemObj: ", inElt.value.trim());
-           }
-           var newObj = {};
-           try {
-               newObj = JSON.parse(inElt.value);
-           } catch (err) {
-               console.log("error parsing input value", err);
-               newObj = {};
-           }
-           newsItem.itemObj = newObj;
-       }
-       
-       document.querySelector('#update').addEventListener('click', function() {
-           updateItem();
-       });
-       
-      </script>
 
   </body>
 </html>

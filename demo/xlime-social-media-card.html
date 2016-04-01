@@ -7,11 +7,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-      <title>xlime-social-media-item Demo</title>
+      <title>xlime-social-media-card Demo</title>
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-      <link rel="import" href="../xlime-social-media-item.html">
+      <link rel="import" href="../xlime-social-media-card.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
-      <link rel="import" href="../../paper-item/paper-item.html">
 
       <style is="custom-style">
        body {
@@ -26,16 +25,12 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
        }
       </style>    
   </head>
-  <body onload="updateItem()" unresolved>
+  <body onload="updateCard()" unresolved>
 
-      <h4>An example of <code>&lt;xlime-social-media-item&gt;</code></h4>
+      <h4>An example of <code>&lt;xlime-social-media-card&gt;</code></h4>
       <div class="vertical-section">
-          <div role="listbox">
-              <paper-item>First item</paper-item>
-              <xlime-social-media-item item-obj='{}'>
-              </xlime-social-media-item>
-              <paper-item>Last item</paper-item>
-          </div>
+          <xlime-social-media-card item-obj='{}'>
+          </xlime-social-media-card>
       </div>
       <div class="vertical-section">
           <p><paper-textarea id="inputObj" label="xLiMe Social Media Object"
@@ -62,19 +57,19 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
    },
    "type" : "http://rdfs.org/sioc/ns#MicroPost" 
 }'></paper-textarea>
-          <button id="update">Update Item</button></p>
+          <button id="update">Update Card</button></p>
       </div>
 
       
       <script>
-       var socMediaItem = document.querySelector('xlime-social-media-item');
+       var socMediaCard = document.querySelector('xlime-social-media-card');
 
-       function updateItem() {
-           console.log("updating media item component ", socMediaItem);
+       function updateCard() {
+           console.log("updating media item component ", socMediaCard);
            var inElt = document.querySelector('#inputObj');
-           if (socMediaItem.itemObj) {
+           if (socMediaCard.itemObj) {
                console.log("using inputObj:", inElt);
-               console.log("old itemObj: ", socMediaItem.itemObj);
+               console.log("old itemObj: ", socMediaCard.itemObj);
                console.log("new itemObj: ", inElt.value.trim());
            }
            var newObj = {};
@@ -84,11 +79,11 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                console.log("error parsing input value", err);
                newObj = {};
            }
-           socMediaItem.itemObj = newObj;
+           socMediaCard.itemObj = newObj;
        }
        
        document.querySelector('#update').addEventListener('click', function() {
-           updateItem();
+           updateCard();
        });
        
       </script>

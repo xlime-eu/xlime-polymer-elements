@@ -1,82 +1,87 @@
 <!--
 @license
-Copyright (c) 2016 Expert System Iberia. All rights reserved.
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+<link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-card/paper-card.html">
-<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<!--  
+<link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
+-->
+<link rel="import" href="../iron-icons/social-icons.html">
 
 <!--
-`xlime-tv-program-card` is a web component, which renders an xLiMe tv-program, i.e.
+`xlime-news-article-card` is a web component, which renders an xLiMe news-article item, i.e.
 
-zattoo-tv-program (or segment?).
+The news-article-card is associated to a news-article `itemObj`ect, which contains the information
+to be rendered by this component.
 
 Example:
 
-    <xlime-tv-program-card
+    <xlime-news-article-card
       item-obj='{
-         "url": "http://zattoo.com/program/111277860", //xlime url for this media item
-         "type": "http://www.w3.org/ns/ma-ont#MediaResource",
-         "title": "Title for TV programme",
-         "description": { 
-            "full": "some long.... full description",
+         "url": "http://example.com", //xlime url for this media item
+         "type": "http://kdo.render-project.eu/kdo#NewsArticle",
+         "title": "Title of Article",
+         "content": { 
+            "full": "some long.... full content",
             "preview": "short preview of full",
           },
-          "broadcastDate": {
+          "created": {
              "timestamp": 0,
              "formatted": "01/01/1970 00:00:00",
              "timeAgo": "46 years ago"
           },
-          "relatedImage": "http://example.com/example.png", //
+          "lang": "en", //
           "publisher": {
              "label": "some publisher",
              "url": "http://example.com/"
           },
-          "duration": {
-             "totalSeconds": 1800,
-             "hours": 0,
-             "minutes": 30,
-             "seconds": 0
+          "creator": {
+             "label": "creator",
+             "url": "creator url"
           },
           "source": {
              "label": "source label",
              "url": "http://example.com/article"
-          },
-          "relatedLocation": {
-             "lon": 0,
-             "lat": 0,
-             "label": "GB"
           }
        }'>
-    </xlime-tv-program-card>
+    </xlime-news-article-card>
 
-Example using polymer binding (Where `myItemObj` is an object like the one shown above):
-
-    <xlime-tv-program-card
-      item-obj='{{myItemObj}}'>
-    </xlime-tv-program-card>
+The rendered element will consist of a card, showing the following information about the
+news article:
+- the title
+- the content: if the content is very long, only a preview is shown
+- the language
+- the author/creator
+- the date-time (when the social media item was created)
+- the publisher
+- the following actions:
+  + if the content is long: a toggle to swap between the preview and the full content.
 
 @group xLiMe
-@element xlime-tv-program-card
-@demo demo/xlime-tv-program-card.html
+@element xlime-news-article-card
+@demo demo/xlime-news-article-card.html
 @hero hero.svg
 -->
-<dom-module id="xlime-tv-program-card">
+<dom-module id="xlime-news-article-card">
 
   <template>
     <style include="xlime-shared-styles"></style>
-    
+
     <content></content>
-    <paper-card id="tvProgramCard" class='fancy'>
+    <paper-card id="newsArticleCard" class='fancy'>
       <div class="card-content">
-          <div class="avatar" style="background:white">
-              <iron-image style="width:64px; height:48px" src='{{itemObj.relatedImage}}'></iron-image>
+          <div class="avatar">
+              <iron-icon class='fancy' icon="social:public"></iron-icon>
+              <!--  
+              {{itemObj.lang}}
+              -->
           </div>
         <div class="title">
             <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
-            <div class="small">broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
+            <div class="small">published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
         </div>
       </div>
 
@@ -95,49 +100,46 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
   Polymer({
 
-    is: 'xlime-tv-program-card',
+    is: 'xlime-news-article-card',
 
     properties: {
-        
+
       /**
-       * The tv-program item to be displayed.
+       * The news media item to be displayed.
        * The object will typically be something like: 
        *
        *      {
        *       url: "http://example.com", //xlime url for this media item
-       *       type: "http://www.w3.org/ns/ma-ont#MediaResource",
-       *       title: "Title of TV Program",
-       *       description: { 
-       *         full: "some long.... full description",
+       *       type: "http://kdo.render-project.eu/kdo#NewsArticle",
+       *       title: "Title of Article",
+       *       content: { 
+       *         full: "some long.... full content",
        *         preview: "short preview of full",
        *       },
-       *       broadcastDate: {
+       *       created: {
        *         "timestamp": 0,
        *         "formatted": "01/01/1970 00:00:00",
        *         "timeAgo": "46 years ago"
        *       },
-       *       relatedImage: "http://example.com/example.png", //
+       *       lang: "en", //
        *       publisher: {
        *         label: "some publisher",
        *         url: "http://example.com/"
        *       },
-       *       duration: {
-       *         totalSeconds: 1800,
-       *         hours: 0,
-       *         minutes: 30,
-       *         seconds: 0
+       *       creator: {
+       *         label: "creator",
+       *         url: "creator url"
        *       },
        *       source: {
        *         label: "source label",
-       *         url: "http://example.com/tv-program"
+       *         url: "http://example.com/article"
        *       }
        *      }
        */
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      }, 
-
+      },
       /**
        * Private variable used for toggling the full and preview modes of the content.
        */
@@ -185,7 +187,8 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
         function calcCurrent(content) {
             console.log("Calculating currentContent for", content);
-            if (content && content.full) {
+            if (typeof content == 'undefined') return "Missing content";
+            if (content.full) {
                 if (content.preview) {
                     return content.preview;
                 } else {
@@ -198,13 +201,13 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
         
         console.log('itemObjChanged evt', e);
         if (this.itemObj) {
-            this._currentContent = calcCurrent(this.itemObj.description);
-            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
+            this._currentContent = calcCurrent(this.itemObj.content);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
             console.log('updated itemObj ', this.itemObj);
-            console.log('itemObj.description', this.itemObj.description);
+            console.log('itemObj.content', this.itemObj.content);
         } else this._currentContent = "Empty"
     },
-      
+
     _togglePreview: function() {
         console.log('toggling preview');
         if (this.itemObj) {
@@ -236,7 +239,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-tv-program-card says, ' + response;
+      return 'xlime-news-article-card says, ' + response;
     },
      */
 

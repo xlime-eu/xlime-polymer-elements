@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-media-item-item Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../../polymer/polymer.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+      <link rel="import" href="../xlime-media-item-item.html">
+      <link rel="import" href="../../paper-listbox/paper-listbox.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">      
+
+      <style is="custom-style">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       :root{
+           --iron-image-width: 80px;
+           --iron-image-height: 60px;
+       }
+      </style>
+      <dom-module id="x-app">
+          <template>
+              <iron-ajax url="data/media-items.json" last-response="{{data}}" auto></iron-ajax>
+              <paper-listbox multi>
+                  <template is="dom-repeat" items="{{data}}">
+                      <!-- 
+                      <paper-item>index: {{index}}. url: {{item.url}}</paper-item>
+                      -->
+                      <xlime-media-item-item item="{{item}}"></xlime-media-item-item>
+                  </template>
+              </paper-listbox>
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               }
+           });
+       });
+      </script>
+  </head>
+  
+  <body onLoad="updateItem()" unresolved>
+      
+      <h4>An example component</h4>
+      <div class="vertical-section">
+      <xlime-media-item-item id="sample-media-item-item" item="{}"></xlime-media-item-item>
+                <p><paper-textarea id="inputObj" label="xLiMe TV Program Object"
+                          value='{
+"url": "http://zattoo.com/program/111277860",
+"description": {
+       "full": "In-depth reports on the major international and US news of the day with Katty Kay."
+},
+"title": "BBC World News America",
+"broadcastDate": {
+              "timestamp": 1458163800000,
+              "formatted": "16/03/2016 10:30:00",
+              "timeAgo": "12 days ago"
+ },
+ "duration": {
+              "totalSeconds": 1800,
+              "hours": 0,
+              "minutes": 30,
+              "seconds": 0
+},
+"source": {
+   "url": "http://zattoo.com/program/bbc-world-service/111277860",
+   "label": "BBC World News"
+},
+"relatedImage": "http://images.zattic.com/system/images/fba8/c599/ebad/6852/c496/format_480x360.jpg",
+"publisher": {
+  "url": null,
+  "label": "BBC World News"
+},
+"relatedLocation": {
+   "label": "GB"                                    
+},
+"type": "http://www.w3.org/ns/ma-ont#MediaResource"
+                                 }'></paper-textarea>
+                    
+          <button id="update">Update Item</button></p>
+      </div>
+
+      <br>
+      <h4>A larger list (read from a data file)</h4>
+      <x-app></x-app>
+      
+      <script>
+       var item = document.querySelector('#sample-media-item-item');
+
+       function updateItem() {
+           console.log("updating media item component ", item);
+           var inElt = document.querySelector('#inputObj');
+           if (item.itemObj) {
+               console.log("using inputObj:", inElt);
+               console.log("old itemObj: ", item.itemObj);
+               console.log("new itemObj: ", inObj.value.trim());
+           }
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           item.item = newObj;
+       }
+       
+       document.querySelector('#update').addEventListener('click', function() {
+           updateItem();
+       });
+      </script>
+  </body>
+</html>
