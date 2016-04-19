@@ -32,7 +32,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <div class="vertical-section">
           <div role="listbox">
               <paper-item>First item</paper-item>
-              <xlime-tv-program-item item-obj='{}'>
+              <xlime-tv-program-item log-level="INFO" item-obj='{}'>
               </xlime-tv-program-item>
               <paper-item>Last item</paper-item>
           </div>
@@ -75,21 +75,25 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 
       
       <script>
+       var logLevel = "INFO";
        var tvItem = document.querySelector('xlime-tv-program-item');
 
        function updateItem() {
-           console.log("updating media item component ", tvItem);
+           if (logLevel === "DEBUG")
+               console.log("updating media item component ", tvItem);
            var inElt = document.querySelector('#inputObj');
            if (tvItem.itemObj) {
-               console.log("using inputObj:", inElt);
-               console.log("old itemObj: ", tvItem.itemObj);
-               console.log("new itemObj: ", inElt.value.trim());
+               if (logLevel === "DEBUG") {
+                   console.log("using inputObj:", inElt);
+                   console.log("old itemObj: ", tvItem.itemObj);
+                   console.log("new itemObj: ", inElt.value.trim());
+               }
            }
            var newObj = {};
            try {
                newObj = JSON.parse(inElt.value);
            } catch (err) {
-               console.log("error parsing input value", err);
+               console.error("error parsing input value", err);
                newObj = {};
            }
            tvItem.itemObj = newObj;

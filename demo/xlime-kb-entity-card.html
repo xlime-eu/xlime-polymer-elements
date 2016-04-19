@@ -1,0 +1,158 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-kb-entity-card Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../../polymer/polymer.html">
+      <link rel="import" href="../xlime-kb-entity-card.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">      
+
+      <style is="custom-style">
+       :root {
+           --xlime-primary-background-color: #65842E;
+           --xlime-highlight-color: #FFFFB2;
+           --paper-card-content: {
+               background-color: #FFFFB2;
+               border-width: 1px 0 0 0;
+               border-style: solid;
+               border-color: #679B00;
+           }
+       }
+       body {
+           background-color: var(#FFFFB2);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+      </style>
+      <dom-module id="demo-kb-entity-app">
+          <template>
+              <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto></iron-ajax>
+              <xlime-kb-entity-card entity="[[getEntity(entities.*, 0)]]" on-statement-related-tap="myHandleStatementRelatedTap">
+              </xlime-kb-entity-card>
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'demo-kb-entity-app',
+               properties: {
+                   entities: {
+                       type: Array
+                   },
+                   baseXlimeServiceUrl: {
+                       type: String,
+                       value: "http://expertsystemlab.com:8080/frontend-services"
+                   }
+               },
+               myHandleStatementRelatedTap: function(e, detail) {
+                   console.log("Handling statementRelatedTap", e);
+                   console.log("Handling statementRelatedTap", detail);
+                   var ajax = this.$$('iron-ajax');
+                   var params = {};
+                   params.url = detail.obj.url;
+                   ajax.params = params;
+               },
+               getEntity: function(change, index) {
+                   return change.base[index];
+               }
+           });
+       });
+      </script>
+  </head>
+  <body unresolved>
+  <!-- 
+  <body onload="updateCard()" unresolved>
+      <h4>An example of <code>&lt;xlime-kb-entity-card&gt;</code></h4>
+      <div class="vertical-section">
+          <xlime-kb-entity-card entity='{}'>
+          </xlime-kb-entity-card>
+      </div>
+      <div class="vertical-section">
+          <p><paper-textarea id="inputObj" label="xLiMe KB Entity Object"
+                             value='{
+ "entity":{
+   "url":"http://dbpedia.org/resource/Berlin",
+   "label":"Berlin",
+   "depictions":["http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg",
+         "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"],
+   "types":["http://dbpedia.org/ontology/Place"]},
+ "type":"http://example.com/entitySummary",
+ "statements":[{"relation":{"url":"http://dbpedia.org/ontology/country",
+    "label":"country"},
+    "related":{"url":"http://dbpedia.org/resource/Germany","label":"Germany"},
+    "rankValue":4471.55810546875},
+   {"relation":{"url":"http://dbpedia.org/property/cities","label":"cities of"},
+    "related":{"url":"http://dbpedia.org/resource/Europe","label":"Europe"},
+    "rankValue":2386.617919921875},
+   {"relation":{"url":"http://dbpedia.org/ontology/deathPlace","label":"death place of"},
+    "related":{"url":"http://dbpedia.org/resource/Adolf_Hitler","label":"Adolf Hitler"},
+    "rankValue":1011.698974609375},
+  {"relation":{"url":"http://dbpedia.org/property/southeast","label":"Southeast of"},
+   "related":{"url":"http://dbpedia.org/resource/Hamburg","label":"Hamburg"},
+   "rankValue":982.0769653320312},
+  {"relation":{"url":"http://dbpedia.org/ontology/capital","label":"capital of"},
+   "related":{"url":"http://dbpedia.org/resource/Prussia","label":"Prussia"},
+   "rankValue":967.6289672851562}],
+ "topK":5
+}'></paper-textarea>
+          <button id="update">Update Card</button></p>
+      </div>
+
+      -->
+      
+      <br>
+      <h4>A dynamic example, click on the entity names to refresh the card</h4>
+      <demo-kb-entity-app></demo-kb-entity-app>
+
+      
+      <script>
+/* 
+       var card = document.querySelector('xlime-kb-entity-card');
+
+       function updateCard() {
+           console.log("updating media item component ", card);
+           var inElt = document.querySelector('#inputObj');
+           if (card.entity) {
+               console.log("using inputObj:", inElt);
+               console.log("old entity: ", card.entity);
+               console.log("new entity: ", inElt.value.trim());
+           }
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           card.entity = newObj;
+       }
+       
+       document.querySelector('#update').addEventListener('click', function() {
+           updateCard();
+       });
+
+       function handleStatementRelatedTap(e) {
+          console.log("Handle statementRelatedTap", e);           
+       }
+       
+      card.addEventListener('statementRelatedTap', function(e) {
+           handleStatementRelatedTap(e);
+       });
+  */     
+      </script>
+
+  </body>
+</html>

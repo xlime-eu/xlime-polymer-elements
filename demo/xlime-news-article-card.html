@@ -25,7 +25,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
        }
       </style>    
   </head>
-  <body onload="updateCard()" unresolved>
+  <body onLoad="updateCard()" unresolved>
 
       <h4>An example of <code>&lt;xlime-news-article-card&gt;</code></h4>
       <div class="vertical-section">
@@ -47,7 +47,9 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            }
            var newObj = {};
            try {
-               newObj = JSON.parse(inElt.value);
+               var textVal = inElt.value;
+               console.log("parsing as json ", textVal);
+               newObj = JSON.parse(textVal);
            } catch (err) {
                console.log("error parsing input value", err);
                window.alert("error parsing input value: " + err);

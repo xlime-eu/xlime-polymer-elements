@@ -1,0 +1,170 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+
+<!--
+`xlime-spheres` is a web component, which renders a set of recommendations for
+the xLiMe project. `Spheres` is a paradigm for building contexts of resources and
+visualising recommendations around that context.
+
+Example:
+
+    <xlime-spheres
+        obj='{
+         "name": "Spheres name", 
+         "type": "http://xlime.eu/voca/Sphere", 
+         "uri": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+         "inner": {
+         },
+         "inter": {},
+         "outer": {
+          }
+       }'>
+    </xlime-spheres>
+
+Example using polymer binding (Where `mySpheresObj` is an object like the one shown above):
+
+    <xlime-spheres
+      obj='{{mySpheresObj}}'>
+    </xlime-spheres>
+
+@group xLiMe
+@element xlime-spheres
+@demo demo/xlime-spheres.html
+@hero hero.svg
+-->
+<dom-module id="xlime-spheres">
+
+  <template>
+      <style include="xlime-shared-styles">
+      </style>
+      <div class="inner">
+          <paper-listbox on-iron-select="_handleInnerResourceSelect">
+              <template is="dom-repeat" items="{{obj.inner}}">
+                  <span>{{item.url}}</span>
+              </template>
+          </paper-listbox>
+      </div>
+      <div class="inter">
+          <paper-listbox on-iron-select="_handleInterResourceSelect">
+              <template is="dom-repeat" items="{{obj.inter}}">
+                  <span>{{item.url}}</span>
+              </template>
+          </paper-listbox>
+      </div>
+      <div class="outer">
+          <paper-listbox on-iron-select="_handleOuterResourceSelect">
+              <template is="dom-repeat" items="{{obj.outer}}">
+                  <span>{{item.url}}</span>
+              </template>
+          </paper-listbox>
+      </div>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-spheres',
+
+    behaviors: [XLiMe.LogBehavior],
+      
+    properties: {
+        
+      /**
+       * The value object to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *         "name": "Spheres name", 
+       *         "type": "http://xlime.eu/voca/Sphere", 
+       *         "uri": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+       *         "inner": {
+       *         },
+       *         "inter": {},
+       *         "outer": {}
+       *      }
+       *
+       */
+      obj: {
+          type: Object,
+          observer: '_valueObjChanged'
+      },
+        
+    },
+
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.log(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _valueObjChanged: function(e) {
+        console.log('valueObjChanged evt', e);
+        if (this.obj) {
+            console.log('updated value obj ', this.obj);
+        }
+    },
+
+    _handleInnerResourceSelect: funtion(e, detail) {
+        console.log('handle inner object select', e);
+    },
+
+    _handleInterResourceSelect: funtion(e, detail) {
+        console.log('handle inter object select', e);
+    },
+
+    _handleOuterResourceSelect: funtion(e, detail) {
+        console.log('handle outer object select', e);
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-tv-program-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

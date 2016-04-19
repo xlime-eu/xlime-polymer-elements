@@ -1,0 +1,238 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="../paper-card/paper-card.html">
+
+<!--
+`xlime-kb-entity-card` is a web component, which renders an entity from some
+knowledge base which been used in the context of xLiMe to annotate some
+media-item.
+
+Example:
+
+    <xlime-kb-entity-card
+      entity='{
+          "entity": {
+             "url": "http://dbpedia.org/resource/Berlin",
+             "label": "Berlin",
+             "types": [
+               "http://dbpedia.org/ontology/Place"
+             ],
+             "depictions": [
+                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg"
+                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"
+            ]
+          },
+          "statements": [
+            {
+              "relation": {
+                "url": "http://dbpedia.org/property/cities",
+                "label": "cities",
+              },
+              "related": {
+                "url": "http://dbpedia.org/resource/Europe",
+                "label": "Europe",
+              },
+              "rankValue": 1.0
+            }
+          ],
+          "topK": 1,
+          "type": "http://example.com/entitySummary"
+       }'>
+    </xlime-social-media-card>
+
+The `entity` object follows the `entitySummary` format returned by the `xlime public webserver`.
+
+@group xLiMe
+@element xlime-kb-entity-card
+@demo demo/xlime-kb-entity-card.html
+@hero hero.svg
+-->
+<dom-module id="xlime-kb-entity-card">
+
+  <template>
+      <style include="xlime-shared-styles">
+       :host {
+           --paper-card-header-image: {
+               max-height: 160px;
+               opacity: 0.95;
+           }
+           --paper-card-header-image-text: {
+               bottom: 1em;
+               left: 5px;
+               color: var(--paper-card-header-color, white);
+               background: var(--xlime-primary-background-color, black);
+           }
+       }
+      </style>
+    <content></content>
+    <!-- 
+    <paper-card id="entityCard" heading="{{entity.entity.label}}">    
+        -->
+    <paper-card id="entityCard" heading="{{entity.entity.label}}" image="[[_getDepiction(entity.entity.depictions.*, 0)]]">
+        <div class="card-content">
+          <template is="dom-repeat" items="{{entity.statements}}">
+              <div class="statement">
+                  <xlime-value on-tap="_handleRelationTap" url-target="_blank" class="relation" style="display: inline;" obj="{{item.relation}}"></xlime-value>
+                  <xlime-value on-tap="_handleRelatedTap" url-target="_blank" class="related" style="display: inline;" obj="{{item.related}}"></xlime-value>
+              </div>
+          </template>            
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-kb-entity-card',
+
+    /**
+     * Fired when the user taps a `relation` in one of the summary statements.
+     * The event's detail contains the `x` and `y` coordinates as well as the 
+     * original `json object` for the `relation` that was tapped.
+     *
+     * @event statement-relation-tap
+     */
+
+    /**
+     * Fired when the user taps a `related` element in one of the summary statements
+     * The event's detail contains the `x` and `y` coordinates as well as the 
+     * original `json object` for the `related` value that was tapped.
+     *
+     * @event statement-related-tap
+     */
+      
+    properties: {
+        
+      /**
+       * The entity to be displayed. 
+       * The object will typically be something like: 
+       *   
+       *        {
+       *          "entity": {
+       *             "url": "http://dbpedia.org/resource/Berlin",
+       *             "label": "Berlin",
+       *             "types": [
+       *               "http://dbpedia.org/ontology/Place"
+       *             ],
+       *             "depictions": [
+       *                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg"
+       *                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"
+       *            ]
+       *          },
+       *          "statements": [
+       *            {
+       *              "relation": {
+       *                "url": "http://dbpedia.org/property/cities",
+       *                "label": "cities",
+       *              },
+       *              "related": {
+       *                "url": "http://dbpedia.org/resource/Europe",
+       *                "label": "Europe",
+       *              },
+       *              "rankValue": 1.0
+       *            }
+       *          ],
+       *          "topK": 1,
+       *          "type": "http://example.com/entitySummary"
+       *       }
+       *
+       */
+      entity: {
+          type: Object,
+          observer: '_entityObjChanged'
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Handles changes to the `itemObj`ect
+     */  
+    _entityObjChanged: function(e) {
+        console.log('entityObjChanged evt', e);
+        if (this.entity) {
+//            console.log('updated itemObj ', this.itemObj);
+//            console.log('itemObj.content', contentObj);
+        }
+    },
+
+    _getDepiction: function(change, index) {
+        return change.base[index];
+    },
+
+    _handleRelationTap: function(e, detail) {
+//       console.log("handling relation tap: ", detail);
+        var newDetail = {
+            x: detail.x,
+            y: detail.y,
+            obj: e.srcElement.parentElement.obj
+        };
+        
+       this.fire('statement-relation-tap', newDetail);
+    },
+      
+    _handleRelatedTap: function(e, detail) {
+//       console.log("handling related tap, detail: ", detail);
+//        console.log("handling related tap, event: ", e);
+        var newDetail = {
+            x: detail.x,
+            y: detail.y,
+            obj: e.srcElement.parentElement.obj
+        };
+        
+        this.fire('statement-related-tap', newDetail);
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-kb-entity-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

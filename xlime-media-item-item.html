@@ -185,9 +185,10 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
         // loading resources, etc).
-        console.log(this.localName + '#' + this.id + ' is attached');        
-//        console.log('with item.url', item.url);
-//        console.log('with _mediaTypeIndex', _mediaTypeIndex);
+        console.log(this.localName + '#' + this.id + ' is attached');
+        console.log('with item', this.item);
+        console.log('with item.url', this.item.url);
+        console.log('with _mediaTypeIndex', this._mediaTypeIndex);
     },
 
     detached: function() {

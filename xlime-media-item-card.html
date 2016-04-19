@@ -89,7 +89,7 @@ Height and width are specified as style attributes:
     <style include="xlime-shared-styles"></style>
         
     <iron-ajax id="ajax" handle-as="json"
-                 url="http://localhost:8080/services/mediaItem"
+                 url="[[baseXlimeServiceUrl]]/services/mediaItem"
                  on-response="_externalDataLoaded"
                  on-error="_ajaxRequestFailed"></iron-ajax>
       <content></content>
@@ -116,7 +116,7 @@ Height and width are specified as style attributes:
       /**
        * Sets the URL for the xLiMe media item to display. 
        * Setting this value will trigger a request to retrieve an
-       * `itemObj` from the `xLiMe public server`.
+       * `itemObj` from the `xLiMe frontend services`.
        *
        * Currently supported media items with example URLs
        *   * social media items: e.g. http://vico-research.com/social/4b475a06-1888-34fc-b432-9b92cc8d847f
@@ -129,6 +129,18 @@ Height and width are specified as style attributes:
       href: {
         type: String,
         observer: '_itemUrlChanged'
+      },
+
+      /**
+       * Base url of the `xLiMe frontend services` endpoint which can be used to retrieve 
+       * information about the media-item identified by the `href` property.
+       *
+       * You can either use the publicly available server, or you can set up your own server 
+       * based on the [xLiMe Frontend Services](http://github.com/xlime-eu/xlime-frontend-services).
+       */  
+      baseXlimeServiceUrl: {
+          type: String,
+          value: "http://expertsystemlab.com:8080/frontend-services"
       },
         
       /**

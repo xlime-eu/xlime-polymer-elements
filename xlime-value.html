@@ -1,0 +1,229 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`xlime-value` is a web component, which renders an xLiMe value object, which
+typically corresponds to some simple `url`-`label` pair.
+
+Example:
+
+    <xlime-value
+       obj='{
+         "url": "http://example.com", //xlime url for this media item
+         "label": "example label"
+       }'>
+    </xlime-value>
+
+Example using polymer binding (Where `myValueObj` is an object like the one shown above):
+
+    <xlime-value
+      obj='{{myValueObj}}'>
+    </xlime-value>
+
+@group xLiMe
+@element xlime-value
+@demo demo/xlime-value.html
+@hero hero.svg
+-->
+<dom-module id="xlime-value">
+
+  <template>
+      <style include="xlime-shared-styles">
+      </style>
+    <a hidden$="[[!_renderAsLink]]" href='{{obj.url}}' target='{{urlTarget}}'>{{obj.label}}</a>
+    <span hidden$="[[_renderAsLink]]">{{obj.label}}<a hidden$="[[!_appendLink]]" href='{{obj.url}}' target='{{urlTarget}}'>&#8599;</a></span>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-value',
+
+    properties: {
+        
+      /**
+       * The value object to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       url: "http://example.com", // url for this value
+       *       label: "Example Label"
+       *      }
+       *
+       * However, the url is not mandatory. For example if you have a literal 
+       * value, the object could be:
+       *
+       *      {
+       *       url: null, // no url for this value
+       *       label: "42"
+       *      }
+       *
+       */
+      obj: {
+          type: Object,
+          observer: '_valueObjChanged'
+      },
+
+      /**
+       * Indicates how the `obj` should be rendered. Available options are:
+       * 
+       * * *link*: renders the `obj` as a link whenever possible.
+       * * *labelWithLink*: renders `obj` as plain text (within a span). But, when possible, also adds a link to the original url. This is the default behaviour.
+       * * *plainText*: renders `obj` as plain text (within a span)
+       */
+      mode: {
+          type: String,
+          value: "labelWithLink",
+          observer: '_modeChanged'
+      },
+
+     _renderAsLink: {
+         type: Boolean,
+         value: false
+     },
+
+     _appendLink: {
+         type: Boolean,
+     },
+        
+     /**
+      * Indicates whether the `obj` has a URL value
+      */
+     _hasUrl: {
+         type: Boolean,
+         computed: '_calcHasUrl(obj)'
+     },
+        
+      /**
+       * If the `obj` has a url property, the object will be rendered as an html link. 
+       * In which case, this parameter lets you control how the link is handled by the 
+       * browser. See http://www.w3schools.com/tags/att_a_target.asp for the possible 
+       * values.
+       */
+      urlTarget: {
+          type: String,
+          value: '_self'
+      },
+        
+      logLevel: {
+          type: String,
+          value: 'INFO'
+      }
+    },
+
+    observers: [
+      '_updateModeVars(obj, mode)'    
+    ],
+      
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.log(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _valueObjChanged: function(e) {
+        console.log('valueObjChanged evt', e);
+        if (this.obj) {
+            console.log('updated value obj ', this.obj);
+            console.log('itemObj.label', this.obj.label);
+            this._hasUrl = this._calcHasUrl(this.obj);
+        }
+    },
+
+    _updateModeVars: function(obj, mode) {
+        console.log('mode or obj changed', mode);
+        if (this.mode === "link") {
+            this._renderAsLink = this._calcHasUrl(obj);
+            this._appendLink = false;
+        } else if (this.mode === "labelWithLink") {
+            this._renderAsLink = false;
+            this._appendLink = this._calcHasUrl(obj);
+        } else if (this.mode === "plainText") {
+            this._renderAsLink = false;
+            this._appendLink = false;
+        } else {
+            console.log('invalid mode', this.mode);
+            this._renderAsLink = false;
+            this._appendLink = this._calcHasUrl(obj);
+        }
+    },
+      
+    _modeChanged: function(e) {
+        console.log('mode changed', e);
+        if (this.mode === "link") {
+            this._renderAsLink = this._hasUrl;
+            this._appendLink = false;
+        } else if (this.mode === "labelWithLink") {
+            this._renderAsLink = false;
+            this._appendLink = this._hasUrl;
+        } else if (this.mode === "plainText") {
+            this._renderAsLink = false;
+            this._appendLink = false;
+        } else {
+            console.log('invalid mode', this.mode);
+            this._renderAsLink = false;
+            this._appendLink = this._hasUrl;
+        }
+    },
+      
+    _calcHasUrl: function(item) {
+        if (item) {
+            var result = !(typeof item.url == 'undefined' || item.url == null || item.url == '');
+            console.log('value has url: ' + result, item);
+            return result;
+        } else return false;
+    },
+
+    isLogDebugEnabled: function() {
+        return this.logLevel === "DEBUG";
+    }
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-value says, ' + response;
+    },
+     */
+
+  });
+
+</script>

@@ -3,10 +3,12 @@
 Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
 
 <!--
 `xlime-tv-program-card` is a web component, which renders an xLiMe tv-program, i.e.
@@ -71,8 +73,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     <content></content>
     <paper-card id="tvProgramCard" class='fancy'>
       <div class="card-content">
-          <div class="avatar" style="background:white">
+          <div hidden$="[[!_imageAvailable]]" class="avatar" style="background:white">
               <iron-image style="width:64px; height:48px" src='{{itemObj.relatedImage}}'></iron-image>
+          </div>
+          <div hidden$='[[_imageAvailable]]' class="avatar">
+              <iron-icon class='fancy' icon="notification:live-tv"></iron-icon>
+              <!--  
+              {{itemObj.lang}}
+              -->
           </div>
         <div class="title">
             <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
@@ -97,6 +105,8 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
     is: 'xlime-tv-program-card',
 
+    behaviors: [XLiMe.LogBehavior],
+      
     properties: {
         
       /**
@@ -138,6 +148,13 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
           observer: '_itemObjChanged'
       }, 
 
+     /**
+      * Whether the `itemObj` has a valid `relatedImage` property.
+      */
+      _imageAvailable: {
+          type: Boolean
+       },
+        
       /**
        * Private variable used for toggling the full and preview modes of the content.
        */
@@ -195,28 +212,38 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
                 return "Missing content";
             }
         }
-        
-        console.log('itemObjChanged evt', e);
+
+        if (this.isLogDebugEnabled) console.log('itemObjChanged evt', e);
         if (this.itemObj) {
             this._currentContent = calcCurrent(this.itemObj.description);
             this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
-            console.log('updated itemObj ', this.itemObj);
-            console.log('itemObj.description', this.itemObj.description);
-        } else this._currentContent = "Empty"
+            if (this.itemObj.relatedImage) this._imageAvailable = true;
+            else this._imageAvailable = false;
+            
+            if (this.isLogDebugEnabled()) {
+                console.log('updated itemObj ', this.itemObj);
+                console.log('itemObj.description', this.itemObj.description);
+                console.log('imageAvailable', this._imageAvailable);
+            }
+        } else {
+            this._currentContent = "Empty"
+            this._imageAvailable = false;
+        }
     },
       
-    _togglePreview: function() {
-        console.log('toggling preview');
+      _togglePreview: function() {
+        if (this.isDebugEnabled) console.log('toggling preview');
+          
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             if (this._currentContent === contentObj.full) {
-                console.log('Showing preview object');
+                if (this.isDebugEnabled) console.log('Showing preview object');
                 this._currentContent = contentObj.preview;
             } else {
-                console.log('Showing full object');
+                if (this.isDebugEnabled) console.log('Showing full object');
                 this._currentContent = contentObj.full;
             }
-        } else console.log('No itemObj available', this.itemObj);
+        } else if (this.isDebugEnabled) console.log('No itemObj available', this.itemObj);
     },
 
     _togglePreviewLabel: function(currentContent) {
