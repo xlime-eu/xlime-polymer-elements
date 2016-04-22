@@ -7,9 +7,9 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-      <title>xlime-tv-program-item Demo</title>
+      <title>xlime-spheres Demo</title>
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-      <link rel="import" href="../xlime-value.html">
+      <link rel="import" href="../xlime-spheres.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
@@ -25,9 +25,6 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            margin-left: auto;
            margin-right: auto;
        }
-       xlime-value {
-           display: inline;
-       }
        demo-snippet {
            --demo-snippet-code: {
                max-height: 300px;
@@ -37,28 +34,25 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   </head>
   <body onload="updateValue()" unresolved>
 
-      <h3>An example of <code>&lt;xlime-value&gt;</code></h3>
+      <h3>An example of <code>&lt;xlime-spheres&gt;</code></h3>
       <demo-snippet class="centered-demo"><template>
           <div class="vertical-section">
-              <ul>
-              <li><span>default mode (<code>labelWithLink</code>):  </span>
-              <xlime-value id="defaultValue" obj='{}' log-level="INFO" url-target="_blank">
-              </xlime-value>
-              </li>
-              <li><span><code>link</code> mode:  </span>
-              <xlime-value id="linkValue" mode="link" obj='{}' log-level="INFO" url-target="_blank"">
-              </xlime-value></li>
-              <li><span><code>plainText</code> mode:  </span>
-              <xlime-value id="plainTextValue" mode="plainText" obj='{}' log-level="INFO">
-              </xlime-value></li>
-              </ul>
+              <xlime-spheres log-level="TRACE"></xlime-spheres>
           </div>
           <div class="vertical-section">
               <p></p>
               <paper-textarea id="inputObj" label="xLiMe Value Object"
                           value='{
-"url": "http://dbpedia.org/resource/Belin",
-"label": "Berlin"
+"name": "test spheres",
+"uri": "http://example.com/sphere",
+"type": "http://sphere", 
+"inner": [ {}
+],
+"inter": [ {}
+],
+"outer": [
+ {}
+]
 }'></paper-textarea>
                <button id="update" onclick="updateValue()">Update Item</button></p>
           </div>
@@ -67,22 +61,27 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 
       <script>
        var demoSnippet = document.querySelector('demo-snippet');
+       var listeningRemoval = false;
 
-       function updateValue() {
-           console.log("updating xlime-value components ");
+       function handleResourceRemoval(e) {
+           console.log("Demo: Handling resource removal", e);
            var inElt = document.querySelector('#inputObj');
-           var defaultValueElt = document.querySelector('#defaultValue');
-           console.log("defaultValueElt", defaultValueElt);
-           var linkValueElt = document.querySelector('#linkValue');
-           var plainTextValueElt = document.querySelector('#plainTextValue');       
-
-           /*
-           if (defaultValueElt.obj) {
-               console.log("using inputObj:", inElt);
-               console.log("old valueObj: ", defaultValueElt.obj);
-               console.log("new valueObj: ", inElt.value.trim());
+           var spheresElt = e.srcElement;
+           inElt.value = JSON.stringify(spheresElt.obj, null, 4);
+       }
+       
+       document.querySelector('xlime-spheres').addEventListener('kick', function (e) {
+        console.log(e.detail.kicked); // true
+       })
+       function updateValue() {
+           console.log("updating xlime-spheres component ");
+           var inElt = document.querySelector('#inputObj');
+           var spheresElt = document.querySelector('xlime-spheres');
+           console.log("spheresElt", spheresElt);
+           if (spheresElt && !listeningRemoval) {
+               spheresElt.addEventListener('spheres-resource-removed', handleResourceRemoval);
            }
-           */
+           
            var newObj = {};
            try {
                newObj = JSON.parse(inElt.value);
@@ -90,9 +89,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                console.log("error parsing input value", err);
                newObj = {};
            }
-           if (defaultValueElt) defaultValueElt.obj = newObj;
-           if (linkValueElt) linkValueElt.obj = newObj;
-           if (plainTextValueElt) plainTextValueElt.obj = newObj;
+           if (spheresElt) spheresElt.obj = newObj;
        }
               
       </script>

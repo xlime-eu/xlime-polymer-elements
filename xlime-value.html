@@ -3,6 +3,7 @@
 Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
@@ -46,6 +47,8 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
 
     is: 'xlime-value',
 
+    behaviors: [XLiMe.LogBehavior],
+      
     properties: {
         
       /**
@@ -110,12 +113,8 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
       urlTarget: {
           type: String,
           value: '_self'
-      },
-        
-      logLevel: {
-          type: String,
-          value: 'INFO'
       }
+        
     },
 
     observers: [
@@ -156,16 +155,22 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
     },
 
     _valueObjChanged: function(e) {
-        console.log('valueObjChanged evt', e);
+        if (this.isLogDebugEnabled()) {
+            console.log('valueObjChanged evt', e);
+        }
         if (this.obj) {
-            console.log('updated value obj ', this.obj);
-            console.log('itemObj.label', this.obj.label);
+            if (this.isLogDebugEnabled()) {
+                console.log('updated value obj ', this.obj);
+                console.log('itemObj.label', this.obj.label);
+            }
             this._hasUrl = this._calcHasUrl(this.obj);
         }
     },
 
     _updateModeVars: function(obj, mode) {
-        console.log('mode or obj changed', mode);
+        if (this.isLogDebugEnabled()) {
+            console.log('mode or obj changed', mode);
+        }
         if (this.mode === "link") {
             this._renderAsLink = this._calcHasUrl(obj);
             this._appendLink = false;
@@ -176,14 +181,18 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
             this._renderAsLink = false;
             this._appendLink = false;
         } else {
-            console.log('invalid mode', this.mode);
+            if (this.isLogDebugEnabled()) {
+                console.log('invalid mode', this.mode);
+            }
             this._renderAsLink = false;
             this._appendLink = this._calcHasUrl(obj);
         }
     },
       
     _modeChanged: function(e) {
-        console.log('mode changed', e);
+        if (this.isLogDebugEnabled()) {
+            console.log('mode changed', e);
+        }
         if (this.mode === "link") {
             this._renderAsLink = this._hasUrl;
             this._appendLink = false;
@@ -194,7 +203,9 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
             this._renderAsLink = false;
             this._appendLink = false;
         } else {
-            console.log('invalid mode', this.mode);
+            if (this.isLogDebugEnabled()) {
+                console.log('invalid mode', this.mode);
+            }
             this._renderAsLink = false;
             this._appendLink = this._hasUrl;
         }
@@ -203,14 +214,13 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
     _calcHasUrl: function(item) {
         if (item) {
             var result = !(typeof item.url == 'undefined' || item.url == null || item.url == '');
-            console.log('value has url: ' + result, item);
+            if (this.isLogDebugEnabled()) {
+                console.log('value has url: ' + result, item);
+            }
             return result;
         } else return false;
     },
 
-    isLogDebugEnabled: function() {
-        return this.logLevel === "DEBUG";
-    }
     // Element Behavior
 
     /**

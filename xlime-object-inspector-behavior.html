@@ -1,0 +1,146 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-meta/iron-meta.html">
+<link rel="import" href="xlime-iconset-svg.html">
+
+<script>
+ window.XLiMe = window.XLiMe || {};
+ /**
+  * Provides methods for inspecting a JSON object, determining the type of the object and extracting default values,
+  * such as labels, or depictions.
+  */
+ XLiMe.ObjectInspectorBehavior = {
+     properties: {
+         /**
+          * @type {!Polymer.IronMeta}
+          */
+         _ironMeta: {
+             value: Polymer.Base.create('iron-meta', {type: 'iconset'}),
+             observer: '_updateIronMeta'
+         }
+     },
+
+     _updateIronMeta: function() {
+         var iconset = this._ironMeta;
+     },
+     
+     /**
+      * Returns a short label for identifying the object. If no such label is found, 
+      * returns the defaultValue.
+      */
+     getShortLabel: function(object, defaultValue) {
+         if (object) {
+             if (object.label) return object.label;
+             if (object.title) return object.title;
+             if (this.isSocialMediaItem(object)) {
+                 return object.sourceType;
+             }
+         } return defaultValue;
+     },
+
+     /**
+      * Returns a url for a small depiction for the given object. This may be a depiction url 
+      * included by some xLime objects, or it may be a default depiction for a given object 
+      * type.
+      */
+     getThumbnailUrl: function(object, defaultValue) {
+         if (object) {
+             if (object.relatedImage) {
+                 console.log("Found relatedImage as thumbnail", object.relatedImage);
+                 return object.relatedImage;
+             } else if (object.depictions && object.depictions.length > 0) {
+                 console.log("Found depiction array as thumbnail", object.depictions);                 
+                 return object.depictions[0];
+             } else if (this.isSocialMediaItem(object)) {
+                 console.log("Analysing social media type to find appropirate thumbnail.");                 
+                 return this.socialMediaIconUrl(object, defaultValue);
+             } 
+         }
+         console.log("Could not determine thumbnail for object", object);
+         return defaultValue;
+     },
+
+     /**
+      * Returns a url for an image depicting the social-media platform for 
+      * a given `object` (which is assumed to be `isSocialMediaItem`).
+      */
+     socialMediaIconUrl: function(object, defaultValue) {
+         if (object && object.publisher) {
+             var url = object.publisher.url;
+             console.log("Using publisher url", url);                 
+             if (url === "http://www.twitter.com/") return this.svgDataUri("xlime-svg:twitter");
+             if (url === "http://facebook.com/") return this.svgDataUri("social:facebook");
+         }
+         console.log("Failed to find social media icon url");
+         return defaultValue;
+     },
+
+     _DEFAULT_ICONSET: 'xlime-svg',
+     
+     svgDataUri: function(icon) {
+        var result = "data:image/svg+xml;utf8," + escape(this.svgElement(icon).outerHTML);
+        console.log("Returning svg data uri: ", result);
+        return result;
+     },
+
+     svgElement: function(icon) {
+         function prepareSvgClone(sourceSvg, size) {
+             if (sourceSvg) {
+                 var content = sourceSvg.cloneNode(true);
+                 var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                 var viewBox = content.getAttribute('viewBox') || '0 0 ' + size + ' ' + size;
+                 svg.setAttribute('viewBox', viewBox);
+                 svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+                 svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                 // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
+                 // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
+                 svg.style.cssText = 'pointer-events: none; display: block; width: 100%; height: 100%;';
+                 svg.appendChild(content).removeAttribute('id');
+                 return svg;
+             }
+             return null;
+         }
+         
+        console.log("Finding svg element for", icon);
+        var parts = (icon || '').split(':');
+        var iconName = parts.pop();
+        var iconsetName = parts.pop() || this._DEFAULT_ICONSET;
+        console.log("iconsetname", iconsetName);
+        console.log("iconName", iconName);         
+        var iconset = this._ironMeta.byKey(iconsetName);
+         console.log("iconset: ", iconset);
+         var icons = iconset._icons || iconset._createIconMap();
+         var svgElt = prepareSvgClone(icons[iconName], iconset.size);
+//        var svgElt = iconset._cloneIcon(iconName);
+        console.log("svgElement: ", svgElt);         
+        return svgElt;
+     },
+     
+     _getObjectTypeUrl: function(object) {
+         
+     },
+
+     getXLiMeObjectType: function(objecct) {
+         object.type
+     },
+
+     isSocialMediaItem: function(object) {
+         if (object && object.url) {
+             return object.url.startsWith("http://vico-research.com/social/");
+         } else return false;
+     },
+
+     isNewsArticleItem: function(object) {
+         if (object && object.url) {
+             return object.url.startsWith("http://ijs.si/article/");
+         } else return false;
+     },
+
+     isTVProgItem: function(object) {
+         if (object && object.url) {
+             return object.url.startsWith("http://zattoo.com/program/");             
+         } else return false;
+     }
+
+     
+ }
+</script>

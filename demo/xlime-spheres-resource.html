@@ -1,0 +1,104 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-spheres-resource Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-spheres-resource.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-icon/iron-icon.html">
+      <link rel="import" href="../xlime-iconset-svg.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height: 300px;
+           };
+       }       
+      </style>    
+  </head>
+  <body onload="updateValue()" unresolved>
+
+      <h3>An example of <code>&lt;xlime-spheres-resource&gt;</code></h3>
+      <demo-snippet class="centered-demo"><template>
+          <div class="vertical-section">
+              <xlime-spheres-resource log-level="TRACE" removable></xlime-spheres-resource>
+          </div>
+          <div class="vertical-section">
+              <p></p>
+              <paper-textarea id="inputObj" label="xLiMe Value Object"
+                          value='{
+"url": "http://ijs.si/article/367691732",
+"content": {
+       "full": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+"preview": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..."
+},
+"title": "Lorem ipsum dolor sit amet",
+"created": {
+              "timestamp": 1453921997000,
+              "formatted": "27/01/2016 08:13:17",
+              "timeAgo": "49 days ago"
+},
+"lang": "en",
+"publisher": {
+"url": "www.ngnews.ca",
+"label": "www.ngnews.ca"
+},
+"source": "http://www.ngnews.ca/Opinion/Letter-to-the-Editor/2016-01-27/article-4417291/Proper-air-monitoring-not-being-done-for-coal-operation/1",
+"location": null,
+"type": "http://kdo.render-project.eu/kdo#NewsArticle"
+}'></paper-textarea>
+               <button id="update" onclick="updateValue()">Update Item</button></p>
+          </div>
+      </template>
+      </demo-snippet>
+
+      <script>
+       var demoSnippet = document.querySelector('demo-snippet');
+       var listeningTaps = false;
+
+       function handleResourceTap(e) {
+           console.log("Demo: Handling resource tap ", e);
+           e.srcElement.selected = !e.srcElement.selected;
+       }
+       
+       function updateValue() {
+           console.log("updating xlime-spheres component ");
+           var inElt = document.querySelector('#inputObj');
+           var spheresResElt = document.querySelector('xlime-spheres-resource');
+           console.log("spheresResElt", spheresResElt);
+           if (spheresResElt && !listeningTaps) {
+               spheresResElt.addEventListener('spheres-resource-tap', handleResourceTap);
+               listeningTaps = true;
+           }
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           if (spheresResElt) spheresResElt.item = newObj;
+       }
+              
+      </script>
+
+  </body>
+</html>

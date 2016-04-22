@@ -5,6 +5,7 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-spheres-resource.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 
 <!--
@@ -42,28 +43,51 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 
   <template>
       <style include="xlime-shared-styles">
+       #spherescolumn {
+           /*color: #333;
+              border: 1px solid #ccc;
+              background: #E7DBD5;*/
+           margin: 0px 5px 5px 0px;
+           padding: 10px;
+           height: 610px;
+           width: 610px;
+           float: left;
+       }
+
+       #spherescontent{
+           margin: 0px 5px 5px 0px;
+           padding: 10px;
+           height: 610px;
+           width: 610px;
+           float: left;
+           position:absolute;
+           z-index:10;
+       }
       </style>
-      <div class="inner">
-          <paper-listbox on-iron-select="_handleInnerResourceSelect">
-              <template is="dom-repeat" items="{{obj.inner}}">
-                  <span>{{item.url}}</span>
-              </template>
-          </paper-listbox>
-      </div>
-      <div class="inter">
-          <paper-listbox on-iron-select="_handleInterResourceSelect">
-              <template is="dom-repeat" items="{{obj.inter}}">
-                  <span>{{item.url}}</span>
-              </template>
-          </paper-listbox>
-      </div>
-      <div class="outer">
-          <paper-listbox on-iron-select="_handleOuterResourceSelect">
-              <template is="dom-repeat" items="{{obj.outer}}">
-                  <span>{{item.url}}</span>
-              </template>
-          </paper-listbox>
-      </div>
+      
+		 <div id="spherescolumn">
+		    <canvas id="myCanvas" width="610" height="610"></canvas>
+		 </div>
+		 
+		 <!-- Spheres Content -->
+		 <div id="spherescontent">
+         <template is="dom-repeat" items="{{obj.inner}}">
+             <xlime-spheres-resource selected="isSelected(item)" removable item="[[item]]" style='[[_calcStyle("inner", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     on-spheres-resource-remove="_handleResourceRemove"></xlime-spheres-resource>
+         </template>
+         <template is="dom-repeat" items="[[obj.inter]]">
+             <xlime-spheres-resource selected="isSelected(item)" item="[[item]]" style='[[_calcStyle("inter", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     ></xlime-spheres-resource>
+         </template>
+         <template is="dom-repeat" items="[[obj.outer]]">
+             <xlime-spheres-resource selected="isSelected(item)" item="[[item]]" style='[[_calcStyle("outer", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     ></xlime-spheres-resource>
+         </template>
+		 </div>
+
   </template>
 
 </dom-module>
@@ -97,7 +121,17 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
           type: Object,
           observer: '_valueObjChanged'
       },
-        
+
+      /**
+       * The currently selected `xlime resource` in this sphere. This will be 
+       * one of the objects in the `obj`, in particular one of the resources in the
+       * `inner`, `inter` or `outer` spheres.
+       */
+      selected: {
+          type: Object,
+          readOnly: true,
+          notify: true
+      }
     },
 
     // Element Lifecycle
@@ -115,6 +149,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
         //console.log("The jassa attribute ", _jassa);
+        this._renderCanvas();
     },
 
     attached: function() {
@@ -133,6 +168,106 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
       // Use this to clean up anything you did in `attached`.
     },
 
+    /**
+     * Returns `true` if `item` is equal to the `selected` item.
+     */
+    isSelected: function(item) {
+       return item === this.selected;
+    },
+      
+    _handleResourceTap: function(e, detail) {
+        if (this.isLogDebugEnabled()) {
+            if (this.selected) {
+                console.log("deselecting ", this.selected);
+            } else {
+                console.log("no previous selection");
+            }
+        }
+        this._setSelected(detail.obj);
+    },
+
+    _handleResourceRemove: function(e, detail) {
+        var toRemove = detail.obj;
+        if (this.isLogDebugEnabled()) {
+            console.log("Handling removal of resource.", toRemove);
+        }
+
+        console.log("old spheres obj: ", this.obj);
+        var index = this.obj.inner.indexOf(toRemove);
+
+        if (index < 0) {
+            console.error("Object ", toRemove, "cannot be removed as it is not in the innerCircle.");
+        }
+        
+        var removed = this.splice('obj.inner', index, 1);
+        console.log("new spheres obj: ", this.obj);
+        
+        if (removed) {
+            console.log("Removed ", removed);
+//            this.set('obj.inner', this.obj.inner);
+            // do I need to fire a change event for `obj`?
+            // do I need to update the `selected`?
+            var newDetail = {
+                x: detail.x,
+                y: detail.y,
+                removed: toRemove
+            }
+            this.fire('spheres-resource-removed', newDetail);
+        } else {
+            console.log("Could not remove object", removed);
+        }
+    },
+      
+    _renderCanvas: function() {
+    		var canvas = this.$.myCanvas; //document.getElementById('myCanvas');
+		    var context = canvas.getContext('2d');
+		    var centerX = canvas.width / 2;
+		    var centerY = canvas.height / 2;
+		    var radiusBig = 300;
+		    var radiusMid = 210;
+		    var radiusSmall = 120;
+		    var radiusCenter = 30;
+        
+		    //big circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusBig, 0, 2 * Math.PI, false);
+		    context.fillStyle = '#fff';
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = '#848484';
+		    context.stroke();
+        
+		    //mid circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusMid, 0, 2 * Math.PI, false);
+		    context.fillStyle = '#b4b4b4';
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = '#848484';
+		    context.stroke();
+        
+		    //small circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusSmall, 0, 2 * Math.PI, false);
+		    context.fillStyle = '#a7e4ff';
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = '#848484';
+		    context.stroke();
+        
+		    //center
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusCenter, 0, 2 * Math.PI, false);
+		    var grd =context.createRadialGradient(centerX, centerY, 10, centerX, centerY, radiusSmall);
+		    grd.addColorStop(0, '#ffe69a');
+		    grd.addColorStop(1, '#FEBF00');
+		    context.fillStyle=grd;
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = '#848484';
+		    context.stroke();
+    },
+      
     _valueObjChanged: function(e) {
         console.log('valueObjChanged evt', e);
         if (this.obj) {
@@ -140,18 +275,86 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         }
     },
 
-    _handleInnerResourceSelect: funtion(e, detail) {
-        console.log('handle inner object select', e);
-    },
+    _calcStyle: function(circle, index) {
+        function calcSpheresParams(centerX, centerY, obj) {
+	          var resourceWidth = 40; // resources are about 80 x 66.67 
+ 	          var resourceCaptionHeight = 16.7; //was 55 in APA 
+	          
+	          ////calcular umbral de colores
+	          var minUmb=5;
+	          var medUmb=10;
+	          var topScore=50;
+	          var normalFactor=0;
+            
+            var intermediateCircle = obj.inter;
+            console.log("intermediateCircle", intermediateCircle);
+            var externalCircle = obj.outer;
+            console.log("externalCircle", externalCircle);
+	          if (intermediateCircle && intermediateCircle.length>0){
+		            var topScore=parseFloat(intermediateCircle[0].score);
+		            var lastItem = intermediateCircle[intermediateCircle.length-1];
+		            if (externalCircle.length > 0)
+			              lastItem = externalCircle[externalCircle.length-1];
+		            var bottomScore = parseFloat(lastItem.score);
+		            medUmb=(topScore+bottomScore)/2.2;
+		            minUmb=(bottomScore+medUmb)/2.2;
+	          }
+	          
+	          normalFactor=100/topScore;
+	          
+	          return {
+                obj: obj,
+		            centerX : centerX-resourceWidth,
+		            centerY : centerY-resourceWidth+resourceCaptionHeight, 
+		            radiusSmall : 75,
+		            radiusMid : 165,
+		            radiusBig : 255,
+		            minUmb : minUmb,
+		            medUmb : medUmb,
+		            normalFactor: normalFactor
+	          };
+        }
+        
+        function calcPosition(params, radius, i, total) {
+	          return {
+		            x : params.centerX + radius * Math.cos(Math.PI/2 + 2*Math.PI*i/total),
+		            y : params.centerY + radius * Math.sin(Math.PI/2 + 2*Math.PI*i/total)
+	          }
+        }
 
-    _handleInterResourceSelect: funtion(e, detail) {
-        console.log('handle inter object select', e);
-    },
+        function calcRadius(circle, params) {
+            if (circle=== "inner") {
+                return params.radiusSmall;
+            } else if (circle === "inter") {
+                return params.radiusMid;
+            } else return params.radiusBig;
+        }
 
-    _handleOuterResourceSelect: funtion(e, detail) {
-        console.log('handle outer object select', e);
+        function calcTotalValsInCircle(circle, obj) {
+            if (circle=== "inner") {
+                return obj.inner.length;
+            } else if (circle === "inter") {
+                return obj.inter.length;
+            } else return obj.outer.length;
+        }
+       
+	      var grid=this.$.myCanvas;
+        if (this.isLogDebugEnabled()) {
+            console.log("clientWidth of myCanvas: ", grid.clientWidth, grid);
+            console.log("width of myCanvas: ", grid.width);
+        }
+	      var params = calcSpheresParams(grid.clientWidth / 2, grid.clientHeight / 2, this.obj);
+        var radius = calcRadius(circle, params);
+        var totalValsInCircle = calcTotalValsInCircle(circle, this.obj);
+        
+        var position = calcPosition(params, radius, index, totalValsInCircle);
+        var result = "margin-left:"+position.x+"px; margin-top:"+position.y+"px; position:absolute";
+        if (this.isLogDebugEnabled()) {
+            console.log("style for item " + index + " in " + circle, result);
+        }
+        return result;
     },
-      
+            
     // Element Behavior
 
     /**
@@ -161,7 +364,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-tv-program-item says, ' + response;
+      return 'xlime-spheres says, ' + response;
     },
      */
 

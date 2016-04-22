@@ -17,7 +17,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
       
-      <style is="custom-style">
+      <style is="custom-style" include="demo-pages-shared-styles">
        body {
            background-color: var(--paper-grey-50);
        }
@@ -31,6 +31,11 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
        :root{
            --iron-image-width: 80px;
            --iron-image-height: 60px;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height:300px;
+           };
        }
       </style>
       <dom-module id="x-app">
@@ -58,12 +63,17 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       </script>
   </head>
   
-  <body onLoad="updateItem()" unresolved class="centered">
+  <body onLoad="updateItem()" unresolved>
       
-      <h3>An example component</h3>
+      <h3>A smple-kb-entity-item</h3>
       <demo-snippet class="centered-demo">
-          <xlime-kb-entity-item id="sample-kb-entity-item" entity="{}"></xlime-kb-entity-item>
-                <p><paper-textarea id="inputObj" label="xLiMe Entity Object"
+          <template>
+              <div class="horizontal-section">
+                  <xlime-kb-entity-item id="sample-kb-entity-item" entity="{}"></xlime-kb-entity-item>
+              </div>
+              <div class="vertical-section">
+                  <p></p>
+                <paper-textarea id="inputObj" label="xLiMe Entity Object"
                                    value='{
  "url":"http://dbpedia.org/resource/Albert_Einstein",
  "label":"Albert Einstein",
@@ -72,25 +82,21 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
     "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg"],
  "types":["http://umbel.org/umbel/rc/PersonWithOccupation",
     "http://dbpedia.org/ontology/Agent",
-    "http://umbel.org/umbel/rc/Scientist",
-    "http://www.wikidata.org/entity/Q5",
-    "http://www.wikidata.org/entity/Q215627",
-    "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#NaturalPerson",
-    "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#Agent",
     "http://xmlns.com/foaf/0.1/Person",
-    "http://dbpedia.org/ontology/Scientist",
     "http://dbpedia.org/ontology/Person",
     "http://schema.org/Person",
-    "http://www.w3.org/2002/07/owl#Thing",
     "http://www.wikidata.org/entity/Q901"]
 }'></paper-textarea>
-                    
-          <button id="update">Update Item</button></p>
-
+                <button id="update" onclick="updateItem()">Update Item</button></p>
+              </div>
+          </template>
+      </demo-snippet>
+      
       <script>
-       var item = document.querySelector('#sample-kb-entity-item');
-
+       var demoSnippet = document.querySelector('demo-snippet');
+       
        function updateItem() {
+           var item = document.querySelector('#sample-kb-entity-item');
            console.log("updating media item component ", item);
            var inElt = document.querySelector('#inputObj');
            if (item.entity) {
@@ -107,17 +113,15 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            }
            item.entity = newObj;
        }
-       
-       document.querySelector('#update').addEventListener('click', function() {
-           updateItem();
-       });
       </script>
-      
-      </demo-snippet>
-      
-      <br>
+
+      <!-- 
       <h4>A larger list (read from a data file)</h4>
-      <x-app></x-app>
-      
+      <demo-snippet>
+          <template>
+              <x-app></x-app>
+          </template>
+      </demo-snippet>
+       -->
   </body>
 </html>
