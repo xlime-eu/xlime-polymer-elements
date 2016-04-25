@@ -128,7 +128,7 @@
      },
 
      isKBEntity: function(object) {
-         if (object && object.@type && object.@type === "http://xlime.eu/vocab/kbEntity") {
+         if (object && object['@type'] && object['@type'] === "http://xlime.eu/vocab/kbEntity") {
              return true;
          } else return false;
      },
