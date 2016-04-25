@@ -123,6 +123,16 @@
          object.type
      },
 
+     isMediaItem: function(object) {
+         return isSocialMediaItem(object) || isNewsArticleItem(object) || isTVProgItem(object);
+     },
+
+     isKBEntity: function(object) {
+         if (object && object.@type && object.@type === "http://xlime.eu/vocab/kbEntity") {
+             return true;
+         } else return false;
+     },
+     
      isSocialMediaItem: function(object) {
          if (object && object.url) {
              return object.url.startsWith("http://vico-research.com/social/");
