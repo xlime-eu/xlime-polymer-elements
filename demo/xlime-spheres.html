@@ -42,16 +42,29 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
           <div class="vertical-section">
               <p></p>
               <paper-textarea id="inputObj" label="xLiMe Value Object"
-                          value='{
+                              value='{
 "name": "test spheres",
 "uri": "http://example.com/sphere",
 "type": "http://sphere", 
-"inner": [ {}
+"inner": [ { "score": 0.9,
+ "recommended": {
+ "url":"http://dbpedia.org/resource/Albert_Einstein",
+ "label":"Albert Einstein",
+ "depictions":[
+    "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg?width=300",
+    "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg"],
+ "types":["http://umbel.org/umbel/rc/PersonWithOccupation",
+    "http://dbpedia.org/ontology/Agent",
+    "http://xmlns.com/foaf/0.1/Person",
+    "http://dbpedia.org/ontology/Person",
+    "http://schema.org/Person",
+    "http://www.wikidata.org/entity/Q901"]
+}}
 ],
-"inter": [ {}
+"inter": [ 
 ],
 "outer": [
- {}
+ 
 ]
 }'></paper-textarea>
                <button id="update" onclick="updateValue()">Update Item</button></p>

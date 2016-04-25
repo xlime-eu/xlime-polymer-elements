@@ -72,17 +72,17 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 		 <!-- Spheres Content -->
 		 <div id="spherescontent">
          <template is="dom-repeat" items="{{obj.inner}}">
-             <xlime-spheres-resource selected="isSelected(item)" removable item="[[item]]" style='[[_calcStyle("inner", index)]]'
+             <xlime-spheres-resource selected="isSelected(item)" removable item="[[item.recommended]]" style='[[_calcStyle("inner", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      on-spheres-resource-remove="_handleResourceRemove"></xlime-spheres-resource>
          </template>
          <template is="dom-repeat" items="[[obj.inter]]">
-             <xlime-spheres-resource selected="isSelected(item)" item="[[item]]" style='[[_calcStyle("inter", index)]]'
+             <xlime-spheres-resource selected="isSelected(item)" item="[[item.recommended]]" style='[[_calcStyle("inter", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      ></xlime-spheres-resource>
          </template>
          <template is="dom-repeat" items="[[obj.outer]]">
-             <xlime-spheres-resource selected="isSelected(item)" item="[[item]]" style='[[_calcStyle("outer", index)]]'
+             <xlime-spheres-resource selected="isSelected(item)" item="[[item.recommended]]" style='[[_calcStyle("outer", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      ></xlime-spheres-resource>
          </template>
@@ -174,6 +174,10 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     isSelected: function(item) {
        return item === this.selected;
     },
+
+    addToInner: function(resourceObj) {
+      this.push("obj.inner", resourceObj);
+    },
       
     _handleResourceTap: function(e, detail) {
         if (this.isLogDebugEnabled()) {
@@ -227,44 +231,51 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 		    var radiusMid = 210;
 		    var radiusSmall = 120;
 		    var radiusCenter = 30;
+
+        var separatorColor = "#848484";
+        var outerColor = "#fff";
+        var interColor = "#b4b4b4";
+        var innerColor = "#a7e4ff";
+        var centerFromColor = "#ffe69a";
+        var centerToColor = "#FEBF00";
         
 		    //big circle
 		    context.beginPath();
 		    context.arc(centerX, centerY, radiusBig, 0, 2 * Math.PI, false);
-		    context.fillStyle = '#fff';
+		    context.fillStyle = outerColor;
 		    context.fill();
 		    context.lineWidth = 1;
-		    context.strokeStyle = '#848484';
+		    context.strokeStyle = separatorColor;
 		    context.stroke();
         
 		    //mid circle
 		    context.beginPath();
 		    context.arc(centerX, centerY, radiusMid, 0, 2 * Math.PI, false);
-		    context.fillStyle = '#b4b4b4';
+		    context.fillStyle = interColor; //'#b4b4b4';
 		    context.fill();
 		    context.lineWidth = 1;
-		    context.strokeStyle = '#848484';
+		    context.strokeStyle = separatorColor; //'#848484';
 		    context.stroke();
         
 		    //small circle
 		    context.beginPath();
 		    context.arc(centerX, centerY, radiusSmall, 0, 2 * Math.PI, false);
-		    context.fillStyle = '#a7e4ff';
+		    context.fillStyle = innerColor; //'#a7e4ff';
 		    context.fill();
 		    context.lineWidth = 1;
-		    context.strokeStyle = '#848484';
+		    context.strokeStyle = separatorColor; //'#848484';
 		    context.stroke();
         
 		    //center
 		    context.beginPath();
 		    context.arc(centerX, centerY, radiusCenter, 0, 2 * Math.PI, false);
 		    var grd =context.createRadialGradient(centerX, centerY, 10, centerX, centerY, radiusSmall);
-		    grd.addColorStop(0, '#ffe69a');
-		    grd.addColorStop(1, '#FEBF00');
+		    grd.addColorStop(0, centerFromColor); //'#ffe69a');
+		    grd.addColorStop(1, centerToColor); //'#FEBF00');
 		    context.fillStyle=grd;
 		    context.fill();
 		    context.lineWidth = 1;
-		    context.strokeStyle = '#848484';
+		    context.strokeStyle = separatorColor; //'#848484';
 		    context.stroke();
     },
       
