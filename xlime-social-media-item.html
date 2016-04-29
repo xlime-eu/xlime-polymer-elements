@@ -3,11 +3,14 @@
 Copyright (c) 2015 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 
 <!--
 `xlime-social-media-item` is a web component, which renders an xLiMe social-media post as an
@@ -55,7 +58,10 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
   <template>
     <style include="xlime-shared-styles"></style>
     <paper-icon-item id="socMediaItem" class='fancy'>
-        <div class="small-avatar" item-icon>{{itemObj.lang}}</div>
+        <div id="avatar" class="small-avatar" item-icon>
+            <iron-icon icon="{{socialMediaIconId(itemObj)}}"></iron-icon>
+        </div>
+        <paper-badge label="{{itemObj.lang}}" for="avatar"></paper-badge>
         <paper-item-body two-line>
             <div>{{_currentContent}}</div>
             <div secondary>on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
@@ -73,6 +79,8 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
 
     is: 'xlime-social-media-item',
 
+    behaviors: [XLiMe.ObjectInspectorBehavior],
+      
     properties: {
         
       /**

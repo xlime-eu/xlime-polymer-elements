@@ -5,6 +5,7 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
 <link rel="import" href="xlime-spheres-resource.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 
@@ -61,7 +62,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
            width: 610px;
            float: left;
            position:absolute;
-           z-index:10;
+           z-index:5;
        }
       </style>
       
@@ -72,17 +73,17 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 		 <!-- Spheres Content -->
 		 <div id="spherescontent">
          <template is="dom-repeat" items="{{obj.inner}}">
-             <xlime-spheres-resource selected="isSelected(item)" removable item="[[item.recommended]]" style='[[_calcStyle("inner", index)]]'
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" removable item="[[item.recommended]]" style='[[_calcStyle("inner", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      on-spheres-resource-remove="_handleResourceRemove"></xlime-spheres-resource>
          </template>
          <template is="dom-repeat" items="[[obj.inter]]">
-             <xlime-spheres-resource selected="isSelected(item)" item="[[item.recommended]]" style='[[_calcStyle("inter", index)]]'
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("inter", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      ></xlime-spheres-resource>
          </template>
          <template is="dom-repeat" items="[[obj.outer]]">
-             <xlime-spheres-resource selected="isSelected(item)" item="[[item.recommended]]" style='[[_calcStyle("outer", index)]]'
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("outer", index)]]'
                                      on-spheres-resource-tap="_handleResourceTap"
                                      ></xlime-spheres-resource>
          </template>
@@ -98,7 +99,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 
     is: 'xlime-spheres',
 
-    behaviors: [XLiMe.LogBehavior],
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
       
     properties: {
         
@@ -171,8 +172,12 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     /**
      * Returns `true` if `item` is equal to the `selected` item.
      */
-    isSelected: function(item) {
-       return item === this.selected;
+    isSelected: function(item, selected) {
+          var result = this.referToSameResource(item.recommended, selected);
+          if (this.isLogDebugEnabled()) {
+              console.log("Item is selected ", item, selected, result);
+          }
+          return result;
     },
 
     addToInner: function(resourceObj) {

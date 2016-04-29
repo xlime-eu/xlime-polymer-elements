@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-meta/iron-meta.html">
 <link rel="import" href="xlime-iconset-svg.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
 
 <script>
  window.XLiMe = window.XLiMe || {};
@@ -53,7 +55,11 @@
              } else if (this.isSocialMediaItem(object)) {
                  console.log("Analysing social media type to find appropirate thumbnail.");                 
                  return this.socialMediaIconUrl(object, defaultValue);
-             } 
+             } else if (this.isNewsArticleItem(object)) {
+                 return this.svgDataUri("fa:newspaper-o");
+             } else if (this.isTVProgItem(object)) {
+                 return this.svgDataUri("notification:live-tv");
+             }
          }
          console.log("Could not determine thumbnail for object", object);
          return defaultValue;
@@ -64,21 +70,34 @@
       * a given `object` (which is assumed to be `isSocialMediaItem`).
       */
      socialMediaIconUrl: function(object, defaultValue) {
+         try {
+             return this.svgDataUri(this.socialMediaIconId(object, "social:people"));
+         } catch (e) {
+             console.warn("Error getting iconUrl for social-media object, returning default.", e);
+             if (defaultValue)
+                 return defaultValue;
+             else this.svgDataUri("social:people");
+         }
+     },
+
+     socialMediaIconId: function(object, defaultValue) {
          if (object && object.publisher) {
              var url = object.publisher.url;
              console.log("Using publisher url", url);                 
-             if (url === "http://www.twitter.com/") return this.svgDataUri("xlime-svg:twitter");
-             if (url === "http://facebook.com/") return this.svgDataUri("social:facebook");
+             if (url === "http://www.twitter.com/") return "fa:twitter";//"xlime-svg:twitter");
+             if (url === "http://www.facebook.com/") return "fa:facebook-official";
          }
          console.log("Failed to find social media icon url");
-         return defaultValue;
+         if (defaultValue)
+             return defaultValue;
+         else return "social:people";
      },
-
+     
      _DEFAULT_ICONSET: 'xlime-svg',
      
      svgDataUri: function(icon) {
         var result = "data:image/svg+xml;utf8," + escape(this.svgElement(icon).outerHTML);
-        console.log("Returning svg data uri: ", result);
+//        console.log("Returning svg data uri: ", result);
         return result;
      },
 
@@ -106,13 +125,24 @@
         var iconsetName = parts.pop() || this._DEFAULT_ICONSET;
         console.log("iconsetname", iconsetName);
         console.log("iconName", iconName);         
-        var iconset = this._ironMeta.byKey(iconsetName);
-         console.log("iconset: ", iconset);
-         var icons = iconset._icons || iconset._createIconMap();
-         var svgElt = prepareSvgClone(icons[iconName], iconset.size);
-//        var svgElt = iconset._cloneIcon(iconName);
-        console.log("svgElement: ", svgElt);         
-        return svgElt;
+         var iconset = this._ironMeta.byKey(iconsetName);
+         if (iconset) {
+             console.log("iconset: ", iconset);
+             var icons = iconset._icons || iconset._createIconMap();
+             var icon = icons[iconName];
+             if (icon) {
+                 var svgElt = prepareSvgClone(icons[iconName], iconset.size);
+                 // var svgElt = iconset._cloneIcon(iconName); //does not produce "correct" clone?
+                 // console.log("svgElement: ", svgElt); 
+                 return svgElt;
+             } else {
+                 console.error("Invalid iconname", iconName);
+                 return null;
+             }
+         } else {
+             console.error("Invalid iconset", iconsetName);
+             return null;
+         }
      },
      
      _getObjectTypeUrl: function(object) {
@@ -130,6 +160,16 @@
      isKBEntity: function(object) {
          if (object && object['@type'] && object['@type'] === "http://xlime.eu/vocab/kbEntity") {
              return true;
+         } else return false;
+     },
+
+     /**
+      * Returns whether two resource objects refer to the same resource
+      */
+     referToSameResource: function(resA, resB) {
+         if (resA && resB){
+             if (resA.url && resB.url) return resA.url === resB.url;
+             else return false;
          } else return false;
      },
      

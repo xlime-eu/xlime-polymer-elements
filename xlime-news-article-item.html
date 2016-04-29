@@ -7,10 +7,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<!--  
-<link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
--->
-<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
 
 <!--
 `xlime-news-article-item` is a web component, which renders an xLiMe news-article item as an
@@ -64,7 +61,7 @@ Example:
   <template>
     <style include="xlime-shared-styles"></style>
     <paper-icon-item id="newsArticleItem" class='fancy'>
-        <div class="small-avatar" item-icon><iron-icon icon="social:public"></iron-icon></div>
+        <div class="small-avatar" item-icon><iron-icon icon="fa:newspaper-o"></iron-icon></div>
         <paper-item-body two-line>
             <div>{{itemObj.title}}</div>
             <div secondary>published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
