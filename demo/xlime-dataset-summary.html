@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-dataset-summary Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-dataset-summary.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+      </style>    
+  </head>
+  <body onLoad="updateValue()" unresolved>
+
+      <h3>An example of <code>&lt;xlime-dataset-summary&gt;</code></h3>
+      <demo-snippet class="centered-demo""><template>
+          <div class="vertical-section">
+              <xlime-dataset-summary summary-obj="{}">
+              </xlime-dataset-summary>
+          </div>
+      
+          <div class="vertical-section">
+          
+              <p><paper-textarea id="inputObj" label="xLime Dataset Summary Object"
+                             value='{
+
+}'></paper-textarea>
+                  <button id="update" onclick="updateValue()">Update Summary</button></p>
+          </div>
+      </template>
+      </demo-snippet>
+
+      <script>
+
+       function updateValue() {
+           var summaryElt = document.querySelector('xlime-dataset-summary');
+           console.log("updating dataset-summary component ", summaryElt);
+           var inElt = document.querySelector('#inputObj');
+           console.log("using inputObj:", inElt);
+           if (summaryElt.summaryObj) {
+    //           console.log("old obj: ", summaryElt.summaryObj);
+//           var newObj = JSON.parse(inElt.value.trim());
+               //         console.log("new obj: ", newObj);
+           }
+           var newObj = {};
+           try {
+               var textVal = inElt.value;
+               console.log("parsing as json ", textVal);
+               newObj = JSON.parse(textVal);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               window.alert("error parsing input value: " + err);
+               newObj = {};
+           }
+           console.log("Parsed object as ", newObj);
+           summaryElt.summaryObj = newObj;
+       }
+       
+//       document.querySelector('#update').addEventListener('click', updateValue());
+       
+      </script>
+
+  </body>
+</html>

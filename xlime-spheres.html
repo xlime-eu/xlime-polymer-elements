@@ -195,6 +195,12 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         this._setSelected(detail.obj);
     },
 
+    _indexOfResource: function(array, resourceObj) {
+        for (var i=0; i< array.length; i++){
+            if (array[i].recommended == resourceObj) return i;
+        }
+    },
+      
     _handleResourceRemove: function(e, detail) {
         var toRemove = detail.obj;
         if (this.isLogDebugEnabled()) {
@@ -202,10 +208,11 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         }
 
         console.log("old spheres obj: ", this.obj);
-        var index = this.obj.inner.indexOf(toRemove);
+        var index = this._indexOfResource(this.obj.inner, toRemove);
 
         if (index < 0) {
-            console.error("Object ", toRemove, "cannot be removed as it is not in the innerCircle.");
+            console.error("Object ", toRemove, "cannot be removed as it is not in the innerCircle.", this.obj.inner);
+            return;
         }
         
         var removed = this.splice('obj.inner', index, 1);
@@ -309,7 +316,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 	          if (intermediateCircle && intermediateCircle.length>0){
 		            var topScore=parseFloat(intermediateCircle[0].score);
 		            var lastItem = intermediateCircle[intermediateCircle.length-1];
-		            if (externalCircle.length > 0)
+		            if (externalCircle && externalCircle.length > 0)
 			              lastItem = externalCircle[externalCircle.length-1];
 		            var bottomScore = parseFloat(lastItem.score);
 		            medUmb=(topScore+bottomScore)/2.2;
