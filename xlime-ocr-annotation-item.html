@@ -4,21 +4,21 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-log-behavior.html">
-<link rel="import" href="xlime-value.html">
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../iron-image/iron-image.html">
 <link rel="import" href="../iron-icons/notification-icons.html">
 
 <!--
-`xlime-tv-program-card` is a web component, which renders an xLiMe tv-program, i.e.
+`xlime-tv-program-item` is a web component, which renders an xLiMe tv-program, i.e.
 
 zattoo-tv-program (or segment?).
 
 Example:
 
-    <xlime-tv-program-card
+    <xlime-tv-program-item
       item-obj='{
          "url": "http://zattoo.com/program/111277860", //xlime url for this media item
          "type": "http://www.w3.org/ns/ma-ont#MediaResource",
@@ -53,53 +53,42 @@ Example:
              "label": "GB"
           }
        }'>
-    </xlime-tv-program-card>
+    </xlime-tv-program-item>
 
 Example using polymer binding (Where `myItemObj` is an object like the one shown above):
 
-    <xlime-tv-program-card
+    <xlime-tv-program-item
       item-obj='{{myItemObj}}'>
-    </xlime-tv-program-card>
+    </xlime-tv-program-item>
 
 @group xLiMe
-@element xlime-tv-program-card
-@demo demo/xlime-tv-program-card.html
+@element xlime-tv-program-item
+@demo demo/xlime-tv-program-item.html
 @hero hero.svg
 -->
-<dom-module id="xlime-tv-program-card">
+<dom-module id="xlime-tv-program-item">
 
   <template>
-      <style include="xlime-shared-styles">
-       xlime-value {
-           display: inline;
-       }
-      </style>
+    <style include="xlime-shared-styles"></style>
     
     <content></content>
-    <paper-card id="tvProgramCard" class='fancy'>
-      <div class="card-content">
-          <div hidden$="[[!_imageAvailable]]" class="avatar" style="background:white">
-              <iron-image style="width:64px; height:48px" src='{{itemObj.relatedImage}}'></iron-image>
-          </div>
-          <div hidden$='[[_imageAvailable]]' class="avatar">
-              <iron-icon class='fancy' icon="notification:live-tv"></iron-icon>
-              <!--  
-              {{itemObj.lang}}
-              -->
-          </div>
-        <div class="title">
-            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
-            <div class="small">broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <xlime-value obj='{{itemObj.publisher}}' mode="link" url-target="_blank"></xlime-value> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
+    <paper-icon-item id="tvProgramCard" class='fancy'>
+        <div hidden$="[[!_imageAvailable]]" class="small-avatar" style="background:white" item-icon>
+            <!-- Use same size as small-avatar (48x32 px) -->
+            <iron-image style="width:48px; height:32px;" 
+                        src='{{itemObj.relatedImage}}'></iron-image>
         </div>
-      </div>
+        <div hidden$='[[_imageAvailable]]' class="small-avatar" item-icon>
+            <iron-icon icon="notification:live-tv"></iron-icon>
+        </div>
 
-      <div class="card-content">
-        <div class="medium">{{_currentContent}}</div>
-      </div>
-      <div class="card-actions">
-        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
-      </div>
-    </paper-card>
+        <paper-item-body two-line>
+            <div><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
+            <div secondary>broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
+        </paper-item-body>
+        <paper-icon-button icon="star" alt="favourite this!">
+        </paper-icon-button>
+    </paper-icon-item>
   </template>
 
 </dom-module>
@@ -108,7 +97,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
   Polymer({
 
-    is: 'xlime-tv-program-card',
+    is: 'xlime-tv-program-item',
 
     behaviors: [XLiMe.LogBehavior],
       
@@ -151,21 +140,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      }, 
+      },
 
      /**
       * Whether the `itemObj` has a valid `relatedImage` property.
       */
       _imageAvailable: {
           type: Boolean
-       },
-        
-      /**
-       * Private variable used for toggling the full and preview modes of the content.
-       */
-      _currentContent: {
-          type: String
-      }
+       }
     },
       
     // Element Lifecycle
@@ -181,6 +163,10 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
         //console.log("The jassa attribute ", _jassa);
+        if (this.isLogTraceEnabled()) {
+            console.log(this.localName + '#' + this.id + ' is ready');
+            console.log('with logLevel', this.logLevel);
+         }
     },
 
     attached: function() {
@@ -190,6 +176,8 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
+        console.log(this.localName + '#' + this.id + ' is attached');
+        console.log('with logLevel', this.logLevel);        
     },
 
     detached: function() {
@@ -200,63 +188,20 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     },
 
     _itemObjChanged: function(e) {
-        function shouldHideTogglePreviewBtn(content) {
-            if (content && content.full && content.preview) return false;
-            else return true;
+        if (this.isLogDebugEnabled()) {
+            console.log('itemObjChanged evt', e);
         }
-
-        function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
-            if (content && content.full) {
-                if (content.preview) {
-                    return content.preview;
-                } else {
-                    return content.full;
-                }
-            } else {
-                return "Missing content";
-            }
-        }
-
-        if (this.isLogDebugEnabled) console.log('itemObjChanged evt', e);
         if (this.itemObj) {
-            this._currentContent = calcCurrent(this.itemObj.description);
-            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
-            if (this.itemObj.relatedImage) this._imageAvailable = true;
-            else this._imageAvailable = false;
-            
             if (this.isLogDebugEnabled()) {
                 console.log('updated itemObj ', this.itemObj);
                 console.log('itemObj.description', this.itemObj.description);
+            }
+            if (this.itemObj.relatedImage) this._imageAvailable = true;
+            else this._imageAvailable = false;
+            if (this.isLogDebugEnabled()) {
                 console.log('imageAvailable', this._imageAvailable);
             }
-        } else {
-            this._currentContent = "Empty"
-            this._imageAvailable = false;
-        }
-    },
-      
-      _togglePreview: function() {
-        if (this.isDebugEnabled) console.log('toggling preview');
-          
-        if (this.itemObj) {
-            var contentObj = this.itemObj.content;
-            if (this._currentContent === contentObj.full) {
-                if (this.isDebugEnabled) console.log('Showing preview object');
-                this._currentContent = contentObj.preview;
-            } else {
-                if (this.isDebugEnabled) console.log('Showing full object');
-                this._currentContent = contentObj.full;
-            }
-        } else if (this.isDebugEnabled) console.log('No itemObj available', this.itemObj);
-    },
-
-    _togglePreviewLabel: function(currentContent) {
-        if (this.itemObj && this.itemObj.content) {
-            if (this._currentContent === this.itemObj.content.full) {
-                return 'Collapse'
-            } else return 'Expand';
-        } else return 'Expand';
+        } else this._imageAvailable = false;
     },
       
     // Element Behavior
@@ -268,7 +213,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
      * @return {string} The full greeting.
     sayHello: function(greeting) {
       var response = greeting || 'Hello World!';
-      return 'xlime-tv-program-card says, ' + response;
+      return 'xlime-tv-program-item says, ' + response;
     },
      */
 

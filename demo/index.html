@@ -11,6 +11,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
       <link rel="import" href="../xlime-media-item-card.html">
       <link rel="import" href="../../paper-input/paper-input.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
 
       <style is="custom-style">
        body {
@@ -26,70 +30,106 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
        :root{
            --iron-image-width: 80px;
            --iron-image-height: 60px;
+           --error-color: red;
        }
-      </style>    
+      </style>
+
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-media-item-card {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a tv programme)</h4>
+              <iron-ajax url="data/example-tv-program.json" last-response="{{tvprog}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card1" item-obj="{{tvprog}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaTv" label="Edit xLiMe TV program object" value='{{toJsonStr(tvprog)}}'' on-change='handleTvTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              
+              <br>
+
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a social media item)</h4>
+              <iron-ajax url="data/example-social-media.json" last-response="{{micropost}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card2" item-obj="{{micropost}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaMicropost" label="Edit xLiMe Micropost object" value='{{toJsonStr(micropost)}}'' on-change='handleMicropostTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a news article)</h4>
+              <iron-ajax url="data/example-news-item.json" last-response="{{newsart}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card3" item-obj="{{newsart}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaNews" label="Edit xLiMe news article object" value='{{toJsonStr(newsart)}}'' on-change='handleNewsTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTvTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.tvprog = this._updateTextChange(this.$.textareaTv, this.tvprog);
+               },
+               handleMicropostTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.micropost = this._updateTextChange(this.$.textareaMicropost, this.micropost);
+               },
+               handleNewsTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.newsart = this._updateTextChange(this.$.textareaNews, this.newsart);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+      
   </head>
   <body unresolved>
 
-      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a social media item)</h4>
-
-      <div class="vertical-section">
-          <xlime-media-item-card id="card-one" href='http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6'>
-          </xlime-media-item-card>
-          <p>
-          <paper-input id="inputUrl-one" label="xLiMe Media Item URL" placeholder="e.g. http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6"></paper-input>
-          <button id="update-one">Update Item</button></p>
-      </div>
-
-      <br>
-      
-      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a news articles)</h4>
-      
-      <div class="vertical-section">
-          <xlime-media-item-card id="card-two" href='http://ijs.si/article/367691329'>
-          </xlime-media-item-card>
-          <p>
-          <paper-input id="inputUrl-two" label="xLiMe Media Item URL" placeholder="e.g. http://ijs.si/article/367691329"></paper-input>
-          <button id="update-two">Update Item</button></p>
-      </div>
-
-      <br>
-      
-      <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a tv programme)</h4>
-
-      <div class="vertical-section">
-          <xlime-media-item-card id="card-three" href='http://zattoo.com/program/111277860'>
-          </xlime-media-item-card>
-          <p>
-          <paper-input id="inputUrl-three" label="xLiMe Media Item URL" placeholder="e.g. http://zattoo.com/program/111277860"></paper-input>
-          <button id="update-three">Update Item</button></p>
-      </div>
-
-      <script>
-       var updateCard = function(which) {
-           console.log("updating media item card ", which);
-           var cardElt = document.querySelector('#card-' + which);
-           console.log("updating media item component ", cardElt);
-           var inUrl = document.querySelector('#inputUrl-' + which);
-           console.log("using inputUrl:", inUrl);
-           console.log("old url: ", cardElt.href);
-           console.log("new url: ", inUrl.value.trim());
-           cardElt.href = inUrl.value.trim();
-       }
-
-       document.querySelector('#update-one').addEventListener('click', function() {
-           updateCard("one");
-       });
-
-       document.querySelector('#update-two').addEventListener('click', function() {
-           updateCard("two");
-       });
-
-       document.querySelector('#update-three').addEventListener('click', function() {
-           updateCard("three");
-       });
-
-      </script>
+      <x-app></x-app>
 
   </body>
 </html>
+ 

@@ -11,8 +11,11 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
       <link rel="import" href="../xlime-social-media-card.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
 
-      <style is="custom-style">
+      <style is="custom-style" include="demo-pages-shared-styles">
        body {
            background-color: var(--paper-grey-50);
        }
@@ -23,70 +26,77 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            margin-left: auto;
            margin-right: auto;
        }
-      </style>    
-  </head>
-  <body onload="updateCard()" unresolved>
-
-      <h4>An example of <code>&lt;xlime-social-media-card&gt;</code></h4>
-      <div class="vertical-section">
-          <xlime-social-media-card item-obj='{}'>
-          </xlime-social-media-card>
-      </div>
-      <div class="vertical-section">
-          <p><paper-textarea id="inputObj" label="xLiMe Social Media Object"
-                          value='{
-   "url" : "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6",
-   "content" : {
-      "full": "Asics GelNoosa Tri 10 Womens Running Shoe https://t.co/YzwMsawQTM https://t.co/w1alWb5t92",
-      "preview": null},
-   "created" : {
-      "timestamp": 1453921516000,
-      "formatted": "27/01/2016 08:05:16",
-      "timeAgo": "62 days ago"
-   },
-   "lang" : "en" ,
-   "publisher" : {
-      "url": "http://www.twitter.com/",
-      "label": "Twitter"
-   },
-   "source" : "http://twitter.com/AlfieFearon/statuses/692423142191583232" ,
-   "sourceType" : "Microblog" ,
-   "creator" : {
-       "url": "http://twitter.com/AlfieFearon",
-       "label": "AlfieFearon"
-   },
-   "type" : "http://rdfs.org/sioc/ns#MicroPost" 
-}'></paper-textarea>
-          <button id="update">Update Card</button></p>
-      </div>
-
-      
-      <script>
-       var socMediaCard = document.querySelector('xlime-social-media-card');
-
-       function updateCard() {
-           console.log("updating media item component ", socMediaCard);
-           var inElt = document.querySelector('#inputObj');
-           if (socMediaCard.itemObj) {
-               console.log("using inputObj:", inElt);
-               console.log("old itemObj: ", socMediaCard.itemObj);
-               console.log("new itemObj: ", inElt.value.trim());
-           }
-           var newObj = {};
-           try {
-               newObj = JSON.parse(inElt.value);
-           } catch (err) {
-               console.log("error parsing input value", err);
-               newObj = {};
-           }
-           socMediaCard.itemObj = newObj;
+       :root {
+           --error-color: red;
        }
-       
-       document.querySelector('#update').addEventListener('click', function() {
-           updateCard();
+      </style>
+
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-social-media-card {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-social-media-card&gt;</code></h4>
+              <div id="codeTemplate">
+              <iron-ajax url="data/example-social-media.json" last-response="{{micropost}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-social-media-card id="card1" item-obj="{{micropost}}"></xlime-social-media-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaMicropost" label="Edit xLiMe Micropost object" value='{{toJsonStr(micropost)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              </div>
+
+              <br>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.micropost = this._updateTextChange(this.$.textareaMicropost, this.micropost);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
        });
-       
       </script>
+      
+  </head>
+  
+  <body unresolved>
+
+      <x-app></x-app>
 
   </body>
 </html>

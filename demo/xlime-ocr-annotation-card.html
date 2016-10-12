@@ -100,6 +100,75 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 
       <x-app></x-app>
       
+      <!-- 
+      <h4>An example of <code>&lt;xlime-tv-program-card&gt;</code></h4>
+      <div class="vertical-section">
+          <xlime-tv-program-card item-obj="{}" fancy>
+          </xlime-tv-program-card>
+      </div>
+      <div class="vertical-section">
+          
+          <p><paper-textarea id="inputObj" label="xLime TV Program Card Object"
+                             value='{
+"url": "http://zattoo.com/program/111277860",
+"description": {
+       "full": "In-depth reports on the major international and US news of the day with Katty Kay."
+},
+"title": "BBC World News America",
+"broadcastDate": {
+              "timestamp": 1458163800000,
+              "formatted": "16/03/2016 10:30:00",
+              "timeAgo": "12 days ago"
+ },
+ "duration": {
+              "totalSeconds": 1800,
+              "hours": 0,
+              "minutes": 30,
+              "seconds": 0
+},
+"source": {
+   "url": "http://zattoo.com/program/bbc-world-service/111277860",
+   "label": "BBC World News"
+},
+"relatedImage": "http://images.zattic.com/system/images/fba8/c599/ebad/6852/c496/format_480x360.jpg",
+"publisher": {
+  "url": null,
+  "label": "BBC World News"
+},
+"relatedLocation": {
+   "label": "GB"                                    
+},
+"type": "http://www.w3.org/ns/ma-ont#MediaResource"
+}'></paper-textarea>
+          <button id="update">Update Item</button></p>
+      </div>
+ -->
+      <script>
+       /*
+       var tvpCard = document.querySelector('xlime-tv-program-card');
+
+       function updateCard() {
+//           console.log("updating tv-program card component ", tvpCard);
+           var inElt = document.querySelector('#inputObj');
+  //         console.log("using inputObj:", inElt);
+           if (tvpCard.itemObj)
+    //           console.log("old obj: ", tvpCard.itemObj);
+//           var newObj = JSON.parse(inElt.value.trim());
+           //         console.log("new obj: ", newObj);
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           tvpCard.itemObj = newObj;
+       }
+       
+       document.querySelector('#update').addEventListener('click', function() {
+           updateCard()
+       });
+       */
       </script>
   </body>
 </html>

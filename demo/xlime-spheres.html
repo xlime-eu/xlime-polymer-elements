@@ -13,6 +13,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../paper-input/paper-textarea.html">
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
 
       <style is="custom-style" include="demo-pages-shared-styles">
        body {
@@ -30,10 +31,73 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                max-height: 300px;
            };
        }       
-      </style>    
-  </head>
-  <body onload="updateValue()" unresolved>
+       :root {
+           --error-color: red;
+       }
+      </style>
 
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a tv program</code></h4>
+              <iron-ajax url="data/example-spheres-response.json" last-response="{{spheresObj}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres log-level="TRACE" obj='[[spheresObj]]'></xlime-spheres>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Spheres object" value='{{toJsonStr(spheresObj)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="20"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+//                   console.log("stringifying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.spheresObj = this._updateTextChange(this.$.textarea, this.spheresObj);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+      
+  </head>
+  <body unresolved>
+
+      <x-app></x-app>
+      
+      <!-- 
       <h3>An example of <code>&lt;xlime-spheres&gt;</code></h3>
       <demo-snippet class="centered-demo"><template>
           <div class="vertical-section">
@@ -91,8 +155,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
           </div>
       </template>
       </demo-snippet>
-
+      -->
+      
       <script>
+       /*
        var demoSnippet = document.querySelector('demo-snippet');
        var listeningRemoval = false;
 
@@ -124,7 +190,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            }
            if (spheresElt) spheresElt.obj = newObj;
        }
-              
+*/              
       </script>
 
   </body>

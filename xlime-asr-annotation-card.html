@@ -1,0 +1,148 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
+
+<!--
+`xlime-asr-annotation-card` is a web component, which renders an xLiMe ASR annotation, i.e.
+
+an annotation on a segment of a tv program, where the audio track contained speech which was recognised and converted to text
+
+Example using polymer binding (Where `asrAnnotation` is an ASR object as output by the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-frontend-services)):
+
+    <xlime-tv-program-card
+      obj='{{asrAnnotation}}'>
+    </xlime-tv-program-card>
+
+See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-frontend-services) for the definition of the ASR annotation objects or see [an example json object](demo/data/example-asr-annotation.json)
+
+@group xLiMe
+@element xlime-asr-annotation-card
+@demo demo/xlime-asr-annotation-card.html
+@hero hero.svg
+-->
+<dom-module id="xlime-asr-annotation-card">
+
+  <template>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+      </style>
+    
+    <content></content>
+    <paper-card id="asrAnnotationCard" class='fancy'>
+      <div class="card-content">
+          <div id="avatar" class="avatar">
+              <iron-icon class='fancy' icon="fa:volume-down"></iron-icon>
+              <!--  
+              {{itemObj.lang}}
+              -->
+          </div>
+          <paper-badge label="{{obj.lang}}" for="avatar"></paper-badge>
+
+        <div class="title">
+            <div class="big"><a href='{{obj.inSegment.watchUrl}}' target='_blank'>Speech in {{obj.inSegment.partOf.title}}</a></div>
+            <div class="small">broadcast on: <span>{{obj.inSegment.startTime.formatted}}</span> via <xlime-value mode="link" obj='{{obj.inSegment.partOf.publisher}}'></xlime-value></div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{obj.recognizedText}}</div>
+      </div>
+      <div class="card-actions">
+          <a href='{{obj.inSegment.partOf.watchUrl}}' target='_blank'>Watch whole program</a>
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-asr-annotation-card',
+
+    behaviors: [XLiMe.LogBehavior],
+      
+    properties: {
+        
+      /**
+       * The asr-annotation item to be displayed.
+       */
+      obj: {
+          type: Object,
+          observer: '_objChanged'
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _objChanged: function(e) {
+        if (this.isLogDebugEnabled) console.log('objChanged evt', e);
+        if (this.itemObj) {
+            if (this.isLogDebugEnabled()) {
+                console.log('updated itemObj ', this.itemObj);
+            }
+        } else {
+            this._currentContent = "Empty"
+        }
+    },
+      
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-asr-annotation-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

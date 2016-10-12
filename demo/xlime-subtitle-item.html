@@ -7,10 +7,11 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-      <title>xlime-tv-program-card Demo</title>
+      <title>xlime-subtitle-item Demo</title>
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-      <link rel="import" href="../xlime-tv-program-card.html">
+      <link rel="import" href="../xlime-subtitle-item.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../paper-item/paper-item.html">
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
       <link rel="import" href="../../iron-ajax/iron-ajax.html">
@@ -26,9 +27,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            margin-left: auto;
            margin-right: auto;
        }
-       :root{
-           --iron-image-width: 80px;
-           --iron-image-height: 60px;
+       :root {
            --error-color: red;
        }
       </style>
@@ -36,7 +35,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <dom-module id="x-app">
           <template>
               <style is="custom-style" include="demo-pages-shared-styles">
-               xlime-news-article-item {
+               xlime-subtitle-item {
                    max-width: 500px;
                }
                paper-textarea {
@@ -44,17 +43,21 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                    max-width: 500px;
                }
               </style>
-              <h4>An example of <code>&lt;xlime-tv-program-card&gt;</code></h4>
+              <h4>An example of <code>&lt;xlime-subtitle-item&gt;</code></h4>
               <div id="codeTemplate">
-              <iron-ajax url="data/example-tv-program.json" last-response="{{tvprog}}" auto></iron-ajax>
+              <iron-ajax url="data/example-subtitle-annotation.json" last-response="{{subtitleObj}}" auto></iron-ajax>
 
               <div class="horizontal-section-container">
                   <div class="vertical-snippet">
-                      <xlime-tv-program-card log-level="INFO" item-obj='{{tvprog}}'>
-                      </xlime-tv-program-card>
+                      <div role="listbox">
+                          <paper-item>Previous list item</paper-item>
+                          <xlime-subtitle-item log-level="INFO" obj='{{subtitleObj}}'>
+                          </xlime-subtitle-item>
+                          <paper-item>Next list item</paper-item>
+                      </div>
                   </div>
                   <div class="vertical-snippet">
-                      <paper-textarea class="textarea" id="textareaTv" label="Edit xLiMe TV program object" value='{{toJsonStr(tvprog)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Subtitle segment object" value='{{toJsonStr(subtitleObj)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
                   </div>
               </div>
               </div>
@@ -76,7 +79,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                },
                handleTextChange: function(e, detail) {
                    console.log("Handling update of text area", e, detail);
-                   this.tvprog = this._updateTextChange(this.$.textareaTv, this.tvprog);
+                   this.subtitleObj = this._updateTextChange(this.$.textarea, this.subtitleObj);
                },
                _updateTextChange: function(textareaElt, miObj) {
                    var newObj = {};
@@ -94,12 +97,12 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            });
        });
       </script>
+
       
   </head>
-  <body  unresolved>
+  <body unresolved>
 
       <x-app></x-app>
-      
-      </script>
+
   </body>
 </html>

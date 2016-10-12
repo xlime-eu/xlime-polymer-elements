@@ -15,6 +15,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
       <link rel="import" href="../../iron-icon/iron-icon.html">
       <link rel="import" href="../xlime-iconset-svg.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
 
       <style is="custom-style" include="demo-pages-shared-styles">
        body {
@@ -31,11 +32,143 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            --demo-snippet-code: {
                max-height: 300px;
            };
-       }       
-      </style>    
-  </head>
-  <body onload="updateValue()" unresolved>
+       }
+       :root {
+           --error-color: red;
+       }
+      </style>
 
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a tv program</code></h4>
+              <iron-ajax url="data/example-tv-program.json" last-response="{{tvprog}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres-resource log-level="TRACE" removable item='[[tvprog]]'></xlime-spheres-resource>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaTv" label="Edit xLiMe TV program object" value='{{toJsonStr(tvprog)}}'' on-change='handleTvTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+              
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a social media post</code></h4>
+              <iron-ajax url="data/example-social-media.json" last-response="{{micropost}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres-resource log-level="TRACE" removable item='[[micropost]]'></xlime-spheres-resource>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaMicropost" label="Edit xLiMe Social media post object" value='{{toJsonStr(micropost)}}'' on-change='handleMicropostTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>              
+
+              <br>
+              
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a knowledge base entity</code></h4>
+              <iron-ajax url="data/example-kb-entity.json" last-response="{{kbent}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres-resource log-level="TRACE" removable item='[[kbent]]'></xlime-spheres-resource>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaKbEnt" label="Edit xLiMe Knowledge base entity object" value='{{toJsonStr(kbent)}}'' on-change='handleKbEntTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>              
+              
+              <br>
+              
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for an ASR annotation</code></h4>
+              <iron-ajax url="data/example-asr-annotation.json" last-response="{{asrann}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres-resource log-level="TRACE" removable item='[[asrann]]'></xlime-spheres-resource>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaAsr" label="Edit xLiMe ASR annotation object" value='{{toJsonStr(asrann)}}'' on-change='handleAsrAnnTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>              
+
+              <br>
+              
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a Subtitle segment</code></h4>
+              <iron-ajax url="data/example-subtitle-annotation.json" last-response="{{subtitle}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres-resource log-level="TRACE" removable item='[[subtitle]]'></xlime-spheres-resource>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaSubtitle" label="Edit xLiMe Subtitle segment object" value='{{toJsonStr(subtitle)}}'' on-change='handleSubtitleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>              
+
+              <br>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+//                   console.log("stringifying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTvTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.tvprog = this._updateTextChange(this.$.textareaTv, this.tvprog);
+               },
+               handleMicropostTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.micropost = this._updateTextChange(this.$.textareaMicropost, this.micropost);
+               },
+               handleKbEntTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.kbent = this._updateTextChange(this.$.textareaKbEnt, this.kbent);
+               },
+               handleAsrTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.asrann = this._updateTextChange(this.$.textareaAsr, this.asrann);
+               },
+               handleSubtitleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.subtitle = this._updateTextChange(this.$.textareaSubtitle, this.subtitle);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+
+      
+  </head>
+  <body  unresolved>
+
+      <x-app></x-app>
+      
+      <!-- 
       <h3>An example of <code>&lt;xlime-spheres-resource&gt;</code></h3>
       <demo-snippet class="centered-demo"><template>
           <div class="vertical-section">
@@ -69,8 +202,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
           </div>
       </template>
       </demo-snippet>
-
+      -->
+      
       <script>
+       /*
        var demoSnippet = document.querySelector('demo-snippet');
        var listeningTaps = false;
 
@@ -97,7 +232,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            }
            if (spheresResElt) spheresResElt.item = newObj;
        }
-              
+         */     
       </script>
 
   </body>

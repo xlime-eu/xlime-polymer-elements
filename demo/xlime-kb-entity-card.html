@@ -12,7 +12,8 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../polymer/polymer.html">
       <link rel="import" href="../xlime-kb-entity-card.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
-      <link rel="import" href="../../iron-ajax/iron-ajax.html">      
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+      <link rel="import" href="../../paper-toast/paper-toast.html">      
 
       <style is="custom-style">
        :root {
@@ -38,9 +39,14 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       </style>
       <dom-module id="demo-kb-entity-app">
           <template>
+              <iron-ajax url="data/example-entity-summary.json" last-response="{{sampleEntSumma}}" auto></iron-ajax>
+
               <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto></iron-ajax>
+
+              <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto on-error='handleAjaxError'></iron-ajax>
               <xlime-kb-entity-card entity="[[getEntity(entities.*, 0)]]" on-statement-related-tap="myHandleStatementRelatedTap">
               </xlime-kb-entity-card>
+              <paper-toast id="toast0" text="This toast auto-closes after 3 seconds"></paper-toast>
           </template>
       </dom-module>
 
@@ -57,101 +63,38 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                        value: "http://expertsystemlab.com:8080/frontend-services"
                    }
                },
+               handleAjaxError: function(e, detail) {
+                   console.log("Ajax Error ", e, this.$.toast0);
+                   this.$.toast0.text = "Error getting entity information from server.";
+                   this.$.toast0.open();
+               },
                myHandleStatementRelatedTap: function(e, detail) {
                    console.log("Handling statementRelatedTap", e);
                    console.log("Handling statementRelatedTap", detail);
-                   var ajax = this.$$('iron-ajax');
+                   var ajax = this.$.ajax;
                    var params = {};
                    params.url = detail.obj.url;
                    ajax.params = params;
                },
                getEntity: function(change, index) {
-                   return change.base[index];
+                   if (change && change.base) {
+                       return change.base[index];
+                   } else {
+                       console.log("No valid change, use ", this.sampleEntSumma);
+                       return this.sampleEntSumma[index];
+                   }
                }
            });
        });
       </script>
   </head>
   <body unresolved>
-  <!-- 
-  <body onload="updateCard()" unresolved>
-      <h4>An example of <code>&lt;xlime-kb-entity-card&gt;</code></h4>
-      <div class="vertical-section">
-          <xlime-kb-entity-card entity='{}'>
-          </xlime-kb-entity-card>
-      </div>
-      <div class="vertical-section">
-          <p><paper-textarea id="inputObj" label="xLiMe KB Entity Object"
-                             value='{
- "entity":{
-   "url":"http://dbpedia.org/resource/Berlin",
-   "label":"Berlin",
-   "depictions":["http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg",
-         "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"],
-   "types":["http://dbpedia.org/ontology/Place"]},
- "type":"http://example.com/entitySummary",
- "statements":[{"relation":{"url":"http://dbpedia.org/ontology/country",
-    "label":"country"},
-    "related":{"url":"http://dbpedia.org/resource/Germany","label":"Germany"},
-    "rankValue":4471.55810546875},
-   {"relation":{"url":"http://dbpedia.org/property/cities","label":"cities of"},
-    "related":{"url":"http://dbpedia.org/resource/Europe","label":"Europe"},
-    "rankValue":2386.617919921875},
-   {"relation":{"url":"http://dbpedia.org/ontology/deathPlace","label":"death place of"},
-    "related":{"url":"http://dbpedia.org/resource/Adolf_Hitler","label":"Adolf Hitler"},
-    "rankValue":1011.698974609375},
-  {"relation":{"url":"http://dbpedia.org/property/southeast","label":"Southeast of"},
-   "related":{"url":"http://dbpedia.org/resource/Hamburg","label":"Hamburg"},
-   "rankValue":982.0769653320312},
-  {"relation":{"url":"http://dbpedia.org/ontology/capital","label":"capital of"},
-   "related":{"url":"http://dbpedia.org/resource/Prussia","label":"Prussia"},
-   "rankValue":967.6289672851562}],
- "topK":5
-}'></paper-textarea>
-          <button id="update">Update Card</button></p>
-      </div>
-
-      -->
       
       <br>
       <h4>A dynamic example, click on the entity names to refresh the card</h4>
       <demo-kb-entity-app></demo-kb-entity-app>
-
       
       <script>
-/* 
-       var card = document.querySelector('xlime-kb-entity-card');
-
-       function updateCard() {
-           console.log("updating media item component ", card);
-           var inElt = document.querySelector('#inputObj');
-           if (card.entity) {
-               console.log("using inputObj:", inElt);
-               console.log("old entity: ", card.entity);
-               console.log("new entity: ", inElt.value.trim());
-           }
-           var newObj = {};
-           try {
-               newObj = JSON.parse(inElt.value);
-           } catch (err) {
-               console.log("error parsing input value", err);
-               newObj = {};
-           }
-           card.entity = newObj;
-       }
-       
-       document.querySelector('#update').addEventListener('click', function() {
-           updateCard();
-       });
-
-       function handleStatementRelatedTap(e) {
-          console.log("Handle statementRelatedTap", e);           
-       }
-       
-      card.addEventListener('statementRelatedTap', function(e) {
-           handleStatementRelatedTap(e);
-       });
-  */     
       </script>
 
   </body>

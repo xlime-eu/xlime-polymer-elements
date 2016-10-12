@@ -39,6 +39,15 @@
              if (this.isSearchString(object)) {
                  return object.value;
              }
+             if (this.isASRAnnotation(object)) {
+                 return "ASR: " + this.asrTextPreview(object);
+             }
+             if (this.isSubtitleSegment(object)) {
+                 return "Subtitle: " + this.subtitleTextPreview(object);
+             }
+             if (this.isOCRAnnotation(object)) {
+                 return "OCR: " + this.ocrTextPreview(object);
+             }
          } return defaultValue;
      },
 
@@ -64,6 +73,12 @@
                  return this.svgDataUri("notification:live-tv");
              } else if (this.isSearchString(object)) {
                  return this.svgDataUri("fa:search");
+             } else if (this.isASRAnnotation(object)) {
+                 return this.svgDataUri("fa:volume-down");
+             } else if (this.isSubtitleSegment(object)) {
+                 return this.svgDataUri("fa:cc");
+             } else if (this.isOCRAnnotation(object)) {
+                 return this.svgDataUri("fa:file-text-o");
              }
          }
          console.log("Could not determine thumbnail for object", object);
@@ -175,6 +190,28 @@
              return true;
          } else return false;
      },
+
+     isASRAnnotation: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/ASRAnnotation") {
+             return true;
+         } else return false;
+     },
+
+     isSubtitleSegment: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/SubtitleSegment") {
+             return true;
+         } else return false;
+     },
+
+     isOCRAnnotation: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/OCRAnnotation") {
+             return true;
+         } else return false;
+     },
+     
      /**
       * Returns whether two resource objects refer to the same resource
       */
@@ -198,9 +235,42 @@
      },
 
      isTVProgItem: function(object) {
-         if (object && object.url) {
-             return object.url.startsWith("http://zattoo.com/program/");             
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/MediaResource") {
+             return true;
          } else return false;
+     },
+
+     asrTextPreview: function(object) {
+         if (object && object.recognizedText) {
+             return this.strPreview(object.recognizedText, 20);
+         } else return "";
+     },
+
+     subtitleTextPreview: function(object) {
+         if (object && object.text) {
+             return this.strPreview(object.text, 20);
+         } else return "";
+     },
+
+     ocrTextPreview: function(object) {
+         if (object && object.recognizedText) {
+             return this.strPreview(object.recognizedText, 20);
+         } else return "";
+     },
+
+     strPreview: function(str, maxLength) {
+         if (maxLength) {
+             if (maxLength < 1) maxLength = 20;
+         } else maxLength = 20;
+         if (str) {
+             console.log("string length: ", str.length);
+             if (str.length > maxLength) {
+                 return str.substring(0, maxLength) + "...";
+             } else {
+                 return str;
+             }
+         } else return "";
      }
 
      

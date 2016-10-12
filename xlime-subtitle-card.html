@@ -1,0 +1,140 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
+
+<!--
+`xlime-subtitle-card` is a web component, which renders an xLiMe Subtitle segment for a tv-program.
+
+Example using polymer binding (Where `subtitleObj` is an object as defined by the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-frontend-services):
+
+    <xlime-subtitle-card
+      obj='{{subtitleObj}}'>
+    </xlime-subtitle-card>
+
+@group xLiMe
+@element xlime-subtitle-card
+@demo demo/xlime-subtitle-card.html
+@hero hero.svg
+-->
+<dom-module id="xlime-subtitle-card">
+
+  <template>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+      </style>
+    
+    <content></content>
+    <paper-card id="subtitleCard" class='fancy'>
+      <div class="card-content">
+          <div id="avatar" class="avatar">
+              <iron-icon class='fancy' icon="fa:cc"></iron-icon>
+          </div>
+          <paper-badge label="{{obj.lang}}" for="avatar"></paper-badge>
+          <div class="title">
+              <div class="big"><a href='{{obj.partOf.watchUrl}}' target='_blank'>Subtitle in {{obj.partOf.partOf.title}}</a></div>
+              <div class="small">broadcast on: <span>{{obj.partOf.startTime.formatted}}</span> via <xlime-value mode="link" obj='{{obj.partOf.partOf.publisher}}'></xlime-value></div>
+          </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{obj.text}}</div>
+      </div>
+      <div class="card-actions">
+          <a href='{{obj.partOf.partOf.watchUrl}}' target='_blank'>Watch whole program</a>
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-subtitle-card',
+
+    behaviors: [XLiMe.LogBehavior],
+      
+    properties: {
+        
+      /**
+       * The subtitle segemtn object to be displayed.
+       * See [an example object](demo/data/example-subtitle-annotation.json)
+       */
+      obj: {
+          type: Object,
+          observer: '_objChanged'
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _objChanged: function(e) {
+        if (this.isLogDebugEnabled) console.log('objChanged evt', e);
+        if (this.obj) {
+            if (this.isLogDebugEnabled()) {
+                console.log('updated obj ', this.obj);
+            }
+        } else {
+        }
+    },
+    
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-subtitle-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

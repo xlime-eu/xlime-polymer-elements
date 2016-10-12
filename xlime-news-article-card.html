@@ -4,6 +4,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-value.html">
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <!--  
@@ -68,7 +69,11 @@ news article:
 <dom-module id="xlime-news-article-card">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+      </style>
 
     <content></content>
     <paper-card id="newsArticleCard" class='fancy'>
@@ -80,8 +85,9 @@ news article:
               -->
           </div>
         <div class="title">
-            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
-            <div class="small">published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div class="big"><a href='{{itemObj.source}}' target='_blank'>{{_truncated(itemObj.title)}}</a></div>
+            <div class="small">published on: <span>{{itemObj.created.formatted}}</span> via <xlime-value obj='{{itemObj.publisher}}' mode="link" url-target="_blank">
+            </div>
         </div>
       </div>
 
@@ -145,6 +151,10 @@ news article:
        */
       _currentContent: {
           type: String
+      },
+      _titleTruncated: {
+          type: Boolean,
+          value: false
       }
     },
       
@@ -177,6 +187,21 @@ news article:
       // removed from a document.
       //
       // Use this to clean up anything you did in `attached`.
+    },
+    _truncated: function(original) {
+        var maxChars = 75;
+        if (original) {
+            if (original.length > maxChars) {
+                var truncated = original.trim().substring(0, maxChars).split(" ").slice(0, -1).join(" ") + "...";
+                this._titleTruncated = true;
+                return truncated;
+            } else {
+                this._titleTruncated = false;
+                return original;
+            }
+        } else {
+            return "";
+        }
     },
 
     _itemObjChanged: function(e) {
