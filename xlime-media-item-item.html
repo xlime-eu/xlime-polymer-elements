@@ -5,6 +5,7 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-social-media-item.html">
 <link rel="import" href="xlime-tv-program-item.html">
 <link rel="import" href="xlime-news-article-item.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
@@ -93,6 +94,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
   Polymer({
 
     is: 'xlime-media-item-item',
+    behaviors: [XLiMe.LogBehavior],
 
     properties: {
 
@@ -163,7 +165,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created ');
+        if (this.isLogDebugEnabled) console.log(this.localName + '#' + this.id + ' was created ');
     },
       
     ready: function() {
@@ -173,9 +175,11 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       //
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
-        console.log(this.localName + '#' + this.id + ' is ready');
+        if (this.isLogDebugEnabled) {
+            console.log(this.localName + '#' + this.id + ' is ready');
 //        console.log('with item.url', item.url);
 //        console.log('with _mediaTypeIndex', _mediaTypeIndex);
+        }
     },
 
     attached: function() {
@@ -185,10 +189,12 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
         // loading resources, etc).
-        console.log(this.localName + '#' + this.id + ' is attached');
-        console.log('with item', this.item);
-        console.log('with item.url', this.item.url);
-        console.log('with _mediaTypeIndex', this._mediaTypeIndex);
+        if (this.isLogDebugEnabled) {
+            console.log(this.localName + '#' + this.id + ' is attached');
+            console.log('with item', this.item);
+            console.log('with item.url', this.item.url);
+            console.log('with _mediaTypeIndex', this._mediaTypeIndex);
+        }
     },
 
     detached: function() {
@@ -199,8 +205,10 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     },
 
     attributeChanged: function(name, type) {
-      console.log(this.localName + '#' + this.id + ' attribute ' + name +
-        ' was changed to ' + this.getAttribute(name));
+        if (this.isLogDebugEnabled) {
+            console.log(this.localName + '#' + this.id + ' attribute ' + name +
+                        ' was changed to ' + this.getAttribute(name));
+        }
     },
       
     /**
@@ -216,11 +224,11 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
             return 0;
         }
 
-        console.log("ItemObj changed, determining new _mediaTypeIndex");
+        if (this.isLogDebugEnabled) console.log("ItemObj changed, determining new _mediaTypeIndex");
         if (typeof this.item == 'undefined') {
-            console.log("component not ready yet");
+            if (this.isLogDebugEnabled) console.log("component not ready yet");
             this._mediaTypeIndex = 0;
-            console.log("after itemObjChanged", this);
+            if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
             return;
         }
         if (this.item) {
@@ -228,39 +236,39 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
         } else {
             this._mediaTypeIndex = 0;
         }
-        console.log("after itemObjChanged", this);
+        if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
     },
 
     _mediaTypeIndexChanged: function() {
         function doIsSocMedia(index) {
-            console.log("determining isSocMedia");
+            if (this.isLogDebugEnabled) console.log("determining isSocMedia");
             var result = false;
             if (typeof index == 'undefined') {} else {
                 result = (index == 1);
             }
-            console.log("isSocMedia: " + result);
+            if (this.isLogDebugEnabled) console.log("isSocMedia: " + result);
             return result;
         }
 
         function doIsNewsArticle(index) {
-            console.log("determining isNewsArticle");
+            if (this.isLogDebugEnabled) console.log("determining isNewsArticle");
             if (typeof index == 'undefined') return false;
             return index == 2;
         }
 
         function doIsTVProgram(index) {
-            console.log("determining isTVProgram");
+            if (this.isLogDebugEnabled) console.log("determining isTVProgram");
             if (typeof index == 'undefined') return false;
             return index == 3;
         }
 
         function doIsInvalidOrEmpty(index) {
-            console.log("determining isInvalidOrEmpty");          
+            if (this.isLogDebugEnabled) console.log("determining isInvalidOrEmpty");          
             if (typeof index == 'undefined') return true;
             return index == 0;
         }
           
-        console.log("mediaType index changed, current value:", this._mediaTypeIndex);
+        if (this.isLogDebugEnabled) console.log("mediaType index changed, current value:", this._mediaTypeIndex);
         this._isSocMedia = doIsSocMedia(this._mediaTypeIndex);
         this._isNewsArticle = doIsNewsArticle(this._mediaTypeIndex);
         this._isTVProgram = doIsTVProgram(this._mediaTypeIndex);
