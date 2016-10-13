@@ -1,0 +1,396 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="xlime-spheres-resource.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+
+<!--
+`xlime-spheres` is a web component, which renders a set of recommendations for
+the xLiMe project. `Spheres` is a paradigm for building contexts of resources and
+visualising recommendations around that context.
+
+Example:
+
+    <xlime-spheres
+        obj='{
+         "name": "Spheres name", 
+         "type": "http://xlime.eu/voca/Sphere", 
+         "uri": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+         "inner": {
+         },
+         "inter": {},
+         "outer": {
+          }
+       }'>
+    </xlime-spheres>
+
+Example using polymer binding (Where `mySpheresObj` is an object like the one shown above):
+
+    <xlime-spheres
+      obj='{{mySpheresObj}}'>
+    </xlime-spheres>
+
+@group xLiMe
+@element xlime-spheres
+@demo demo/xlime-spheres.html
+@hero hero.svg
+-->
+<dom-module id="xlime-spheres">
+
+  <template>
+      <style include="xlime-shared-styles">
+       #spherescolumn {
+           /*color: #333;
+              border: 1px solid #ccc;
+              background: #E7DBD5;*/
+           margin: 0px 5px 5px 0px;
+           padding: 10px;
+           height: 610px;
+           width: 610px;
+           float: left;
+       }
+
+       #spherescontent{
+           margin: 0px 5px 5px 0px;
+           padding: 10px;
+           height: 610px;
+           width: 610px;
+           float: left;
+           position:absolute;
+           z-index:5;
+       }
+      </style>
+      
+		 <div id="spherescolumn">
+		    <canvas id="myCanvas" width="610" height="610"></canvas>
+		 </div>
+		 
+		 <!-- Spheres Content -->
+		 <div id="spherescontent">
+         <template is="dom-repeat" items="{{obj.inner}}">
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" removable item="[[item.recommended]]" style='[[_calcStyle("inner", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     on-spheres-resource-remove="_handleResourceRemove"></xlime-spheres-resource>
+         </template>
+         <template is="dom-repeat" items="[[obj.inter]]">
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("inter", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     ></xlime-spheres-resource>
+         </template>
+         <template is="dom-repeat" items="[[obj.outer]]">
+             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("outer", index)]]'
+                                     on-spheres-resource-tap="_handleResourceTap"
+                                     ></xlime-spheres-resource>
+         </template>
+		 </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-spheres',
+
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
+      
+    properties: {
+        
+      /**
+       * The value object to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *         "name": "Spheres name", 
+       *         "type": "http://xlime.eu/voca/Sphere", 
+       *         "uri": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+       *         "inner": {
+       *         },
+       *         "inter": {},
+       *         "outer": {}
+       *      }
+       *
+       */
+      obj: {
+          type: Object,
+          observer: '_valueObjChanged'
+      },
+
+      /**
+       * The currently selected `xlime resource` in this sphere. This will be 
+       * one of the objects in the `obj`, in particular one of the resources in the
+       * `inner`, `inter` or `outer` spheres.
+       */
+      selected: {
+          type: Object,
+          readOnly: true,
+          notify: true
+      }
+    },
+
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.log(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+        this._renderCanvas();
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Returns `true` if `item` is equal to the `selected` item.
+     */
+    isSelected: function(item, selected) {
+          var result = this.referToSameResource(item.recommended, selected);
+          if (this.isLogDebugEnabled()) {
+              console.log("Item is selected ", item, selected, result);
+          }
+          return result;
+    },
+
+    addToInner: function(resourceObj) {
+      this.push("obj.inner", resourceObj);
+    },
+      
+    _handleResourceTap: function(e, detail) {
+        if (this.isLogDebugEnabled()) {
+            if (this.selected) {
+                console.log("deselecting ", this.selected);
+            } else {
+                console.log("no previous selection");
+            }
+        }
+        this._setSelected(detail.obj);
+    },
+
+    _indexOfResource: function(array, resourceObj) {
+        for (var i=0; i< array.length; i++){
+            if (array[i].recommended == resourceObj) return i;
+        }
+    },
+      
+    _handleResourceRemove: function(e, detail) {
+        var toRemove = detail.obj;
+        if (this.isLogDebugEnabled()) {
+            console.log("Handling removal of resource.", toRemove);
+        }
+
+        console.log("old spheres obj: ", this.obj);
+        var index = this._indexOfResource(this.obj.inner, toRemove);
+
+        if (index < 0) {
+            console.error("Object ", toRemove, "cannot be removed as it is not in the innerCircle.", this.obj.inner);
+            return;
+        }
+        
+        var removed = this.splice('obj.inner', index, 1);
+        console.log("new spheres obj: ", this.obj);
+        
+        if (removed) {
+            console.log("Removed ", removed);
+//            this.set('obj.inner', this.obj.inner);
+            // do I need to fire a change event for `obj`?
+            // do I need to update the `selected`?
+            var newDetail = {
+                x: detail.x,
+                y: detail.y,
+                removed: toRemove
+            }
+            this.fire('spheres-resource-removed', newDetail);
+        } else {
+            console.log("Could not remove object", removed);
+        }
+    },
+      
+    _renderCanvas: function() {
+    		var canvas = this.$.myCanvas; //document.getElementById('myCanvas');
+		    var context = canvas.getContext('2d');
+		    var centerX = canvas.width / 2;
+		    var centerY = canvas.height / 2;
+		    var radiusBig = 300;
+		    var radiusMid = 210;
+		    var radiusSmall = 120;
+		    var radiusCenter = 30;
+
+        var separatorColor = "dbdbdb"; //divider color //"#848484";
+        var outerColor = "#E8F5E9"; //green 50  //"#fff";
+        var interColor = "#AEEA00"; //lime a700  //"#b4b4b4";
+        var innerColor = "#A5D6A7"; //green 200 //"#a7e4ff";
+        var centerFromColor = "#F4FF81"; //lime a100  //"#ffe69a";
+        var centerToColor = "#C6FF00"; //lime a400 //"#FEBF00";
+        
+		    //big circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusBig, 0, 2 * Math.PI, false);
+		    context.fillStyle = outerColor;
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = separatorColor;
+		    context.stroke();
+        
+		    //mid circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusMid, 0, 2 * Math.PI, false);
+		    context.fillStyle = interColor; //'#b4b4b4';
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = separatorColor; //'#848484';
+		    context.stroke();
+        
+		    //small circle
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusSmall, 0, 2 * Math.PI, false);
+		    context.fillStyle = innerColor; //'#a7e4ff';
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = separatorColor; //'#848484';
+		    context.stroke();
+        
+		    //center
+		    context.beginPath();
+		    context.arc(centerX, centerY, radiusCenter, 0, 2 * Math.PI, false);
+		    var grd =context.createRadialGradient(centerX, centerY, 10, centerX, centerY, radiusSmall);
+		    grd.addColorStop(0, centerFromColor); //'#ffe69a');
+		    grd.addColorStop(1, centerToColor); //'#FEBF00');
+		    context.fillStyle=grd;
+		    context.fill();
+		    context.lineWidth = 1;
+		    context.strokeStyle = separatorColor; //'#848484';
+		    context.stroke();
+    },
+      
+    _valueObjChanged: function(e) {
+        console.log('valueObjChanged evt', e);
+        if (this.obj) {
+            console.log('updated value obj ', this.obj);
+        }
+    },
+
+    _calcStyle: function(circle, index) {
+        function calcSpheresParams(centerX, centerY, obj) {
+	          var resourceWidth = 40; // resources are about 80 x 66.67 
+ 	          var resourceCaptionHeight = 16.7; //was 55 in APA 
+	          
+	          ////calcular umbral de colores
+	          var minUmb=5;
+	          var medUmb=10;
+	          var topScore=50;
+	          var normalFactor=0;
+            
+            var intermediateCircle = obj.inter;
+            console.log("intermediateCircle", intermediateCircle);
+            var externalCircle = obj.outer;
+            console.log("externalCircle", externalCircle);
+	          if (intermediateCircle && intermediateCircle.length>0){
+		            var topScore=parseFloat(intermediateCircle[0].score);
+		            var lastItem = intermediateCircle[intermediateCircle.length-1];
+		            if (externalCircle && externalCircle.length > 0)
+			              lastItem = externalCircle[externalCircle.length-1];
+		            var bottomScore = parseFloat(lastItem.score);
+		            medUmb=(topScore+bottomScore)/2.2;
+		            minUmb=(bottomScore+medUmb)/2.2;
+	          }
+	          
+	          normalFactor=100/topScore;
+	          
+	          return {
+                obj: obj,
+		            centerX : centerX-resourceWidth,
+		            centerY : centerY-resourceWidth+resourceCaptionHeight, 
+		            radiusSmall : 75,
+		            radiusMid : 165,
+		            radiusBig : 255,
+		            minUmb : minUmb,
+		            medUmb : medUmb,
+		            normalFactor: normalFactor
+	          };
+        }
+        
+        function calcPosition(params, radius, i, total) {
+	          return {
+		            x : params.centerX + radius * Math.cos(Math.PI/2 + 2*Math.PI*i/total),
+		            y : params.centerY + radius * Math.sin(Math.PI/2 + 2*Math.PI*i/total)
+	          }
+        }
+
+        function calcRadius(circle, params) {
+            if (circle=== "inner") {
+                return params.radiusSmall;
+            } else if (circle === "inter") {
+                return params.radiusMid;
+            } else return params.radiusBig;
+        }
+
+        function calcTotalValsInCircle(circle, obj) {
+            if (circle=== "inner") {
+                return obj.inner.length;
+            } else if (circle === "inter") {
+                return obj.inter.length;
+            } else return obj.outer.length;
+        }
+       
+	      var grid=this.$.myCanvas;
+        if (this.isLogDebugEnabled()) {
+            console.log("clientWidth of myCanvas: ", grid.clientWidth, grid);
+            console.log("width of myCanvas: ", grid.width);
+        }
+	      var params = calcSpheresParams(grid.clientWidth / 2, grid.clientHeight / 2, this.obj);
+        var radius = calcRadius(circle, params);
+        var totalValsInCircle = calcTotalValsInCircle(circle, this.obj);
+        
+        var position = calcPosition(params, radius, index, totalValsInCircle);
+        var result = "margin-left:"+position.x+"px; margin-top:"+position.y+"px; position:absolute";
+        if (this.isLogDebugEnabled()) {
+            console.log("style for item " + index + " in " + circle, result);
+        }
+        return result;
+    },
+            
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-spheres says, ' + response;
+    },
+     */
+
+  });
+
+</script>

@@ -1,0 +1,135 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+<link rel="import" href="../polymer/polymer.html">
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<!--  
+<link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
+-->
+
+<!--
+`xlime-dataset-summary` is a web component, which renders a summary of an xLiMe dataset, i.e.
+
+The dataset-summary is associated to a `summaryObj`ect, which contains the information
+to be rendered by this component and is provided by the [https://github.com/xlime-eu/xlime-frontend-services]
+`dataset-summary` web-service.
+
+Example:
+
+    <xlime-dataset-summary
+      summary-obj='{
+         "url": "http://example.com", //xlime url for this media item
+       }'>
+    </xlime-dataset-summary>
+
+
+@group xLiMe
+@element xlime-dataset-summary
+@demo demo/xlime-dataset-summary.html
+@hero hero.svg
+-->
+<dom-module id="xlime-dataset-summary">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+
+    <content></content>
+    <paper-card id="datasetSummary">
+      <div class="card-content">
+        <div class="title">
+            <div class="big">{{summaryObj.name}}</div>
+            <div class="small"">on {{summaryObj.summaryDate}}</div>
+            <div class="small">{{summaryObj.description}}</div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">Activities: {{summaryObj.activities}}</div>
+        <div class="medium">Microposts: {{summaryObj.microposts}}</div>
+        <div class="medium">NewsArticles: {{summaryObj.newsarticles}}</div>
+        <div class="medium">TV programs: {{summaryObj.mediaresources}}</div>
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-dataset-summary',
+
+    properties: {
+
+      /**
+       * The news media item to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       * //TODO
+       *      }
+       */
+      summaryObj: {
+          type: Object,
+          observer: '_summaryObjChanged'
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _summaryObjChanged: function(e) {        
+        console.log('summaryObjChanged evt', e);
+        if (this.summaryObj) {
+            console.log('updated summaryObj ', this.summaryObj);
+        } 
+    }
+
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-news-article-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

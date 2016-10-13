@@ -1,0 +1,276 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
+<!--
+`xlime-spheres-resource` is a web component, which renders a single xlime resource
+as a small figure with an optional label.
+
+Example:
+
+    <xlime-spheres-resource
+        item='{
+         "type": "http://xlime.eu/voca/Sphere", 
+         "url": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+
+       }'>
+    </xlime-spheres-resource>
+
+Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resource object like the one shown above):
+
+    <xlime-spheres-resource
+      item='{{xLiMeResource}}'>
+    </xlime-spheres-resource>
+
+@group xLiMe
+@element xlime-spheres-resource
+@demo demo/xlime-spheres-resource.html
+@hero xLiMe.svg
+-->
+<dom-module id="xlime-spheres-resource">
+
+  <template>
+      <style include="xlime-shared-styles">
+       figure {
+           margin: 0;
+       }
+       
+       .circular{
+           --iron-image-width=50px;
+           --iron-iamge-height=50px;
+           display: inline-block;
+           height: 50px;
+           width: 50px;
+           border-radius: 50%;
+           -webkit-border-radius: 50%;
+           -moz-border-radius: 50%;
+           #background: var(--xlime-green-600);
+           color: white;
+           line-height: 50px;
+           font-size: 25px;
+           text-align: center;           
+       }
+       
+       iron-image[selected] {
+           box-shadow: 0 0 8px rgba(27, 94, 32, .8);
+           -webkit-box-shadow: 0 0 8px rgba(27, 94, 32, .8);
+           -moz-box-shadow: 0 0 8px rgba(27, 94, 32, .8);
+       }
+       
+       .circular:hover{
+           box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+           -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+           -moz-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+       }
+       
+       figure > div {
+           display: flex;
+           justify-content: center;
+       }
+
+       figure > figcaption {
+           width: 80px;
+           max-width:100px;
+           text-align: center;
+           overflow: hidden;
+           text-overflow: ellipsis;
+           white-space: nowrap;
+       }
+      </style>
+
+      <figure>
+          <div>
+              <iron-image selected$="[[selected]]" id="sphere-resource" class="circular" id="[[_getItemId(item)]]" item-type="[[_getItemType(item)]]" src="[[getThumbnailUrl(item)]]" 
+                          stye="cursor: pointer;" sizing="cover"
+                          preload fade placeholder='[[_getPlaceHolderUrl(item)]]'
+                          on-tap="_handleResourceTap">
+              </iron-image>
+              <paper-tooltip for="sphere-resource">[[getShortLabel(item)]]</paper-tooltip>
+          </div>
+          <figcaption id="caption">[[_getCaption(item)]]</figcaption>
+          <paper-tooltip for="caption">[[getShortLabel(item)]]</paper-tooltip>
+      </figure>
+      <paper-badge id="remove_button" hidden$="[[!removable]]" icon="clear" for="sphere-resource" label="remove" on-tap="_handleRemoveTap">
+      </paper-badge>
+      <paper-tooltip for="remove_button">Remove</paper-tooltip>
+      
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-spheres-resource',
+
+    /**
+     * Fired when the user taps on the `remove` button. Which is only shown when 
+     * property `removable` has been set to `true`.
+     * The event's detail contains the `x` and `y` coordinates as well as the 
+     * original `item` json object for this `xlime-spheres-resource` element.
+     *
+     * @event spheres-resource-remove
+     */
+
+    /**
+     * Fired when the user taps on the depiction of this `spheres-resource`.
+     *
+     * The event's detail contains the `x` and `y` coordinates as well as the 
+     * original `item` json object for this `xlime-spheres-resource` element.
+     *
+     * @event spheres-resource-tap
+     */
+      
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
+      
+    properties: {
+        
+      /**
+       * The resource item to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *         "type": "http://xlime.eu/voca/Sphere", 
+       *         "uri": "http://expertsystemlab.com/xlime-spheres?context=http://dbpedia.org/resource/Berlin",
+       *      }
+       *
+       */
+      item: {
+          type: Object,
+          observer: '_itemObjChanged'
+      },
+
+      /**
+       * The size of the resource, options are `small`, `normal` or `big`
+       */
+      size: {
+          type: String,
+          value: "normal"
+      },
+
+      /**
+       * Whether this `spheres-resource` should provide an option for removing the element.
+       */
+      removable: {
+          type: Boolean,
+          value: false
+      },
+
+      /**
+       * Indicates whether this `spheres-resource` has been selected (in some 
+       * element containing this).
+       */
+      selected: {
+          type: Boolean,
+          value: false
+      }
+    },
+
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.log(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _handleRemoveTap: function(e, detail) {
+        if (this.isLogTraceEnabled()) {
+            console.log("handling remove tap", e);
+        }
+        var newDetail = {
+            x: detail.x,
+            y: detail.y,
+            obj: this.item
+        };
+        if (this.isLogTraceEnabled()) {
+            console.log("firing spheres-resource-remove with", newDetail);
+        }
+        this.fire('spheres-resource-remove', newDetail);
+    },
+
+    _handleResourceTap: function(e, detail) {
+        if (this.isLogTraceEnabled()) {
+            console.log("handling remove tap", e);
+        }
+        var newDetail = {
+            x: detail.x,
+            y: detail.y,
+            obj: this.item
+        };
+        if (this.isLogTraceEnabled()) {
+            console.log("firing spheres-resource-remove with", newDetail);
+        }
+        this.fire('spheres-resource-tap', newDetail);
+    },
+      
+    _itemObjChanged: function(e) {
+        if (this.isLogDebugEnabled()) {
+            console.log('itemObjChanged evt', e);
+            if (this.obj) {
+                console.log('updated item obj ', this.obj);
+            }
+        }
+    },
+
+    _getItemId: function(itemObj)  {
+        return itemObj.url;
+    },
+
+    _getItemType: function(itemObj) {
+          return itemObj.type;
+    },
+
+    _calcSelectedClass: function() {
+        var result = "circular";
+        if (this.selected) result = "circular selected";
+        console.log("calculated class", result);
+        return result;
+    },
+
+    _getCaption: function(itemObj) {
+      return this.getShortLabel(itemObj, "??");
+    },
+      
+    _getPlaceHolderUrl: function(itemObj) {
+        return this.svgDataUri("xlime-svg:logo");
+    }
+  });
+
+</script>

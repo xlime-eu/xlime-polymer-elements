@@ -1,0 +1,135 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-media-item-card Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-media-item-card.html">
+      <link rel="import" href="../../paper-input/paper-input.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+
+      <style is="custom-style">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       :root{
+           --iron-image-width: 80px;
+           --iron-image-height: 60px;
+           --error-color: red;
+       }
+      </style>
+
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-media-item-card {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a tv programme)</h4>
+              <iron-ajax url="data/example-tv-program.json" last-response="{{tvprog}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card1" item-obj="{{tvprog}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaTv" label="Edit xLiMe TV program object" value='{{toJsonStr(tvprog)}}'' on-change='handleTvTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              
+              <br>
+
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a social media item)</h4>
+              <iron-ajax url="data/example-social-media.json" last-response="{{micropost}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card2" item-obj="{{micropost}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaMicropost" label="Edit xLiMe Micropost object" value='{{toJsonStr(micropost)}}'' on-change='handleMicropostTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+
+              <h4>An example of <code>&lt;xlime-media-item-card&gt;</code> (with a news article)</h4>
+              <iron-ajax url="data/example-news-item.json" last-response="{{newsart}}" auto></iron-ajax>
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-media-item-card id="card3" item-obj="{{newsart}}"></xlime-media-item-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaNews" label="Edit xLiMe news article object" value='{{toJsonStr(newsart)}}'' on-change='handleNewsTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTvTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.tvprog = this._updateTextChange(this.$.textareaTv, this.tvprog);
+               },
+               handleMicropostTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.micropost = this._updateTextChange(this.$.textareaMicropost, this.micropost);
+               },
+               handleNewsTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.newsart = this._updateTextChange(this.$.textareaNews, this.newsart);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+      
+  </head>
+  <body unresolved>
+
+      <x-app></x-app>
+
+  </body>
+</html>
+ 

@@ -1,0 +1,207 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xLiMe Demo: Browse recent Media-Items</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-shared-styles.html">
+      <link rel="import" href="../../polymer/polymer.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+      <link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html">      
+      <link rel="import" href="../xlime-kb-entity-item.html">
+      <link rel="import" href="../xlime-kb-entity-card.html">                        
+      <link rel="import" href="../../paper-listbox/paper-listbox.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../paper-spinner/paper-spinner.html">
+      <link rel="import" href="../xlime-media-item-item.html">
+      <link rel="import" href="../xlime-media-item-card.html">
+      <link rel="import" href="../../paper-dialog-scrollable/paper-dialog-scrollable.html">      
+      <link rel="import" href="../../paper-toast/paper-toast.html">
+
+      <style is="custom-style" include="xlime-shared-styles iron-flex iron-flex-alignment">
+       :root {
+           --xlime-item-image-width: 80px;
+           --xlime-item-image-height: 60px;
+           --xlime-primary-background-color: #65842E;
+           --xlime-highlight-color: #FFFFB2;
+           --paper-card-content: {
+               background-color: #FFFFB2;
+               border-width: 1px 0 0 0;
+               border-style: solid;
+               border-color: #679B00;
+           }
+       }
+       body {
+           background-color: var(#FFFFB2);
+       }
+       #errorToast {
+           --paper-toast-background-color: red;
+           --paper-toast-color: white;           
+       }
+       #cards {
+           #@apply(--layout-vertical);
+           #@apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+      </style>
+
+      <dom-module id="xlime-browse-recent-media-items">
+          <template>
+              <style is="custom-style" include="iron-flex">
+        section {
+          width: 90%;
+               max-height: 600px;
+               max-width: 600px;
+          height: 500px;               
+          @apply(--layout-vertical);
+        }
+        section paper-dialog-scrollable {
+          @apply(--layout-flex);
+        }
+        .header {
+          padding: 8px 24px;
+        }
+        .footer {
+          padding: 8px 24px;
+          text-align: right;
+        }
+               
+         --paper-card-header-image: {
+           max-height: 160px;
+           opacity: 0.95;
+         }
+         --paper-card-header-image-text: {
+           bottom: 1em;
+           left: 5px;
+           color: var(--paper-card-header-color, white);
+           background: var(--xlime-primary-background-color, black);
+         }
+               
+      </style>
+      <iron-ajax url="[[baseXlimeServiceUrl]]/services/latestMediaItems" params='{"minutes": 10}' last-response="{{latestMediaItems}}"
+                 loading="{{latestMediaItemsLoading}}" auto></iron-ajax>
+              <div class="layout horizontal">
+                  <section id="mediaItemsSection">
+                      <div class="header">Recently in the media...</div>
+                      <paper-spinner alt="Loading media items" class="center" active="[[latestMediaItemsLoading]]"></paper-spinner>
+                      <paper-dialog-scrollable id="mediaItemsScrollable" >
+                          <paper-listbox id="mediaItems" on-iron-select="_handleMediaItemSelect">
+                              <template is="dom-repeat" items="{{latestMediaItems.mediaItems}}">
+                                  <xlime-media-item-item item="{{item}}"></xlime-media-item-item>
+                              </template>
+                          </paper-listbox>
+                      </paper-dialog-scrollable>
+                  </section>
+                  <section>
+                      <h4>More details about selected publication:</h4>
+                      <xlime-media-item-card id="mediaItemCard" item-obj="{}">
+                      </xlime-media-item-card>
+                  </section>
+              </div>
+              <div class="layout horizontal">
+                  <section id="annotationsSection">
+                      <h4>What is mentioned: </h4>
+                      <iron-ajax id="ajaxAnnotations" url="[[baseXlimeServiceUrl]]/services/annotationsFor" last-response="{{entityAnnotations}}"
+                                 on-error="_handleAjaxAnnotationsError" timeout="5000"
+                                 loading="{{loadingAnnotations}}"></iron-ajax>
+                      <paper-spinner alt="Loading annotations" class="center" active="[[loadingAnnotations]]"></paper-spinner>
+                      <paper-dialog-scrollable id="mediaItemsScrollable" >
+                          <paper-listbox id="entities" on-iron-select="_handleEntitySelect" hidden$="[[loadingAnnotations]]">
+                              <template is="dom-repeat" items="{{entityAnnotations}}">
+                                  <xlime-kb-entity-item entity="{{item.entity}}"></xlime-kb-entity-item>
+                              </template>
+                          </paper-listbox>
+                      <paper-dialog-scrollable id="mediaItemsScrollable" >
+                  </section>
+                  <section>
+                      <h4>Details:</h4>
+                      <iron-ajax id="ajaxEntSumma" url="[[baseXlimeServiceUrl]]/services/entities" last-response="{{entitySummas}}"
+                                 loading="{{loadingEntitySumma}}"></iron-ajax>
+                      <paper-spinner alt="Loading entity details" class="center" active="[[loadingEntitySumma]]"></paper-spinner>
+                      <xlime-kb-entity-card entity="[[getEntity(entitySummas.*, 0)]]" on-statement-related-tap="myHandleStatementRelatedTap"></xlime-kb-entity-card>
+                  </section>
+              </div>
+              <paper-toast id="errorToast" class="fit-bottom" text=""></paper-toast>
+          </template>
+      </dom-module> 
+      
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'xlime-browse-recent-media-items',
+               properties: {
+                   entitySummas: {
+                       type: Array
+                   },
+                   baseXlimeServiceUrl: {
+                       type: String,
+                       value: "http://expertsystemlab.com:8080/frontend-services"
+                   }
+               },
+               _handleMediaItemSelect: function(e, detail) {
+                   console.log("handlign media-item selection: ", e);
+                   console.log("handlign media-item selection: ", detail);
+                   console.log("mediaItemsSection: ", this.$.mediaItemsSection);
+                   console.log("mediaItemsScrollable: ", this.$.mediaItemsScrollable);
+                   console.log("mediaItemsScrollable.dialogElement: ", this.$.mediaItemsScrollable.dialogElement);                   
+                   // bind to #mediaItemCard.itemObj to show details
+                   this.$.mediaItemCard.itemObj = detail.item.item;                   
+                   // start ajax request for retrieving annotations for the mediaItem
+                   var params = {};
+                   params.url = detail.item.item.url;
+                   this.$.ajaxAnnotations.params = params;
+                   this.$.ajaxAnnotations.generateRequest();
+               },
+               _handleEntitySelect: function(e, detail) {
+                   console.log("handlign entity selection: ", e);
+                   console.log("handlign entity selection: ", detail);
+                   var params = {};
+                   params.url = detail.item.entity.url;
+                   this.$.ajaxEntSumma.params = params;
+                   this.$.ajaxEntSumma.generateRequest();                   
+//                   this.$.entityCard.entity = detail.item.entity; // not enough info (missing summary statements)
+               },
+               getEntity: function(change, index) {
+                   console.log("extracting entity summary from array");
+                   return change.base[index];
+               },
+               myHandleStatementRelatedTap: function(e, detail) {
+                   console.log("Handling statementRelatedTap", e);
+                   console.log("Handling statementRelatedTap", detail);
+                   var ajax = this.$.ajaxEntSumma;
+                   var params = {};
+                   params.url = detail.obj.url;
+                   ajax.params = params;
+                   ajax.generateRequest();
+               },
+               _handleAjaxAnnotationsError: function(e, detail) {
+                   console.log("Handling ajax annotations error", e);
+                   console.log("Handling ajax annotations error", detail);
+                   var toast = this.$.errorToast;
+                   console.log("Notifying via:", toast);
+                   if (detail.error.message && detail.error.message.indexOf("status code: 500") > 0) {
+                       toast.text = "Error retrieving annotations";
+                       toast.open();
+                   } else if (detail.error.type && detail.error.type === "timeout") {
+                       toast.text = "Server took too long to retrieve annotations, sorry.";
+                       toast.open();
+                   }
+               }
+           });
+       });
+      </script>
+  </head>
+  
+  <body unresolved>
+      
+      <xlime-browse-recent-media-items></xlime-browse-recent-media-items>
+      
+  </body>
+</html>

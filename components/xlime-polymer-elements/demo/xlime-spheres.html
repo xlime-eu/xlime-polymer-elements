@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-spheres Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-spheres.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height: 300px;
+           };
+       }       
+       :root {
+           --error-color: red;
+       }
+      </style>
+
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a tv program</code></h4>
+              <iron-ajax url="data/example-spheres-response.json" last-response="{{spheresObj}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-spheres log-level="TRACE" obj='[[spheresObj]]'></xlime-spheres>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Spheres object" value='{{toJsonStr(spheresObj)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="20"></paper-textarea>
+                  </div>
+              </div>
+
+              <br>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+//                   console.log("stringifying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.spheresObj = this._updateTextChange(this.$.textarea, this.spheresObj);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+      
+  </head>
+  <body unresolved>
+
+      <x-app></x-app>
+      
+      <!-- 
+      <h3>An example of <code>&lt;xlime-spheres&gt;</code></h3>
+      <demo-snippet class="centered-demo"><template>
+          <div class="vertical-section">
+              <xlime-spheres log-level="TRACE"></xlime-spheres>
+          </div>
+          <div class="vertical-section">
+              <p></p>
+              <paper-textarea id="inputObj" label="xLiMe Value Object"
+                              value='{
+"name": "test spheres",
+"uri": "http://example.com/sphere",
+"type": "http://sphere", 
+"inner": [ { "score": 0.9,
+ "recommended": {
+ "url":"http://dbpedia.org/resource/Albert_Einstein",
+ "label":"Albert Einstein",
+ "depictions":[
+    "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg?width=300"],
+ "types":[
+    "http://xmlns.com/foaf/0.1/Person",
+    "http://dbpedia.org/ontology/Person",
+    "http://schema.org/Person"
+    ]
+                                     }},
+        {
+            "score": 0.9,
+            "recommended": {
+                "url": "http://dbpedia.org/resource/Berlin",
+                "label": "Berlin",
+                "depictions": [
+                   ],
+                "types": [
+                    "http://dbpedia.org/ontology/Place"
+                ]
+            }},
+        {
+            "score": 0.9,
+            "recommended": {
+                "url": "http://dbpedia.org/resource/Amsterdam",
+                "label": "Amsterdam",
+                "depictions": [
+                   ],
+                "types": [
+                    "http://dbpedia.org/ontology/Place"
+                ]
+            }}
+],
+"inter": [ 
+],
+"outer": [
+ 
+]
+}'></paper-textarea>
+               <button id="update" onclick="updateValue()">Update Item</button></p>
+          </div>
+      </template>
+      </demo-snippet>
+      -->
+      
+      <script>
+       /*
+       var demoSnippet = document.querySelector('demo-snippet');
+       var listeningRemoval = false;
+
+       function handleResourceRemoval(e) {
+           console.log("Demo: Handling resource removal", e);
+           var inElt = document.querySelector('#inputObj');
+           var spheresElt = e.srcElement;
+           inElt.value = JSON.stringify(spheresElt.obj, null, 4);
+       }
+       
+       document.querySelector('xlime-spheres').addEventListener('kick', function (e) {
+        console.log(e.detail.kicked); // true
+       })
+       function updateValue() {
+           console.log("updating xlime-spheres component ");
+           var inElt = document.querySelector('#inputObj');
+           var spheresElt = document.querySelector('xlime-spheres');
+           console.log("spheresElt", spheresElt);
+           if (spheresElt && !listeningRemoval) {
+               spheresElt.addEventListener('spheres-resource-removed', handleResourceRemoval);
+           }
+           
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           if (spheresElt) spheresElt.obj = newObj;
+       }
+*/              
+      </script>
+
+  </body>
+</html>

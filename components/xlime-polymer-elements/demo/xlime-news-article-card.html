@@ -1,0 +1,168 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-news-article-media-card Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-news-article-card.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+
+      <style is="custom-style">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       :root {
+           --error-color: red;
+       }
+      </style>
+
+      <dom-module id="x-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-news-article-card {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+              <h4>An example of <code>&lt;xlime-social-media-item&gt;</code></h4>
+              <div id="codeTemplate">
+              <iron-ajax url="data/example-news-item.json" last-response="{{newsArt}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-news-article-card item-obj='{{newsArt}}'></xlime-news-article-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textareaNews" label="Edit xLiMe News article object" value='{{toJsonStr(newsArt)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              </div>
+
+              <br>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.newsArt = this._updateTextChange(this.$.textareaNews, this.newsArt);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+               
+           });
+       });
+      </script>
+      
+  </head>
+  <body  unresolved>
+
+      <x-app></x-app>
+      <!-- 
+      <h4>An example of <code>&lt;xlime-news-article-card&gt;</code></h4>
+      <div class="vertical-section">
+          <xlime-news-article-card item-obj="{}" fancy>
+          </xlime-news-article-card>
+      </div>
+      
+      <div class="vertical-section">
+          
+          <p><paper-textarea id="inputObj" label="xLime News Article Item Object"
+                             value='{
+"url": "http://ijs.si/article/367691732",
+"content": {
+       "full": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+"preview": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..."
+},
+"title": "Lorem ipsum dolor sit amet",
+"created": {
+              "timestamp": 1453921997000,
+              "formatted": "27/01/2016 08:13:17",
+              "timeAgo": "49 days ago"
+},
+"lang": "en",
+"publisher": {
+"url": "www.ngnews.ca",
+"label": "www.ngnews.ca"
+},
+"source": "http://www.ngnews.ca/Opinion/Letter-to-the-Editor/2016-01-27/article-4417291/Proper-air-monitoring-not-being-done-for-coal-operation/1",
+"location": null,
+"type": "http://kdo.render-project.eu/kdo#NewsArticle"
+}'></paper-textarea>
+          <button id="update" onclick="updateCard()">Update Item</button></p>
+      </div>
+       -->
+
+      <script>
+       /*
+       var newsArtCard = document.querySelector('xlime-news-article-card');
+
+       function updateCard() {
+           console.log("updating media item component ", newsArtCard);
+           var inElt = document.querySelector('#inputObj');
+           console.log("using inputObj:", inElt);
+           if (newsArtCard.itemObj) {
+    //           console.log("old obj: ", newsArtCard.itemObj);
+//           var newObj = JSON.parse(inElt.value.trim());
+               //         console.log("new obj: ", newObj);
+           }
+           var newObj = {};
+           try {
+               var textVal = inElt.value;
+               console.log("parsing as json ", textVal);
+               newObj = JSON.parse(textVal);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               window.alert("error parsing input value: " + err);
+               newObj = {};
+           }
+           console.log("Parsed object as ", newObj);
+           newsArtCard.itemObj = newObj;
+       }
+       
+//       document.querySelector('#update').addEventListener('click', updateCard());
+*/
+       
+      </script>
+
+
+  </body>
+</html>

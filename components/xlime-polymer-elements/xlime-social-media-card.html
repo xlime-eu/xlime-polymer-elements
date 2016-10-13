@@ -1,0 +1,252 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-card/paper-card.html">
+
+<!--
+`xlime-social-media-card` is a web component, which renders an xLiMe social-media item.
+
+Example:
+
+    <xlime-social-media-card
+      item-obj=' "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
+         "type": "http://rdfs.org/sioc/ns#MicroPost",
+         "content": { 
+            "full": "some long.... full description",
+            "preview": "short preview of full",
+          },
+          "created": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "lang": "en", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "creator": {
+             "url": "http://example.com/creator",
+             "label": "Some Name"
+          },
+          "source": "http://example.com/microPost",
+          "sourceType": "MicroBlog"
+       }'>
+    </xlime-social-media-card>
+
+The rendered element will consist of a card, showing the following information about the
+social media item:
+- the content: if the content is very long, only a preview is shown
+- the language
+- the author/creator
+- the date-time (when the social media item was created)
+- the publisher
+- the following actions:
+  + a link to view the original content at the publisher's site
+  + if the content is long: a toggle to swap between the preview and the full content.
+
+The `itemObj` follows the format returned by the `xlime public webserver`.
+
+Height and width are specified as style attributes:
+
+    xlime-media-card {
+      height: 300px;
+      width: 50em;
+    }
+
+@group xLiMe
+@element xlime-social-media-card
+@demo demo/xlime-social-media-card.html
+@hero hero.svg
+-->
+<dom-module id="xlime-social-media-card">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+    <content></content>
+    <paper-card id="socMediaCard" class='fancy'>
+      <div class="card-content">
+        <div class="avatar">{{itemObj.lang}}</div>
+        <div class="title">
+            <div class="medium">by: <a href='{{itemObj.creator.url}}' target='_blank'>{{itemObj.creator.label}}</a></div>
+            <div class="small">on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{_currentContent}}</div>
+      </div>
+      <div class="card-actions">
+        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
+        <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-social-media-card',
+
+    properties: {
+        
+      /**
+       * The media item to be displayed. Normally, this value is calculated
+       * based on the value of the href property.
+       * The object will typically be something like: 
+       *
+       *
+       *      {
+       *      lang: "en", //2-letter language code 
+       *      type: "http://rdfs.org/sioc/ns#MicroPost",
+       *      url: "http://vico-research.com/social/xxxxxxx",
+       *      content: { 
+       *          full: "some full content",
+       *          preview: "some ..",
+       *      },
+       *      created: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *      },
+       *      publisher: {
+       *          label: "some publisher",
+       *          url: "http://example.com/"
+       *      },
+       *      creator: {
+       *          label: "creator",
+       *          url: "creator url"
+       *      },
+       *      source: "http://example.com/article",
+       *      sourceType: "MicroBlog"
+       *      }
+       */
+      itemObj: {
+          type: Object,
+          observer: '_itemObjChanged'
+      }, 
+
+      /**
+       * Private variable used for toggling the full and preview modes of the content.
+       */
+      _currentContent: {
+          type: String
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Handles changes to the `itemObj`ect underlying this card.
+     */  
+    _itemObjChanged: function(e) {
+        function calcAvatarFromPublisher(publisher, sourceType) {
+            if (publisher.url.indexOf('www.twitter.com') > 0) return 'tw';
+            if (publisher.url.indexOf('plus.google.com') > 0) return 'g+';
+            if (publisher.url.indexOf('www.facebook.com') > 0) return 'fb';
+            if (sourceType === 'Blog') return 'blog';
+            return 'microPost';
+        }
+
+        function shouldHideTogglePreviewBtn(content) {
+            if (content && content.full && content.preview) return false;
+            else return true;
+        }
+
+        function calcCurrent(content) {
+            console.log("Calculating currentContent for", content);
+            if (content && content.full) {
+                if (content.preview) {
+                    return content.preview;
+                } else {
+                    return content.full;
+                }
+            } else {
+                return "Missing content";
+            }
+        }
+        
+        console.log('itemObjChanged evt', e);
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            this._currentContent = calcCurrent(contentObj);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(contentObj);
+//            console.log('updated itemObj ', this.itemObj);
+//            console.log('itemObj.content', contentObj);
+        } else this._currentContent = "Empty"
+    },
+      
+    _togglePreview: function() {
+        console.log('toggling preview');
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            if (contentObj.current === contentObj.full) {
+                console.log('Showing preview object');
+                contentObj.current = contentObj.preview;
+            } else {
+                console.log('Showing full object');
+                contentObj.current = contentObj.full;
+            }
+        } else console.log('No itemObj available', this.itemObj);
+    },
+
+    _togglePreviewLabel: function(contentContent) {
+        if (this.itemObj && this.itemObj.content) {
+            if (this._currentContent === this.itemObj.content.full) {
+                return 'Collapse'
+            } else return 'Expand';
+        } else return 'Expand';
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-social-media-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

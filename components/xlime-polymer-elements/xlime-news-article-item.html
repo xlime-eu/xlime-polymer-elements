@@ -1,0 +1,176 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+<link rel="import" href="../polymer/polymer.html">
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
+
+<!--
+`xlime-news-article-item` is a web component, which renders an xLiMe news-article item as an
+item intended to be included in a list. Hence it only renders the most basic information about
+the news article in order to help users to identify the contents. For a more complete view of
+the news article you should use the `xlime-news-article-card` component.
+
+
+The news-article-item is associated to a news-article `itemObj`ect, which contains the information
+to be rendered by this component.
+
+Example:
+
+    <xlime-news-article-item
+      item-obj='{
+         "url": "http://example.com", //xlime url for this media item
+         "type": "http://kdo.render-project.eu/kdo#NewsArticle",
+         "title": "Title of Article",
+         "content": { 
+            "full": "some long.... full content",
+            "preview": "short preview of full",
+          },
+          "created": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "lang": "en", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "creator": {
+             "label": "creator",
+             "url": "creator url"
+          },
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          }
+       }'>
+    </xlime-news-article-item>
+
+@group xLiMe
+@element xlime-news-article-item
+@demo demo/xlime-news-article-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-news-article-item">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+    <paper-icon-item id="newsArticleItem" class='fancy'>
+        <div class="small-avatar" item-icon><iron-icon icon="fa:newspaper-o"></iron-icon></div>
+        <paper-item-body two-line>
+            <div>{{itemObj.title}}</div>
+            <div secondary>published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </paper-item-body>
+        <paper-icon-button icon="star" alt="favourite this!">
+        </paper-icon-button>
+    </paper-icon-item>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-news-article-item',
+
+    properties: {
+
+      /**
+       * The news media item to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://kdo.render-project.eu/kdo#NewsArticle",
+       *       title: "Title of Article",
+       *       content: { 
+       *         full: "some long.... full content",
+       *         preview: "short preview of full",
+       *       },
+       *       created: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *       },
+       *       lang: "en", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       creator: {
+       *         label: "creator",
+       *         url: "creator url"
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/article"
+       *       }
+       *      }
+       */
+      itemObj: {
+          type: Object,
+          observer: '_itemObjChanged'
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _itemObjChanged: function(e) {        
+        console.log('itemObjChanged evt', e);
+        if (this.itemObj) {
+            console.log('updated itemObj ', this.itemObj);
+            console.log('itemObj.content', this.itemObj.content);
+        } else this._currentContent = "Empty"
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-news-article-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

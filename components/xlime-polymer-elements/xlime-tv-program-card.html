@@ -1,0 +1,277 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
+
+<!--
+`xlime-tv-program-card` is a web component, which renders an xLiMe tv-program, i.e.
+
+zattoo-tv-program (or segment?).
+
+Example:
+
+    <xlime-tv-program-card
+      item-obj='{
+         "url": "http://zattoo.com/program/111277860", //xlime url for this media item
+         "type": "http://www.w3.org/ns/ma-ont#MediaResource",
+         "title": "Title for TV programme",
+         "description": { 
+            "full": "some long.... full description",
+            "preview": "short preview of full",
+          },
+          "broadcastDate": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "relatedImage": "http://example.com/example.png", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "duration": {
+             "totalSeconds": 1800,
+             "hours": 0,
+             "minutes": 30,
+             "seconds": 0
+          },
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          },
+          "relatedLocation": {
+             "lon": 0,
+             "lat": 0,
+             "label": "GB"
+          }
+       }'>
+    </xlime-tv-program-card>
+
+Example using polymer binding (Where `myItemObj` is an object like the one shown above):
+
+    <xlime-tv-program-card
+      item-obj='{{myItemObj}}'>
+    </xlime-tv-program-card>
+
+@group xLiMe
+@element xlime-tv-program-card
+@demo demo/xlime-tv-program-card.html
+@hero hero.svg
+-->
+<dom-module id="xlime-tv-program-card">
+
+  <template>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+      </style>
+    
+    <content></content>
+    <paper-card id="tvProgramCard" class='fancy'>
+      <div class="card-content">
+          <div hidden$="[[!_imageAvailable]]" class="avatar" style="background:white">
+              <iron-image style="width:64px; height:48px" src='{{itemObj.relatedImage}}'></iron-image>
+          </div>
+          <div hidden$='[[_imageAvailable]]' class="avatar">
+              <iron-icon class='fancy' icon="notification:live-tv"></iron-icon>
+              <!--  
+              {{itemObj.lang}}
+              -->
+          </div>
+        <div class="title">
+            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
+            <div class="small">broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <xlime-value obj='{{itemObj.publisher}}' mode="link" url-target="_blank"></xlime-value> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="medium">{{_currentContent}}</div>
+      </div>
+      <div class="card-actions">
+        <paper-button id="togglePreviewBtn" on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+      </div>
+    </paper-card>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-tv-program-card',
+
+    behaviors: [XLiMe.LogBehavior],
+      
+    properties: {
+        
+      /**
+       * The tv-program item to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://www.w3.org/ns/ma-ont#MediaResource",
+       *       title: "Title of TV Program",
+       *       description: { 
+       *         full: "some long.... full description",
+       *         preview: "short preview of full",
+       *       },
+       *       broadcastDate: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *       },
+       *       relatedImage: "http://example.com/example.png", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       duration: {
+       *         totalSeconds: 1800,
+       *         hours: 0,
+       *         minutes: 30,
+       *         seconds: 0
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/tv-program"
+       *       }
+       *      }
+       */
+      itemObj: {
+          type: Object,
+          observer: '_itemObjChanged'
+      }, 
+
+     /**
+      * Whether the `itemObj` has a valid `relatedImage` property.
+      */
+      _imageAvailable: {
+          type: Boolean
+       },
+        
+      /**
+       * Private variable used for toggling the full and preview modes of the content.
+       */
+      _currentContent: {
+          type: String
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _itemObjChanged: function(e) {
+        function shouldHideTogglePreviewBtn(content) {
+            if (content && content.full && content.preview) return false;
+            else return true;
+        }
+
+        function calcCurrent(content) {
+            console.log("Calculating currentContent for", content);
+            if (content && content.full) {
+                if (content.preview) {
+                    return content.preview;
+                } else {
+                    return content.full;
+                }
+            } else {
+                return "Missing content";
+            }
+        }
+
+        if (this.isLogDebugEnabled) console.log('itemObjChanged evt', e);
+        if (this.itemObj) {
+            this._currentContent = calcCurrent(this.itemObj.description);
+            this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
+            if (this.itemObj.relatedImage) this._imageAvailable = true;
+            else this._imageAvailable = false;
+            
+            if (this.isLogDebugEnabled()) {
+                console.log('updated itemObj ', this.itemObj);
+                console.log('itemObj.description', this.itemObj.description);
+                console.log('imageAvailable', this._imageAvailable);
+            }
+        } else {
+            this._currentContent = "Empty"
+            this._imageAvailable = false;
+        }
+    },
+      
+      _togglePreview: function() {
+        if (this.isDebugEnabled) console.log('toggling preview');
+          
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            if (this._currentContent === contentObj.full) {
+                if (this.isDebugEnabled) console.log('Showing preview object');
+                this._currentContent = contentObj.preview;
+            } else {
+                if (this.isDebugEnabled) console.log('Showing full object');
+                this._currentContent = contentObj.full;
+            }
+        } else if (this.isDebugEnabled) console.log('No itemObj available', this.itemObj);
+    },
+
+    _togglePreviewLabel: function(currentContent) {
+        if (this.itemObj && this.itemObj.content) {
+            if (this._currentContent === this.itemObj.content.full) {
+                return 'Collapse'
+            } else return 'Expand';
+        } else return 'Expand';
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-tv-program-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

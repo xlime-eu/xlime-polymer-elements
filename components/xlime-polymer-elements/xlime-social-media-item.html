@@ -1,0 +1,211 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+
+<!--
+`xlime-social-media-item` is a web component, which renders an xLiMe social-media post as an
+item intended to be included in a list. Hence it only renders the most basic information about
+the social-media post in order to help users to identify the contents, for a more complete view
+of the social-media post you should use the `xlime-social-media-card` component.
+
+Example:
+
+    <xlime-social-media-item
+      item-obj='{ "url": "http://vico-research.com/social/41c067eb-56d1-33ef-86b6-c714a41dcfd6", //xlime url for this media item
+         "type": "http://rdfs.org/sioc/ns#MicroPost",
+         "content": { 
+            "full": "some long.... full description",
+            "preview": "short preview of full",
+          },
+          "created": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "lang": "en", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "creator": {
+             "url": "http://example.com/creator",
+             "label": "Some Name"
+          },
+          "source": "http://example.com/microPost",
+          "sourceType": "MicroBlog"
+       }'>
+    </xlime-social-media-item>
+
+The `itemObj` follows the format returned by the `xlime public webserver`.
+
+@group xLiMe
+@element xlime-social-media-item
+@demo demo/xlime-social-media-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-social-media-item">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+    <paper-icon-item id="socMediaItem" class='fancy'>
+        <div id="avatar" class="small-avatar" item-icon>
+            <iron-icon icon="{{socialMediaIconId(itemObj)}}"></iron-icon>
+        </div>
+        <paper-badge label="{{itemObj.lang}}" for="avatar"></paper-badge>
+        <paper-item-body two-line>
+            <div>{{_currentContent}}</div>
+            <div secondary>on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+        </paper-item-body>
+        <paper-icon-button icon="star" alt="favourite this!">
+        </paper-icon-button>
+    </paper-icon-item>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-social-media-item',
+
+    behaviors: [XLiMe.ObjectInspectorBehavior],
+      
+    properties: {
+        
+      /**
+       * The media item to be displayed. Normally, this value is calculated
+       * based on the value of the href property.
+       * The object will typically be something like: 
+       *
+       *
+       *      {
+       *      lang: "en", //2-letter language code 
+       *      type: "http://rdfs.org/sioc/ns#MicroPost",
+       *      url: "http://vico-research.com/social/xxxxxxx",
+       *      content: { 
+       *          full: "some full content",
+       *          preview: "some ..",
+       *      },
+       *      created: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *      },
+       *      publisher: {
+       *          label: "some publisher",
+       *          url: "http://example.com/"
+       *      },
+       *      creator: {
+       *          label: "creator",
+       *          url: "creator url"
+       *      },
+       *      source: "http://example.com/article",
+       *      sourceType: "MicroBlog"
+       *      }
+       */
+      itemObj: {
+          type: Object,
+          observer: '_itemObjChanged'
+      }, 
+
+      /**
+       * Private variable used for toggling the full and preview modes of the content.
+       */
+      _currentContent: {
+          type: String
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Handles responses from the iron-ajax element.
+     */  
+    _itemObjChanged: function(e) {
+        function calcAvatarFromPublisher(publisher, sourceType) {
+            if (publisher.url.indexOf('www.twitter.com') > 0) return 'tw';
+            if (publisher.url.indexOf('plus.google.com') > 0) return 'g+';
+            if (publisher.url.indexOf('www.facebook.com') > 0) return 'fb';
+            if (sourceType === 'Blog') return 'blog';
+            return 'microPost';
+        }
+
+        function calcCurrent(content) {
+            console.log("Calculating currentContent for", content);
+            if (content && content.full) {
+                if (content.preview) {
+                    return content.preview;
+                } else {
+                    return content.full;
+                }
+            } else {
+                return "Missing content";
+            }
+        }
+        
+        console.log('itemObjChanged evt', e);
+        if (this.itemObj) {
+            var contentObj = this.itemObj.content;
+            this._currentContent = calcCurrent(contentObj);
+//            console.log('updated itemObj ', this.itemObj);
+//            console.log('itemObj.content', contentObj);
+        } else this._currentContent = "Empty"
+    },
+            
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-social-media-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-tv-program-item Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-value.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       xlime-value {
+           display: inline;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height: 300px;
+           };
+       }       
+      </style>    
+  </head>
+  <body onload="updateValue()" unresolved>
+
+      <h3>An example of <code>&lt;xlime-value&gt;</code></h3>
+      <demo-snippet class="centered-demo"><template>
+          <div class="vertical-section">
+              <ul>
+              <li><span>default mode (<code>labelWithLink</code>):  </span>
+              <xlime-value id="defaultValue" obj='{}' log-level="INFO" url-target="_blank">
+              </xlime-value>
+              </li>
+              <li><span><code>link</code> mode:  </span>
+              <xlime-value id="linkValue" mode="link" obj='{}' log-level="INFO" url-target="_blank"">
+              </xlime-value></li>
+              <li><span><code>plainText</code> mode:  </span>
+              <xlime-value id="plainTextValue" mode="plainText" obj='{}' log-level="INFO">
+              </xlime-value></li>
+              </ul>
+          </div>
+          <div class="vertical-section">
+              <p></p>
+              <paper-textarea id="inputObj" label="xLiMe Value Object"
+                          value='{
+"url": "http://dbpedia.org/resource/Belin",
+"label": "Berlin"
+}'></paper-textarea>
+               <button id="update" onclick="updateValue()">Update Item</button></p>
+          </div>
+      </template>
+      </demo-snippet>
+
+      <script>
+       var demoSnippet = document.querySelector('demo-snippet');
+
+       function updateValue() {
+           console.log("updating xlime-value components ");
+           var inElt = document.querySelector('#inputObj');
+           var defaultValueElt = document.querySelector('#defaultValue');
+           console.log("defaultValueElt", defaultValueElt);
+           var linkValueElt = document.querySelector('#linkValue');
+           var plainTextValueElt = document.querySelector('#plainTextValue');       
+
+           /*
+           if (defaultValueElt.obj) {
+               console.log("using inputObj:", inElt);
+               console.log("old valueObj: ", defaultValueElt.obj);
+               console.log("new valueObj: ", inElt.value.trim());
+           }
+           */
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           if (defaultValueElt) defaultValueElt.obj = newObj;
+           if (linkValueElt) linkValueElt.obj = newObj;
+           if (plainTextValueElt) plainTextValueElt.obj = newObj;
+       }
+              
+      </script>
+
+  </body>
+</html>

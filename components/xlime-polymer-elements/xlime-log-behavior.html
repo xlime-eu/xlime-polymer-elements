@@ -1,0 +1,37 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+ window.XLiMe = window.XLiMe || {};
+ XLiMe.LogBehavior = {
+     properties: {
+         /**
+          * Indicates the logLevel for this component. Possible values, from less verbose to
+          * more verbose, are:
+          *   * ERROR
+          *   * INFO (default)
+          *   * DEBUG
+          *   * TRACE
+          */
+         logLevel: {
+             type: String,
+             value: 'INFO'
+         }
+
+     },
+
+     /**
+      * Determines whether the `logLevel` is at least `DEBUG`
+      */
+     isLogDebugEnabled: function() {
+        return this.logLevel === "DEBUG" || this.isLogTraceEnabled();
+     },
+
+     /**
+      * Determines whether the `logLevel` is at least `DEBUG`
+      */
+     isLogTraceEnabled: function() {
+        return this.logLevel === "TRACE";
+     }
+     
+ }
+</script>

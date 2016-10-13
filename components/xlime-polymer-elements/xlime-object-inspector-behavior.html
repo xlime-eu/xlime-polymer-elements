@@ -1,0 +1,278 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-meta/iron-meta.html">
+<link rel="import" href="xlime-iconset-svg.html">
+<link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
+
+<script>
+ window.XLiMe = window.XLiMe || {};
+ /**
+  * Provides methods for inspecting a JSON object, determining the type of the object and extracting default values,
+  * such as labels, or depictions.
+  */
+ XLiMe.ObjectInspectorBehavior = {
+     properties: {
+         /**
+          * @type {!Polymer.IronMeta}
+          */
+         _ironMeta: {
+             value: Polymer.Base.create('iron-meta', {type: 'iconset'}),
+             observer: '_updateIronMeta'
+         }
+     },
+
+     _updateIronMeta: function() {
+         var iconset = this._ironMeta;
+     },
+     
+     /**
+      * Returns a short label for identifying the object. If no such label is found, 
+      * returns the defaultValue.
+      */
+     getShortLabel: function(object, defaultValue) {
+         if (object) {
+             if (object.label) return object.label;
+             if (object.title) return object.title;
+             if (this.isSocialMediaItem(object)) {
+                 return object.sourceType;
+             }
+             if (this.isSearchString(object)) {
+                 return object.value;
+             }
+             if (this.isASRAnnotation(object)) {
+                 return "ASR: " + this.asrTextPreview(object);
+             }
+             if (this.isSubtitleSegment(object)) {
+                 return "Subtitle: " + this.subtitleTextPreview(object);
+             }
+             if (this.isOCRAnnotation(object)) {
+                 return "OCR: " + this.ocrTextPreview(object);
+             }
+         } return defaultValue;
+     },
+
+     /**
+      * Returns a url for a small depiction for the given object. This may be a depiction url 
+      * included by some xLime objects, or it may be a default depiction for a given object 
+      * type.
+      */
+     getThumbnailUrl: function(object, defaultValue) {
+         if (object) {
+             if (object.relatedImage) {
+                 console.log("Found relatedImage as thumbnail", object.relatedImage);
+                 return object.relatedImage;
+             } else if (object.depictions && object.depictions.length > 0) {
+                 console.log("Found depiction array as thumbnail", object.depictions);                 
+                 return object.depictions[0];
+             } else if (this.isSocialMediaItem(object)) {
+                 console.log("Analysing social media type to find appropirate thumbnail.");                 
+                 return this.socialMediaIconUrl(object, defaultValue);
+             } else if (this.isNewsArticleItem(object)) {
+                 return this.svgDataUri("fa:newspaper-o");
+             } else if (this.isTVProgItem(object)) {
+                 return this.svgDataUri("notification:live-tv");
+             } else if (this.isSearchString(object)) {
+                 return this.svgDataUri("fa:search");
+             } else if (this.isASRAnnotation(object)) {
+                 return this.svgDataUri("fa:volume-down");
+             } else if (this.isSubtitleSegment(object)) {
+                 return this.svgDataUri("fa:cc");
+             } else if (this.isOCRAnnotation(object)) {
+                 return this.svgDataUri("fa:file-text-o");
+             }
+         }
+         console.log("Could not determine thumbnail for object", object);
+         return defaultValue;
+     },
+
+     /**
+      * Returns a url for an image depicting the social-media platform for 
+      * a given `object` (which is assumed to be `isSocialMediaItem`).
+      */
+     socialMediaIconUrl: function(object, defaultValue) {
+         try {
+             return this.svgDataUri(this.socialMediaIconId(object, "social:people"));
+         } catch (e) {
+             console.warn("Error getting iconUrl for social-media object, returning default.", e);
+             if (defaultValue)
+                 return defaultValue;
+             else this.svgDataUri("social:people");
+         }
+     },
+
+     socialMediaIconId: function(object, defaultValue) {
+         if (object && object.publisher) {
+             var url = object.publisher.url;
+             console.log("Using publisher url", url);                 
+             if (url === "http://www.twitter.com/") return "fa:twitter";//"xlime-svg:twitter");
+             if (url === "http://www.facebook.com/") return "fa:facebook-official";
+         }
+         console.log("Failed to find social media icon url");
+         if (defaultValue)
+             return defaultValue;
+         else return "social:people";
+     },
+     
+     _DEFAULT_ICONSET: 'xlime-svg',
+     
+     svgDataUri: function(icon) {
+        var result = "data:image/svg+xml;utf8," + escape(this.svgElement(icon).outerHTML);
+//        console.log("Returning svg data uri: ", result);
+        return result;
+     },
+
+     svgElement: function(icon) {
+         function prepareSvgClone(sourceSvg, size) {
+             if (sourceSvg) {
+                 var content = sourceSvg.cloneNode(true);
+                 var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                 var viewBox = content.getAttribute('viewBox') || '0 0 ' + size + ' ' + size;
+                 svg.setAttribute('viewBox', viewBox);
+                 svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+                 svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                 svg.setAttribute('fill', '#2E7D32'); //green-800 TODO: make configurable
+                 // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
+                 // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
+                 svg.style.cssText = 'pointer-events: none; display: block; width: 100%; height: 100%;';
+                 svg.appendChild(content).removeAttribute('id');
+                 return svg;
+             }
+             return null;
+         }
+         
+        console.log("Finding svg element for", icon);
+        var parts = (icon || '').split(':');
+        var iconName = parts.pop();
+        var iconsetName = parts.pop() || this._DEFAULT_ICONSET;
+        console.log("iconsetname", iconsetName);
+        console.log("iconName", iconName);         
+         var iconset = this._ironMeta.byKey(iconsetName);
+         if (iconset) {
+             console.log("iconset: ", iconset);
+             var icons = iconset._icons || iconset._createIconMap();
+             var icon = icons[iconName];
+             if (icon) {
+                 var svgElt = prepareSvgClone(icons[iconName], iconset.size);
+                 // var svgElt = iconset._cloneIcon(iconName); //does not produce "correct" clone?
+                 // console.log("svgElement: ", svgElt); 
+                 return svgElt;
+             } else {
+                 console.error("Invalid iconname", iconName);
+                 return null;
+             }
+         } else {
+             console.error("Invalid iconset", iconsetName);
+             return null;
+         }
+     },
+     
+     _getObjectTypeUrl: function(object) {
+         
+     },
+
+     getXLiMeObjectType: function(objecct) {
+         object.type
+     },
+
+     isMediaItem: function(object) {
+         return this.isSocialMediaItem(object) || this.isNewsArticleItem(object) || this.isTVProgItem(object);
+     },
+
+     isKBEntity: function(object) {
+         if (object && object['@type'] && object['@type'] === "http://xlime.eu/vocab/kbEntity") {
+             return true;
+         } else return false;
+     },
+
+     isSearchString: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/searchString") {
+             return true;
+         } else return false;
+     },
+
+     isASRAnnotation: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/ASRAnnotation") {
+             return true;
+         } else return false;
+     },
+
+     isSubtitleSegment: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/SubtitleSegment") {
+             return true;
+         } else return false;
+     },
+
+     isOCRAnnotation: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/OCRAnnotation") {
+             return true;
+         } else return false;
+     },
+     
+     /**
+      * Returns whether two resource objects refer to the same resource
+      */
+     referToSameResource: function(resA, resB) {
+         if (resA && resB){
+             if (resA.url && resB.url) return resA.url === resB.url;
+             else return false;
+         } else return false;
+     },
+     
+     isSocialMediaItem: function(object) {
+         if (object && object.url) {
+             return object.url.startsWith("http://vico-research.com/social/");
+         } else return false;
+     },
+
+     isNewsArticleItem: function(object) {
+         if (object && object.url) {
+             return object.url.startsWith("http://ijs.si/article/");
+         } else return false;
+     },
+
+     isTVProgItem: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/MediaResource") {
+             return true;
+         } else return false;
+     },
+
+     asrTextPreview: function(object) {
+         if (object && object.recognizedText) {
+             return this.strPreview(object.recognizedText, 20);
+         } else return "";
+     },
+
+     subtitleTextPreview: function(object) {
+         if (object && object.text) {
+             return this.strPreview(object.text, 20);
+         } else return "";
+     },
+
+     ocrTextPreview: function(object) {
+         if (object && object.recognizedText) {
+             return this.strPreview(object.recognizedText, 20);
+         } else return "";
+     },
+
+     strPreview: function(str, maxLength) {
+         if (maxLength) {
+             if (maxLength < 1) maxLength = 20;
+         } else maxLength = 20;
+         if (str) {
+             console.log("string length: ", str.length);
+             if (str.length > maxLength) {
+                 return str.substring(0, maxLength) + "...";
+             } else {
+                 return str;
+             }
+         } else return "";
+     }
+
+     
+ }
+</script>

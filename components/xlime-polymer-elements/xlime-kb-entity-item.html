@@ -1,0 +1,200 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../iron-icons/communication-icons.html">
+<link rel="import" href="../iron-image/iron-image.html">
+
+<!--
+`xlime-kb-entity-item` is a web component, which renders an entity from some
+knowledge base which been used in the context of xLiMe to annotate some
+media-item.
+
+Example:
+
+    <xlime-kb-entity-item
+      entity='{
+             "url": "http://dbpedia.org/resource/Berlin",
+             "label": "Berlin",
+             "types": [
+                "http://dbpedia.org/ontology/Place"
+             ],
+             "depictions": [
+                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg"
+                "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"
+             ]
+          }'>
+    </xlime-kb-entity-item>
+
+The `itemObj` follows the `entity` format returned by the `xlime public webserver`.
+
+@group xLiMe
+@element xlime-kb-entity-item
+@demo demo/xlime-kb-entity-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-kb-entity-item">
+
+  <template>
+    <style include="xlime-shared-styles"></style>
+    <paper-icon-item id="entityItem" class='fancy'>
+        <paper-icon-button icon="[[_calculatedIcon]]" alt="[[_calculatedTypeName]]">
+        </paper-icon-button>
+        <paper-item-body>
+            <div>{{entity.label}}</div>
+        </paper-item-body>
+        <div class="small-avatar" style="background:white" item-icon>
+            <!-- Use same size as small-avatar (48x32 px) -->
+            <iron-image style="width:48px; height:32px;" 
+                        src='[[_getDepiction(entity.depictions.*, 0)]]'
+                        sizing="contain"></iron-image>
+        </div>
+    </paper-icon-item>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-kb-entity-item',
+
+    properties: {
+        
+      /**
+       * The media item to be displayed. Normally, this value is calculated
+       * based on the value of the href property.
+       * The object will typically be something like: 
+       *
+       *
+       *      {
+       *         "url": "http://dbpedia.org/resource/Berlin",
+       *         "label": "Berlin",
+       *         "types": [
+       *            "http://dbpedia.org/ontology/Place"
+       *         ],
+       *         "depictions": [
+       *            "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg"
+       *            "http://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_arms_of_Berlin.svg?width=300"
+       *        ]
+       *      }
+       */
+      entity: {
+          type: Object,
+          observer: '_entityChanged'
+      }, 
+
+      /**
+       * Private variable used for specifying the name of the icon used to display the type of the `entity`
+       */
+      _calculatedIcon: {
+          type: String
+      },
+
+      /**
+       * Private variable used for specifying the name of the main type of the `entity`
+       */
+      _calculatedTypeName: {
+          type: String,
+          observer: '_typeNameChanged'
+      }
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Handles changes to the `entity` property
+     */  
+    _entityChanged: function(e) {
+        console.log('entityObjChanged evt', e);
+        if (this.entity) {
+            //            console.log('updated entity obj ', this.itemObj);
+            this._calculatedTypeName = this._calculateTypeName(this.entity);
+        } else this._calculatedTypeName = null;
+    },
+
+    _getDepiction: function(change, index) {
+        return change.base[index];
+    },
+      
+    _calculateTypeName: function(ent) {
+        if (ent && ent.types) {
+            var result = null;
+            for (var i = 0; i < ent.types.length; i++) {
+                if (ent.types[i] === "http://schema.org/Event") return "event";
+                if (ent.types[i] === "http://schema.org/Place") return "place";
+                if (ent.types[i] === "http://schema.org/Person") return "person";
+                if (ent.types[i] === "http://schema.org/Organization") return "organization";                
+            }
+        } else return null;
+    },
+
+    _typeNameChanged: function(e) {
+        function typeNameToIconName(tn) {
+            if (tn === "event") return "event";
+            if (tn === "place") return "maps:place";
+            if (tn === "person") return "social:person";
+            if (tn === "organization") return "communication:business";      
+            return null;
+        }
+        console.log('typeName changed to ', this._calculatedTypeName);
+        if (this._calculatedTypeName) {
+            this._calculatedIcon = typeNameToIconName(this._calculatedTypeName);
+        } else this._calculatedIcon = "radio-button-unchecked"; //default icon
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-kb-entity-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

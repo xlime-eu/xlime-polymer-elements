@@ -1,0 +1,290 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-social-media-item.html">
+<link rel="import" href="xlime-tv-program-item.html">
+<link rel="import" href="xlime-news-article-item.html">
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`xlime-media-item-item` is a web component, which renders an xLiMe media-item
+as an item intended to be included in a list. Hence it only renders the most basic information about
+the media item in order to help users to identify the contents. For a more complete view of
+the media items you should use the `xlime-media-item-card` component.
+
+A media-item is can either a social-media-item, news-article or a tv-segment (or program).
+
+Example of using an xLiMe media-item object:
+
+    <xlime-media-item-item
+      item='{
+         "url": "http://example.com", //xlime url for this media item
+         "type": "http://kdo.render-project.eu/kdo#NewsArticle",
+         "title": "Title of Article",
+         "content": { 
+            "full": "some long.... full content",
+            "preview": "short preview of full",
+          },
+          "created": {
+             "timestamp": 0,
+             "formatted": "01/01/1970 00:00:00",
+             "timeAgo": "46 years ago"
+          },
+          "lang": "en", //
+          "publisher": {
+             "label": "some publisher",
+             "url": "http://example.com/"
+          },
+          "creator": {
+             "label": "creator",
+             "url": "creator url"
+          },
+          "source": {
+             "label": "source label",
+             "url": "http://example.com/article"
+          }
+       }'>
+    </xlime-media-item-item>
+
+Example using polymer binding (Where `myItemObj` is an object like the one shown above):
+
+    <xlime-media-item-item
+      item='{{myItemObj}}'>
+    </xlime-media-item-item>
+
+@group xLiMe
+@element xlime-media-item-item
+@demo demo/xlime-media-item-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-media-item-item">
+
+    <content></content>
+    <template>
+        <!-- 
+        <iron-pages id="delegateItem" selected="0">
+            <paper-item>Invalid or empty item</paper-item>
+            <xlime-social-media-item id="socMediaDelegateItem" item-obj="{{item}}"></xlime-social-media-item>
+            <xlime-news-article-item id="newsDelegateItem" item-obj="{{item}}"></xlime-news-article-item>
+            <xlime-tv-program-item id="tvDelegateItem" item-obj="{{item}}"></xlime-tv-program-item>
+        </iron-pages>
+        -->
+        
+        <template is="dom-if" if="{{_isInvalidOrEmpty}}">
+            <paper-item>Invalid or empty item</paper-item>
+        </template>
+        <template is="dom-if" if="{{_isSocMedia}}">
+            <xlime-social-media-item item-obj="{{item}}"></xlime-social-media-item>
+        </template>
+        <template is="dom-if" if="{{_isNewsArticle}}">
+            <xlime-news-article-item item-obj="{{item}}"></xlime-news-article-item>
+        </template>
+        <template is="dom-if" if="{{_isTVProgram}}">
+            <xlime-tv-program-item item-obj="{{item}}"></xlime-tv-program-item>
+        </template>
+        
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-media-item-item',
+
+    properties: {
+
+      /**
+       * The media item object to be displayed. You can set this value directly
+       * if you already have a suitable json object. Alternatively, you can just
+       * set the `href` property and this component will try to retrieve the item value.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       url: "http://example.com", //xlime url for this media item
+       *       type: "http://kdo.render-project.eu/kdo#NewsArticle",
+       *       title: "Title of Article",
+       *       content: { 
+       *         full: "some long.... full content",
+       *         preview: "short preview of full",
+       *       },
+       *       created: {
+       *         "timestamp": 0,
+       *         "formatted": "01/01/1970 00:00:00",
+       *         "timeAgo": "46 years ago"
+       *       },
+       *       lang: "en", //
+       *       publisher: {
+       *         label: "some publisher",
+       *         url: "http://example.com/"
+       *       },
+       *       creator: {
+       *         label: "creator",
+       *         url: "creator url"
+       *       },
+       *       source: {
+       *         label: "source label",
+       *         url: "http://example.com/article"
+       *       }
+       *      }
+       */
+      item: {
+          reflectToAttribute: true,
+          type: Object,
+          observer: '_itemObjChanged'
+      },
+
+      _isSocMedia: {
+          reflectToAttribute: true,
+          type: Boolean
+      },
+
+      _isNewsArticle: {
+          reflectToAttribute: true,
+          type: Boolean
+      },
+      _isTVProgram: {
+          reflectToAttribute: true,            
+          type: Boolean
+      },
+      _isInvalidOrEmpty: {
+          reflectToAttribute: true,                        
+          type: Boolean
+      },
+      _mediaTypeIndex: {
+          reflectToAttribute: true,
+          type: Number,
+          observer: '_mediaTypeIndexChanged'
+      }
+        
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created ');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        console.log(this.localName + '#' + this.id + ' is ready');
+//        console.log('with item.url', item.url);
+//        console.log('with _mediaTypeIndex', _mediaTypeIndex);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+        console.log(this.localName + '#' + this.id + ' is attached');
+        console.log('with item', this.item);
+        console.log('with item.url', this.item.url);
+        console.log('with _mediaTypeIndex', this._mediaTypeIndex);
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    attributeChanged: function(name, type) {
+      console.log(this.localName + '#' + this.id + ' attribute ' + name +
+        ' was changed to ' + this.getAttribute(name));
+    },
+      
+    /**
+     * Triggered when the `item` property changes. 
+     */
+    _itemObjChanged: function(e) {
+        function findDelegateIndex(aItemObj) {
+            if (aItemObj.url) {
+                if (aItemObj.url.startsWith("http://vico-research.com/social/")) return 1;
+                if (aItemObj.url.startsWith("http://ijs.si/article/")) return 2;
+                if (aItemObj.url.startsWith("http://zattoo.com/program/")) return 3;
+            }
+            return 0;
+        }
+
+        console.log("ItemObj changed, determining new _mediaTypeIndex");
+        if (typeof this.item == 'undefined') {
+            console.log("component not ready yet");
+            this._mediaTypeIndex = 0;
+            console.log("after itemObjChanged", this);
+            return;
+        }
+        if (this.item) {
+            this._mediaTypeIndex = findDelegateIndex(this.item);
+        } else {
+            this._mediaTypeIndex = 0;
+        }
+        console.log("after itemObjChanged", this);
+    },
+
+    _mediaTypeIndexChanged: function() {
+        function doIsSocMedia(index) {
+            console.log("determining isSocMedia");
+            var result = false;
+            if (typeof index == 'undefined') {} else {
+                result = (index == 1);
+            }
+            console.log("isSocMedia: " + result);
+            return result;
+        }
+
+        function doIsNewsArticle(index) {
+            console.log("determining isNewsArticle");
+            if (typeof index == 'undefined') return false;
+            return index == 2;
+        }
+
+        function doIsTVProgram(index) {
+            console.log("determining isTVProgram");
+            if (typeof index == 'undefined') return false;
+            return index == 3;
+        }
+
+        function doIsInvalidOrEmpty(index) {
+            console.log("determining isInvalidOrEmpty");          
+            if (typeof index == 'undefined') return true;
+            return index == 0;
+        }
+          
+        console.log("mediaType index changed, current value:", this._mediaTypeIndex);
+        this._isSocMedia = doIsSocMedia(this._mediaTypeIndex);
+        this._isNewsArticle = doIsNewsArticle(this._mediaTypeIndex);
+        this._isTVProgram = doIsTVProgram(this._mediaTypeIndex);
+        this._isInvalidOrEmpty = doIsInvalidOrEmpty(this._mediaTypeIndex);
+
+        /* Only needed when implementing as pages, not needed when using dom-if template
+        var pages = this.$.delegateItem;
+        pages.select(this._mediaTypeIndex);
+        */
+    }
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-media-item-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>
