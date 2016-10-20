@@ -5,6 +5,7 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="xlime-value.html">
+<link rel="import" href="xlime-date.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
@@ -35,7 +36,11 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
 <dom-module id="xlime-asr-annotation-item">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+      <style include="xlime-shared-styles">
+       xlime-date {
+           display: inline;
+       }
+      </style>
     
     <content></content>
     <paper-icon-item id="asrItem" class='fancy'>
@@ -45,7 +50,7 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
         <paper-badge label="{{obj.lang}}" for="avatar"></paper-badge>
         <paper-item-body two-line>
             <div><a href='{{obj.inSegment.watchUrl}}' target='_blank'>{{obj.recognizedText}}</a></div>
-            <div secondary>broadcast on: <span>{{obj.inSegment.startTime.formatted}}</span> as part of <span>{{obj.inSegment.partOf.title}}</span> via <xlime-value mode="link" obj='{{obj.inSegment.partOf.publisher}}'></xlime-value></div>
+            <div secondary> <xlime-date date-obj="[[obj.inSegment.startTime]]" mode="[[dateMode]]"></xlime-date> in <span>{{obj.inSegment.partOf.title}}</span> via <xlime-value mode="link" obj='{{obj.inSegment.partOf.publisher}}'></xlime-value></div>
         </paper-item-body>
     </paper-icon-item>
   </template>
@@ -68,7 +73,15 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
       obj: {
           type: Object,
           observer: '_objChanged'
-      }
+      },
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
 
     },
       

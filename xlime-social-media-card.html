@@ -5,6 +5,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="xlime-log-behavior.html">
 
 <!--
 `xlime-social-media-card` is a web component, which renders an xLiMe social-media item.
@@ -93,6 +94,7 @@ Height and width are specified as style attributes:
   Polymer({
 
     is: 'xlime-social-media-card',
+    behaviors: [XLiMe.LogBehavior],
 
     properties: {
         
@@ -190,7 +192,9 @@ Height and width are specified as style attributes:
         }
 
         function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
+            if (this.isLogDebugEnabled) {
+                console.debug("Calculating currentContent for", content);
+            }
             if (content && content.full) {
                 if (content.preview) {
                     return content.preview;
@@ -201,8 +205,10 @@ Height and width are specified as style attributes:
                 return "Missing content";
             }
         }
-        
-        console.log('itemObjChanged evt', e);
+
+        if (this.isLogDebugEnabled) {
+            console.debug('itemObjChanged evt', e);
+        }
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             this._currentContent = calcCurrent(contentObj);
@@ -213,17 +219,24 @@ Height and width are specified as style attributes:
     },
       
     _togglePreview: function() {
-        console.log('toggling preview');
+        if (this.isLogDebugEnabled) {
+            console.debug('toggling preview');
+        }
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             if (contentObj.current === contentObj.full) {
-                console.log('Showing preview object');
+                if (this.isLogDebugEnabled)
+                    console.debug('Showing preview object');
                 contentObj.current = contentObj.preview;
             } else {
-                console.log('Showing full object');
+                if (this.isLogDebugEnabled)
+                    console.debug('Showing full object');
                 contentObj.current = contentObj.full;
             }
-        } else console.log('No itemObj available', this.itemObj);
+        } else {
+            if (this.isLogDebugEnabled)
+                console.debug('No itemObj available', this.itemObj);
+        }
     },
 
     _togglePreviewLabel: function(contentContent) {

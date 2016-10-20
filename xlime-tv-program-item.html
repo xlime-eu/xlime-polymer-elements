@@ -4,6 +4,8 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="xlime-date.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
@@ -69,7 +71,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 <dom-module id="xlime-tv-program-item">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+       xlime-date {
+           display: inline;
+       }
+      </style>
     
     <content></content>
     <paper-icon-item id="tvProgramCard" class='fancy'>
@@ -84,10 +93,12 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
         <paper-item-body two-line>
             <div><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
-            <div secondary>broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
+            <div secondary><xlime-date date-obj="[[itemObj.broadcastDate]]" mode="[[dateMode]]"></xlime-date> <xlime-value obj="[[itemObj.publisher]]"></xlime-value> <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
         </paper-item-body>
+        <!-- TODO: enable favoriting 
         <paper-icon-button icon="star" alt="favourite this!">
         </paper-icon-button>
+         -->
     </paper-icon-item>
   </template>
 
@@ -142,6 +153,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
           observer: '_itemObjChanged'
       },
 
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
+        
      /**
       * Whether the `itemObj` has a valid `relatedImage` property.
       */

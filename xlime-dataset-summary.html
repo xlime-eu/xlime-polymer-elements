@@ -20,9 +20,7 @@ to be rendered by this component and is provided by the [https://github.com/xlim
 Example:
 
     <xlime-dataset-summary
-      summary-obj='{
-         "url": "http://example.com", //xlime url for this media item
-       }'>
+      summary-obj='{{datasetSummaryObj}}'>
     </xlime-dataset-summary>
 
 
@@ -41,16 +39,21 @@ Example:
       <div class="card-content">
         <div class="title">
             <div class="big">{{summaryObj.name}}</div>
-            <div class="small"">on {{summaryObj.summaryDate}}</div>
+            <div class="small"">{{summaryObj.summaryDate.timeAgo}}</div>
             <div class="small">{{summaryObj.description}}</div>
         </div>
       </div>
 
       <div class="card-content">
-        <div class="medium">Activities: {{summaryObj.activities}}</div>
-        <div class="medium">Microposts: {{summaryObj.microposts}}</div>
-        <div class="medium">NewsArticles: {{summaryObj.newsarticles}}</div>
-        <div class="medium">TV programs: {{summaryObj.mediaresources}}</div>
+        <div class="medium">Activities: {{summaryObj.activities.count}}</div>
+        <div class="medium">Microposts: {{summaryObj.microposts.count}}</div>
+        <div class="medium">NewsArticles: {{summaryObj.newsarticles.count}}</div>
+        <div class="medium">TV programs: {{summaryObj.mediaresources.count}}</div>
+
+        <div class="medium">Entity annotations: {{summaryObj.entityAnnotations.count}}</div>
+        <div class="medium">ASR annotations: {{summaryObj.asrAnnotations.count}}</div>
+        <div class="medium">OCR annotations: {{summaryObj.ocrAnnotations.count}}</div>
+        <div class="medium">Subtitles: {{summaryObj.subtitles.count}}</div>
       </div>
     </paper-card>
   </template>
@@ -66,12 +69,9 @@ Example:
     properties: {
 
       /**
-       * The news media item to be displayed.
-       * The object will typically be something like: 
+       * The dataset summary object to be displayed.
+       * See [an example object](data/example-dataste-summary.json).
        *
-       *      {
-       * //TODO
-       *      }
        */
       summaryObj: {
           type: Object,

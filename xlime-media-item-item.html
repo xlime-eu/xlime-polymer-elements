@@ -76,13 +76,13 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
             <paper-item>Invalid or empty item</paper-item>
         </template>
         <template is="dom-if" if="{{_isSocMedia}}">
-            <xlime-social-media-item item-obj="{{item}}"></xlime-social-media-item>
+            <xlime-social-media-item item-obj="{{item}}" date-mode="[[dateMode]]"></xlime-social-media-item>
         </template>
         <template is="dom-if" if="{{_isNewsArticle}}">
-            <xlime-news-article-item item-obj="{{item}}"></xlime-news-article-item>
+            <xlime-news-article-item item-obj="{{item}}" date-mode="[[dateMode]]"></xlime-news-article-item>
         </template>
         <template is="dom-if" if="{{_isTVProgram}}">
-            <xlime-tv-program-item item-obj="{{item}}"></xlime-tv-program-item>
+            <xlime-tv-program-item item-obj="{{item}}" date-mode="[[dateMode]]"></xlime-tv-program-item>
         </template>
         
   </template>
@@ -138,6 +138,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
           observer: '_itemObjChanged'
       },
 
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
+        
       _isSocMedia: {
           reflectToAttribute: true,
           type: Boolean
@@ -165,7 +173,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       
     // Element Lifecycle
     created: function() {
-        if (this.isLogDebugEnabled) console.log(this.localName + '#' + this.id + ' was created ');
+        if (this.isLogDebugEnabled) console.debug(this.localName + '#' + this.id + ' was created ');
     },
       
     ready: function() {
@@ -176,7 +184,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
         if (this.isLogDebugEnabled) {
-            console.log(this.localName + '#' + this.id + ' is ready');
+            console.debug(this.localName + '#' + this.id + ' is ready');
 //        console.log('with item.url', item.url);
 //        console.log('with _mediaTypeIndex', _mediaTypeIndex);
         }
@@ -190,10 +198,10 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // visual state or active behavior (measuring sizes, beginning animations,
         // loading resources, etc).
         if (this.isLogDebugEnabled) {
-            console.log(this.localName + '#' + this.id + ' is attached');
-            console.log('with item', this.item);
-            console.log('with item.url', this.item.url);
-            console.log('with _mediaTypeIndex', this._mediaTypeIndex);
+            console.debug(this.localName + '#' + this.id + ' is attached');
+            console.debug('with item', this.item);
+            console.debug('with item.url', this.item.url);
+            console.debug('with _mediaTypeIndex', this._mediaTypeIndex);
         }
     },
 

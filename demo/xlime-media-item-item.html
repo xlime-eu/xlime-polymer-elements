@@ -14,6 +14,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../xlime-media-item-item.html">
       <link rel="import" href="../../paper-listbox/paper-listbox.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">      
+      <link rel="import" href="../../paper-input/paper-input.html">      
 
       <style is="custom-style">
        body {
@@ -34,12 +35,13 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <dom-module id="x-app">
           <template>
               <iron-ajax url="data/media-items.json" last-response="{{data}}" auto></iron-ajax>
+              <paper-input label="Edit xLiMe dateMode" value='{{dateMode}}' placeholder='try: "formatted", "timeAgo" or "locale"'></paper-input>
               <paper-listbox multi>
                   <template is="dom-repeat" items="{{data}}">
                       <!-- 
                       <paper-item>index: {{index}}. url: {{item.url}}</paper-item>
                       -->
-                      <xlime-media-item-item item="{{item}}"></xlime-media-item-item>
+                      <xlime-media-item-item item="{{item}}" date-mode="[[dateMode]]"></xlime-media-item-item>
                   </template>
               </paper-listbox>
           </template>
@@ -60,7 +62,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       
       <h4>An example component</h4>
       <div class="vertical-section">
-      <xlime-media-item-item id="sample-media-item-item" item="{}"></xlime-media-item-item>
+          <xlime-media-item-item id="sample-media-item-item" item="{}"></xlime-media-item-item>
                 <p><paper-textarea id="inputObj" label="xLiMe TV Program Object"
                           value='{
 "url": "http://zattoo.com/program/111277860",

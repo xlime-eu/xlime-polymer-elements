@@ -41,8 +41,6 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
           <template>
               <iron-ajax url="data/example-entity-summary.json" last-response="{{sampleEntSumma}}" auto></iron-ajax>
 
-              <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto></iron-ajax>
-
               <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto on-error='handleAjaxError'></iron-ajax>
               <xlime-kb-entity-card entity="[[getEntity(entities.*, 0)]]" on-statement-related-tap="myHandleStatementRelatedTap">
               </xlime-kb-entity-card>

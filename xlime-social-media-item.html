@@ -2,6 +2,8 @@
 @license
 Copyright (c) 2015 Expert System Iberia. All rights reserved.
 -->
+<link rel="import" href="xlime-date.html">
+<link rel="import" href="xlime-value.html">
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-object-inspector-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
@@ -56,7 +58,14 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
 <dom-module id="xlime-social-media-item">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+      <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+       xlime-date {
+           display: inline;
+       }
+      </style>
     <paper-icon-item id="socMediaItem" class='fancy'>
         <div id="avatar" class="small-avatar" item-icon>
             <iron-icon icon="{{socialMediaIconId(itemObj)}}"></iron-icon>
@@ -64,10 +73,12 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
         <paper-badge label="{{itemObj.lang}}" for="avatar"></paper-badge>
         <paper-item-body two-line>
             <div>{{_currentContent}}</div>
-            <div secondary>on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div secondary><xlime-date date-obj="[[itemObj.created]]" mode="[[dateMode]]"></xlime-date> <xlime-value obj="[[itemObj.publisher]]"></xlime-value></div>
         </paper-item-body>
+        <!-- 
         <paper-icon-button icon="star" alt="favourite this!">
         </paper-icon-button>
+         -->
     </paper-icon-item>
   </template>
 
@@ -118,6 +129,14 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
           type: Object,
           observer: '_itemObjChanged'
       }, 
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
 
       /**
        * Private variable used for toggling the full and preview modes of the content.

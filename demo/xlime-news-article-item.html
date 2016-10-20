@@ -11,6 +11,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
       <link rel="import" href="../xlime-news-article-item.html">
       <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../paper-input/paper-input.html">
       <link rel="import" href="../../paper-item/paper-item.html">
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
@@ -38,6 +39,10 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                xlime-news-article-item {
                    max-width: 500px;
                }
+               paper-input {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }               
                paper-textarea {
                    margin-left: 3em;
                    max-width: 500px;
@@ -51,12 +56,13 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                   <div class="vertical-snippet">
                       <div role="listbox">
                           <paper-item>Previous list item</paper-item>
-                          <xlime-news-article-item item-obj='{{newsArt}}'>
+                          <xlime-news-article-item item-obj='{{newsArt}}' date-mode="[[dateMode]]">
                           </xlime-news-article-item>
                           <paper-item>Next list item</paper-item>
                       </div>
                   </div>
                   <div class="vertical-snippet">
+                      <paper-input label="Edit xLiMe dateMode" value='{{dateMode}}' placeholder='try: "formatted", "timeAgo" or "locale"'></paper-input>
                       <paper-textarea class="textarea" id="textareaNews" label="Edit xLiMe News article object" value='{{toJsonStr(newsArt)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
                   </div>
               </div>

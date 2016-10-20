@@ -4,6 +4,8 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-value.html">
+<link rel="import" href="xlime-date.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
@@ -30,7 +32,14 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
 <dom-module id="xlime-subtitle-item">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+      <style include="xlime-shared-styles">
+       xlime-date {
+           display: inline;
+       }
+       xlime-value {
+           display: inline;
+       }
+      </style>
     
     <content></content>
     <paper-icon-item id="subtitleItem" class='fancy'>
@@ -41,7 +50,7 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
 
         <paper-item-body two-line>
             <div><a href='{{obj.partOf.watchUrl}}' target='_blank'>{{obj.text}}</a></div>
-            <div secondary>broadcast on: <span>{{obj.partOf.startTime.formatted}}</span> as part of <span>{{obj.partOf.partOf.title}}</span> via <xlime-value mode="link" obj='{{obj.partOf.partOf.publisher}}'></xlime-value></div>
+            <div secondary> <xlime-date date-obj="[[obj.partOf.startTime]]" mode="[[dateMode]]"></xlime-date> in <span>{{obj.partOf.partOf.title}}</span> via <xlime-value mode="link" obj='{{obj.partOf.partOf.publisher}}'></xlime-value></div>
         </paper-item-body>
     </paper-icon-item>
   </template>
@@ -65,7 +74,16 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
       obj: {
           type: Object,
           observer: '_objChanged'
-      }
+      },
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
+        
     },
       
     // Element Lifecycle

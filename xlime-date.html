@@ -1,0 +1,177 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+
+<!--
+`xlime-date` is a web component, which renders an xLiMe UI date object, which
+typically corresponds to some tuple containing a `timestamp`, a `formatted` string and a `timeAgo` value.
+
+Example:
+
+    <xlime-date
+       date-obj='{
+         "timestamp": 1476965952364
+         "formatted": "20/10/2016 02:19:12"
+         "timeAgo": "35 minutes ago"
+       }'>
+    </xlime-date>
+
+Example using polymer binding (Where `myDateObj` is an object like the one shown above):
+
+    <xlime-date
+      date-obj='{{myDateObj}}'>
+    </xlime-date>
+
+@group xLiMe
+@element xlime-date
+@demo demo/xlime-date.html
+@hero hero.svg
+-->
+<dom-module id="xlime-date">
+
+  <template>
+      <style include="xlime-shared-styles">
+      </style>
+    <span id="date">{{_renderedValue}}</span>
+    <paper-tooltip for="date">[[_tooltip]]</paper-tooltip>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-date',
+
+    behaviors: [XLiMe.LogBehavior],
+      
+    properties: {
+        
+      /**
+       * The date object to be displayed.
+       * The object will typically be something like: 
+       *
+       *      {
+       *       "timestamp": 1476965952364
+       *       "formatted": "20/10/2016 02:19:12"
+       *        "timeAgo": "35 minutes ago"
+       *      }
+       */
+      dateObj: {
+          type: Object,
+          observer: '_dateObjChanged'
+      },
+
+      /**
+       * Indicates how the `dateObj` should be rendered. Available options are:
+       * 
+       * * *formatted*: renders the `dateObj` as a link whenever possible.
+       * * *timeAgo*: renders `dateObj` using the timeAgo value.
+       * * *locale*: renders `dateObj` using the locale conventions (using javascript's `Date.toLocaleString()` method)
+       */
+      mode: {
+          type: String,
+          value: "formatted",
+          //observer: '_modeChanged'
+      },
+
+      _renderedValue: String,
+      _tooltip: String
+        
+    },
+
+      observers: [
+          '_updateRendering(dateObj, mode)'
+      ],
+
+    _updateRendering: function(aDateObj, aMode) {
+        if (typeof aDateObj === 'undefined') {
+            this._tooltip = "";
+            this._renderedValue = "undefined-date";
+            return;
+        }
+        if (aMode === "formatted") {
+            this._tooltip = "";
+            this._renderedValue = aDateObj.formatted;
+            return;
+        } if (aMode === "timeAgo") {
+            this._tooltip = aDateObj.formatted;
+            this._renderedValue = aDateObj.timeAgo;
+            return;
+        } if (aMode === "locale") {
+            this._tooltip = "";
+            this._renderedValue = new Date(aDateObj.timestamp).toLocaleString();
+            return;
+        }
+        
+        this._tooltip = "";
+        this._renderedValue = aDateObj.formatted;
+    },
+      
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.log(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _dateObjChanged: function(e) {
+        if (this.isLogDebugEnabled()) {
+            console.log('valueObjChanged evt', e);
+        }
+        if (this.obj) {
+            if (this.isLogDebugEnabled()) {
+                console.log('updated value obj ', this.obj);
+                console.log('itemObj.label', this.obj.label);
+            }
+        }
+    },
+
+
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-value says, ' + response;
+    },
+     */
+
+  });
+
+</script>

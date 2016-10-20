@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-tv-program-item Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-date.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       xlime-date {
+           display: inline;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height: 300px;
+           };
+       }       
+      </style>    
+  </head>
+  <body onload="updateValue()" unresolved>
+
+      <h3>An example of <code>&lt;xlime-date&gt;</code></h3>
+      <demo-snippet class="centered-demo"><template>
+          <div class="vertical-section">
+              <ul>
+              <li><span>default mode (<code>labelWithLink</code>):  </span>
+                  <xlime-date id="defaultDate" date-obj='{}' log-level="INFO">
+                  </xlime-date>
+              </li>
+              <li><span><code>formatted</code>:  </span>
+                  <xlime-date id="formattedDate" mode="formatted" date-obj='{}' log-level="INFO">
+                  </xlime-date>
+              </li>
+              <li><span><code>timeAgo</code> mode:  </span>
+                  <xlime-date id="timeAgoDate" mode="timeAgo" date-obj='{}' log-level="INFO">
+                  </xlime-date></li>
+              <li><span><code>locale</code> mode:  </span>
+                  <xlime-date id="localeDate" mode="locale" date-obj='{}' log-level="INFO">
+                  </xlime-date></li>
+              </ul>
+          </div>
+          <div class="vertical-section">
+              <p></p>
+              <paper-textarea id="inputObj" label="xLiMe Date Object"
+                          value='{
+"timestamp": 1476965952364,
+"formatted": "20/10/2016 02:19:12",
+"timeAgo": "35 minutes ago"
+}'></paper-textarea>
+               <button id="update" onclick="updateValue()">Update Item</button></p>
+          </div>
+      </template>
+      </demo-snippet>
+
+      <script>
+       var demoSnippet = document.querySelector('demo-snippet');
+
+       function updateValue() {
+           console.log("updating xlime-date components ");
+           var inElt = document.querySelector('#inputObj');
+           var defaultElt = document.querySelector('#defaultDate');
+           console.log("defaultElt", defaultElt);
+           var formattedElt = document.querySelector('#formattedDate');
+           var timeAgoElt = document.querySelector('#timeAgoDate');
+           var localeElt = document.querySelector('#localeDate');           
+
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           if (defaultElt) defaultElt.dateObj = newObj;
+           if (formattedElt) formattedElt.dateObj = newObj;
+           if (timeAgoElt) timeAgoElt.dateObj = newObj;
+           if (localeElt) localeElt.dateObj = newObj;
+       }
+              
+      </script>
+
+  </body>
+</html>

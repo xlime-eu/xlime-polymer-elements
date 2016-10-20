@@ -13,6 +13,7 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../paper-input/paper-textarea.html">
       <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
       <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
 
       <style is="custom-style" include="demo-pages-shared-styles">
        body {
@@ -25,57 +26,68 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
            margin-left: auto;
            margin-right: auto;
        }
-      </style>    
-  </head>
-  <body onLoad="updateValue()" unresolved>
+      </style>
 
-      <h3>An example of <code>&lt;xlime-dataset-summary&gt;</code></h3>
-      <demo-snippet class="centered-demo""><template>
-          <div class="vertical-section">
-              <xlime-dataset-summary summary-obj="{}">
-              </xlime-dataset-summary>
-          </div>
-      
-          <div class="vertical-section">
-          
-              <p><paper-textarea id="inputObj" label="xLime Dataset Summary Object"
-                             value='{
+      <dom-module id="demo-datasum-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-dataset-summary {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
 
-}'></paper-textarea>
-                  <button id="update" onclick="updateValue()">Update Summary</button></p>
-          </div>
-      </template>
-      </demo-snippet>
+              <h3>An example of <code>&lt;xlime-dataset-summary&gt;</code></h3>
+              <iron-ajax url="data/example-dataset-summary.json" last-response="{{sampleDatasetSumma}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-dataset-summary summary-obj='{{sampleDatasetSumma}}'></xlime-dataset-summary>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Dataset summary object" value='{{toJsonStr(sampleDatasetSumma)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              </div>
+
+          </template>
+      </dom-module>
 
       <script>
-
-       function updateValue() {
-           var summaryElt = document.querySelector('xlime-dataset-summary');
-           console.log("updating dataset-summary component ", summaryElt);
-           var inElt = document.querySelector('#inputObj');
-           console.log("using inputObj:", inElt);
-           if (summaryElt.summaryObj) {
-    //           console.log("old obj: ", summaryElt.summaryObj);
-//           var newObj = JSON.parse(inElt.value.trim());
-               //         console.log("new obj: ", newObj);
-           }
-           var newObj = {};
-           try {
-               var textVal = inElt.value;
-               console.log("parsing as json ", textVal);
-               newObj = JSON.parse(textVal);
-           } catch (err) {
-               console.log("error parsing input value", err);
-               window.alert("error parsing input value: " + err);
-               newObj = {};
-           }
-           console.log("Parsed object as ", newObj);
-           summaryElt.summaryObj = newObj;
-       }
-       
-//       document.querySelector('#update').addEventListener('click', updateValue());
-       
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'demo-datasum-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.sampleDatasetSumma = this._updateTextChange(this.$.textarea, this.sampleDatasetSumma);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+           });
+       });
       </script>
-
+      
+  </head>
+  <body unresolved>
+      <demo-datasum-app></demo-datasum-app>
   </body>
 </html>

@@ -4,8 +4,11 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-date.html">
+<link rel="import" href="xlime-value.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../polymer-font-awesome-icons/fa-all.html">
 
@@ -59,15 +62,26 @@ Example:
 <dom-module id="xlime-news-article-item">
 
   <template>
-    <style include="xlime-shared-styles"></style>
+    <style include="xlime-shared-styles">
+       xlime-value {
+           display: inline;
+       }
+       xlime-date {
+           display: inline;
+       }
+     </style>
+      
     <paper-icon-item id="newsArticleItem" class='fancy'>
-        <div class="small-avatar" item-icon><iron-icon icon="fa:newspaper-o"></iron-icon></div>
+        <div id="avatar" class="small-avatar" item-icon><iron-icon icon="fa:newspaper-o"></iron-icon></div>
+        <paper-badge label="{{itemObj.lang}}" for="avatar"></paper-badge>
         <paper-item-body two-line>
             <div>{{itemObj.title}}</div>
-            <div secondary>published on: <span>{{itemObj.created.formatted}}</span> via <a href="{{itemObj.publisher.url}}">{{itemObj.publisher.label}}</a></div>
+            <div secondary><xlime-date date-obj="[[itemObj.created]]" mode="[[dateMode]]"></xlime-date> <xlime-value obj="[[itemObj.publisher]]"></xlime-value></div>
         </paper-item-body>
+        <!-- 
         <paper-icon-button icon="star" alt="favourite this!">
         </paper-icon-button>
+         -->
     </paper-icon-item>
   </template>
 
@@ -116,7 +130,16 @@ Example:
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      }
+      },
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
+        
     },
       
     // Element Lifecycle
