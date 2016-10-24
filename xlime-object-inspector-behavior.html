@@ -87,6 +87,35 @@
          return defaultValue;
      },
 
+     resourceTypeLabel: function(object) {
+         if (object) {
+             if (this.isSocialMediaItem(object)) {
+                 return "social-media post";
+             } else if (this.isNewsArticleItem(object)) {
+                 return "news article";
+             } else if (this.isTVProgItem(object)) {
+                 return "TV program";
+             } else if (this.isSearchString(object)) {
+                 return "search string";
+             } else if (this.isASRAnnotation(object)) {
+                 return "ASR annotation";
+             } else if (this.isSubtitleSegment(object)) {
+                 return "Subtitle segment";
+             } else if (this.isOCRAnnotation(object)) {
+                 return "OCR annotation";
+             } else if (this.isEntityAnnotation(object)) {
+                 return "Entity Annotation";
+             } else if (this.isKBEntity(object)) {
+                 return "Knowledge Base Entity";
+             } else {
+                 console.warn("Unknown type for ", object);
+                 return "unknown type";
+             }
+         } else {
+             return "empty data";
+         }
+     },
+
      /**
       * Returns a url for an image depicting the social-media platform for 
       * a given `object` (which is assumed to be `isSocialMediaItem`).

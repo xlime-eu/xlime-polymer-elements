@@ -36,7 +36,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     <style include="xlime-shared-styles"></style>
     
     <content></content>
-    <paper-icon-item id="tvProgramCard" class='fancy'>
+    <paper-icon-item id="ocrAnnotationItem" class='fancy'>
         <div hidden$="[[!_imageAvailable]]" class="small-avatar" style="background:white" item-icon>
             <!-- Use same size as small-avatar (48x32 px) -->
             <iron-image style="width:48px; height:32px;" 
@@ -68,50 +68,13 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     properties: {
         
       /**
-       * The tv-program item to be displayed.
-       * The object will typically be something like: 
-       *
-       *      {
-       *       url: "http://example.com", //xlime url for this media item
-       *       type: "http://www.w3.org/ns/ma-ont#MediaResource",
-       *       title: "Title of TV Program",
-       *       description: { 
-       *         full: "some long.... full description",
-       *         preview: "short preview of full",
-       *       },
-       *       broadcastDate: {
-       *         "timestamp": 0,
-       *         "formatted": "01/01/1970 00:00:00",
-       *         "timeAgo": "46 years ago"
-       *       },
-       *       relatedImage: "http://example.com/example.png", //
-       *       publisher: {
-       *         label: "some publisher",
-       *         url: "http://example.com/"
-       *       },
-       *       duration: {
-       *         totalSeconds: 1800,
-       *         hours: 0,
-       *         minutes: 30,
-       *         seconds: 0
-       *       },
-       *       source: {
-       *         label: "source label",
-       *         url: "http://example.com/tv-program"
-       *       }
-       *      }
+       * The OCR Annotation object to be displayed.
        */
-      itemObj: {
+      obj: {
           type: Object,
-          observer: '_itemObjChanged'
+          observer: '_objChanged'
       },
 
-     /**
-      * Whether the `itemObj` has a valid `relatedImage` property.
-      */
-      _imageAvailable: {
-          type: Boolean
-       }
     },
       
     // Element Lifecycle
@@ -151,21 +114,14 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // Use this to clean up anything you did in `attached`.
     },
 
-    _itemObjChanged: function(e) {
+    _objChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('itemObjChanged evt', e);
+            console.debug('itemObjChanged evt', e);
         }
-        if (this.itemObj) {
+        if (this.obj) {
             if (this.isLogDebugEnabled()) {
-                console.log('updated itemObj ', this.itemObj);
-                console.log('itemObj.description', this.itemObj.description);
-            }
-            if (this.itemObj.relatedImage) this._imageAvailable = true;
-            else this._imageAvailable = false;
-            if (this.isLogDebugEnabled()) {
-                console.log('imageAvailable', this._imageAvailable);
-            }
-        } else this._imageAvailable = false;
+                console.debug('updated ocr obj ', this.obj);
+        } 
     },
       
     // Element Behavior
