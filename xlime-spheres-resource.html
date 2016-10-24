@@ -254,7 +254,13 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
     },
 
     _getItemType: function(itemObj) {
-          return itemObj.type;
+        if (itemObj) {
+            if (itemObj.type) {
+                return itemObj.type;
+            } else if (itemObj['@type']) {
+                return itemObj['@type'];
+            }
+          } else return "";
     },
 
     _calcSelectedClass: function() {
