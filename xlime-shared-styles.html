@@ -74,6 +74,34 @@
        .xlime-card {
            --paper-card-header-color: var(--xlime-green-500);
        }
+
+       @media (max-width: 600px) {
+           .avatar {
+               display: inline-block;
+               height: 56px;
+               width: 56px;
+               border-radius: 50%;
+               background: var(--xlime-green-600);
+               color: white;
+               line-height: 56px;
+               font-size: 24px;
+               text-align: center;
+           }
+           .fancy .big {
+               font-size: 18px;
+               padding: 4px 0 4px;
+               color: var(--xlime-grey-500);
+           }
+           .fancy .medium {
+               font-size: 14px;
+               padding-bottom: 8px;
+           }
+           .fancy .small {
+               font-size: 10px;
+               padding-bottom: 4px;
+           }
+      }
+       
     </style>
   </template>
 </dom-module>

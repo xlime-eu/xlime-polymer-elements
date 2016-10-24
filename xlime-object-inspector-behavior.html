@@ -59,13 +59,13 @@
      getThumbnailUrl: function(object, defaultValue) {
          if (object) {
              if (object.relatedImage) {
-                 console.log("Found relatedImage as thumbnail", object.relatedImage);
+                 console.debug("Found relatedImage as thumbnail", object.relatedImage);
                  return object.relatedImage;
              } else if (object.depictions && object.depictions.length > 0) {
-                 console.log("Found depiction array as thumbnail", object.depictions);                 
+                 console.debug("Found depiction array as thumbnail", object.depictions);                 
                  return object.depictions[0];
              } else if (this.isSocialMediaItem(object)) {
-                 console.log("Analysing social media type to find appropirate thumbnail.");                 
+                 console.debug("Analysing social media type to find appropirate thumbnail.");                 
                  return this.socialMediaIconUrl(object, defaultValue);
              } else if (this.isNewsArticleItem(object)) {
                  return this.svgDataUri("fa:newspaper-o");
@@ -83,7 +83,7 @@
                  return this.svgDataUri("fa:tag");
              }
          }
-         console.log("Could not determine thumbnail for object", object);
+         console.warn("Could not determine thumbnail for object", object);
          return defaultValue;
      },
 
@@ -134,7 +134,7 @@
      socialMediaIconId: function(object, defaultValue) {
          if (object && object.publisher) {
              var url = object.publisher.url;
-             console.log("Using publisher url", url);                 
+             console.debug("Using publisher url", url);                 
              if (url === "http://www.twitter.com/") return "fa:twitter";//"xlime-svg:twitter");
              if (url === "http://www.facebook.com/") return "fa:facebook-official";
          }
@@ -171,15 +171,15 @@
              return null;
          }
          
-        console.log("Finding svg element for", icon);
+        console.debug("Finding svg element for", icon);
         var parts = (icon || '').split(':');
         var iconName = parts.pop();
         var iconsetName = parts.pop() || this._DEFAULT_ICONSET;
-        console.log("iconsetname", iconsetName);
-        console.log("iconName", iconName);         
+        console.debug("iconsetname", iconsetName);
+        console.debug("iconName", iconName);         
          var iconset = this._ironMeta.byKey(iconsetName);
          if (iconset) {
-             console.log("iconset: ", iconset);
+             console.debug("iconset: ", iconset);
              var icons = iconset._icons || iconset._createIconMap();
              var icon = icons[iconName];
              if (icon) {
@@ -302,7 +302,8 @@
 
      isTVProgItem: function(object) {
          if (object && object['@type'] &&
-             object['@type'] === "http://xlime.eu/vocab/MediaResource") {
+             (object['@type'] === "http://xlime.eu/vocab/MediaResource" ||
+              object['@type'] === "http://www.w3.org/ns/ma-ont#MediaResource")) {
              return true;
          } else return false;
      },
@@ -336,7 +337,7 @@
              if (maxLength < 1) maxLength = 20;
          } else maxLength = 20;
          if (str) {
-             console.log("string length: ", str.length);
+             console.debug("string length: ", str.length);
              if (str.length > maxLength) {
                  return str.substring(0, maxLength) + "...";
              } else {
