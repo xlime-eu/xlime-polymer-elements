@@ -1,0 +1,121 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+<link rel="import" href="../polymer/polymer.html">
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="../chart-elements/chart-line.html">
+
+<!--  
+<link rel="import" href="bower_components/polymer-font-awesome-icons/fa-all.html">
+-->
+
+<!--
+`xlime-timeline-chart` is a web component, which renders a timeline chart
+
+Example:
+
+    <xlime-timeline-chart
+      data='{{chartObj}}'>
+    </xlime-timeline-chart>
+
+
+@group xLiMe
+@element xlime-timeline-chart
+@demo demo/xlime-timeline-chart.html
+@hero hero.svg
+-->
+<dom-module id="xlime-timeline-chart">
+
+  <template>
+      <style include="xlime-shared-styles">
+       chart-line {
+           width: 500px;
+           height: 400px;
+       }
+      </style>
+
+    <content></content>
+    <div>
+        pre
+        <chart-line class="rectangular-chart" data="[[data]]"></chart-line>
+        post
+    </div>
+    
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-timeline-chart',
+
+    properties: {
+
+      /**
+       * The timeline chart object to be displayed.
+       * See [an example object](data/example-timeline-chart.json).
+       *
+       */
+      data: {
+          type: Object,
+          observer: '_dataChanged'
+      }
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _dataChanged: function(e) {        
+        console.log('dataChanged evt', e);
+        if (this.summaryObj) {
+            console.log('updated data ', this.data);
+        } 
+    }
+
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-news-article-card says, ' + response;
+    },
+     */
+
+  });
+
+</script>

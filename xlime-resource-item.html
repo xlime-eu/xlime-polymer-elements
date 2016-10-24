@@ -1,0 +1,207 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-media-item-item.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="../polymer/polymer.html">
+<!-- 
+<link rel="import" href="xlime-ocr-annotation-item.html">
+ -->
+<link rel="import" href="xlime-asr-annotation-item.html">
+<link rel="import" href="xlime-subtitle-item.html">
+<link rel="import" href="xlime-entity-annotation-item.html">
+
+<!--
+`xlime-resource-item` is a web component, which renders an xLiMe resource 
+as an item intended to be included in a list. Hence it only renders the most basic information about
+the xLiMe resource  in order to help users to identify the contents. For a more complete view of
+the resource you should use one of the available `card`  components.
+
+A resource can be either a social-media-item, news-article, tv-segment (or program),
+asr-annotation, ocr-annotation, subtitle segment, or an entity-annotation.
+
+Example:
+
+    <xlime-resource-item
+      resource='{{resourceObj}}'>
+    </xlime-resource-item>
+
+@group xLiMe
+@element xlime-resource-item
+@demo demo/xlime-resource-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-resource-item">
+
+    <content></content>
+    <template>
+        <template is="dom-if" if="{{_isInvalidOrEmpty}}">
+            <paper-item>Invalid or empty item</paper-item>
+        </template>
+        <template is="dom-if" if="{{_isMediaItem}}">
+            <xlime-media-item-item item-obj="{{resource}}" date-mode="[[dateMode]]"></xlime-media-item-item>
+        </template>
+        <template is="dom-if" if="{{_isASRAnnotation}}">
+            <xlime-asr-annotation-item obj="{{resource}}" date-mode="[[dateMode]]"></xlime-asr-annotation-item>
+        </template>
+        <!-- 
+        <template is="dom-if" if="{{_isOCRAnnotation}}">
+            <xlime-ocr-annotation-item obj="{{item}}" date-mode="[[dateMode]]"></xlime-ocr-annotation-item>
+        </template>
+         -->
+        <template is="dom-if" if="{{_isSubtitleSegment}}">
+            <xlime-subtitle-item obj="{{resource}}" date-mode="[[dateMode]]"></xlime-subtitle-item>
+        </template>
+        <template is="dom-if" if="{{_isEntityAnnotation}}">
+            <xlime-entity-annotation-item ann="{{resource}}" date-mode="[[dateMode]]"></xlime-entity-annotation-item>
+        </template>
+        
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-resource-item',
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
+
+    properties: {
+
+      /**
+       */
+      resource: {
+          type: Object,
+          observer: '_resObjChanged'
+      },
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "formatted",
+      },
+        
+      _isMediaItem: {
+          reflectToAttribute: true,
+          type: Boolean
+      },
+
+      _isASRAnnotation: {
+          reflectToAttribute: true,
+          type: Boolean
+      },
+      _isOCRAnnotation: {
+          reflectToAttribute: true,            
+          type: Boolean
+      },
+      _isSubtitleSegment: {
+          reflectToAttribute: true,            
+          type: Boolean
+      },
+      _isEntityAnnotation: {
+          reflectToAttribute: true,            
+          type: Boolean
+      },
+      _isInvalidOrEmpty: {
+          reflectToAttribute: true,                        
+          type: Boolean
+      },
+        
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        if (this.isLogDebugEnabled) console.debug(this.localName + '#' + this.id + ' was created ');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        if (this.isLogDebugEnabled) {
+            console.debug(this.localName + '#' + this.id + ' is ready');
+//        console.log('with item.url', item.url);
+        }
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+        if (this.isLogDebugEnabled) {
+            console.debug(this.localName + '#' + this.id + ' is attached');
+            console.debug('with item', this.resource);
+            if (this.resource) {
+                console.debug('with item.url', this.resource.url);
+            }
+        }
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    attributeChanged: function(name, type) {
+        if (this.isLogDebugEnabled) {
+            console.log(this.localName + '#' + this.id + ' attribute ' + name +
+                        ' was changed to ' + this.getAttribute(name));
+        }
+    },
+      
+    /**
+     * Triggered when the `resource` property changes. 
+     */
+    _resObjChanged: function(e) {
+        if (this.isLogDebugEnabled) console.log("ResourceObj changed, determining new type");
+        if (typeof this.resource == 'undefined') {
+            if (this.isLogDebugEnabled) console.log("component not ready yet");
+            if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+            return;
+        }
+        if (this.resource) {
+            this._isASRAnnotation = this.isASRAnnotation(this.resource);
+            this._isMediaItem = this.isMediaItem(this.resource);
+            this._isOCRAnnotation = this.isOCRAnnotation(this.resource);
+            this._isSubtitleSegment = this.isSubtitleSegment(this.resource);
+            this._isEntityAnnotation = this.isEntityAnnotation(this.resource);
+        } else {
+            this._isASRAnnotation = false;
+            this._isMediaItem = false;
+            this._isOCRAnnotation = false;
+            this._isSubtitleSegment = false;
+            this._isEntityAnnotation = false;
+        }
+        if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+    },
+
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-media-item-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

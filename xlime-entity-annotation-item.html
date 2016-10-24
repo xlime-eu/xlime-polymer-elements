@@ -1,0 +1,227 @@
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="xlime-date.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../iron-icons/communication-icons.html">
+<link rel="import" href="../iron-image/iron-image.html">
+
+<!--
+`xlime-entity-annotation-item` is a web component, which renders a entity from some
+knowledge base which has been linked to some media item or part thereof.
+
+Example:
+
+    <xlime-entity-annotation-item
+      ann='[[entityAnnotationObj]]'>
+    </xlime-entity-annotation-item>
+
+The `entityAnnotationObj` follows the `entity annotation` format returned by the `xlime public webserver`.
+
+@group xLiMe
+@element xlime-entity-annotation-item
+@demo demo/xlime-entity-annotation-item.html
+@hero hero.svg
+-->
+<dom-module id="xlime-entity-annotation-item">
+
+  <template>
+      <style include="xlime-shared-styles">
+       iron-image {
+           width: 42px;
+           height: 28px;
+       }
+       xlime-date {
+           display: inline;
+       }
+      </style>
+    <paper-icon-item id="entityItem" class='fancy'>
+        <paper-icon-button icon="[[_calculatedIcon]]" alt="[[_calculatedTypeName]]">
+        </paper-icon-button>
+        <paper-item-body>
+            <div>[[_calculatedLabel]]</div>
+            <div secondary>mentioned <xlime-date date-obj="[[ann.mentionDate]]" mode="[[dateMode]]"></xlime-date> in [[_calculatedTargetType]]</div>
+        </paper-item-body>
+        <div class="small-avatar" style="background:white" item-icon>
+            <!-- Use same size as small-avatar (48x32 px) 
+            style="width:42px; height:28px;" -->
+            <iron-image 
+                        src='[[getThumbnailUrl(ann.entity, 0)]]'
+                        preload fade placeholder='[[_getPlaceHolderUrl(ann)]]'
+                        sizing="cover"></iron-image>
+        </div>
+    </paper-icon-item>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-entity-annotation-item',
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
+
+    properties: {
+        
+      /**
+       * The entity annotation object  to be displayed.
+       */
+      ann: {
+          type: Object,
+          observer: '_entityAnnChanged'
+      }, 
+
+      /**
+       * Indicates how the creation date object should be rendered. See documentation of the `xlime-date.mode` for the available options.
+       */
+      dateMode: {
+          type: String,
+          value: "timeAgo",
+      },
+        
+      /**
+       * Private variable used for specifying the name of the icon used to display the type of the `entity`
+       */
+      _calculatedIcon: {
+          type: String
+      },
+
+      _calculatedLabel: {
+          type: String
+      },
+
+      /**
+       * Private variable used for specifying the name of the main type of the `entity`
+       */
+      _calculatedTypeName: {
+          type: String,
+          observer: '_typeNameChanged'
+      },
+      _calculateTypeName: String
+
+    },
+      
+    // Element Lifecycle
+    created: function() {
+        console.log(this.localName + '#' + this.id + ' was created');
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    /**
+     * Handles changes to the `entity` property
+     */  
+    _entityAnnChanged: function(e) {
+        console.log('entityAnnObjChanged evt', e);
+        if (this.ann && this.isEntityAnnotation(this.ann)) {
+            //            console.log('updated entity obj ', this.ann);
+            this._calculatedTypeName = this._calculateTypeName(this.ann.entity);
+            this._calculatedLabel = this._calculateLabel(this.ann.entity);
+            this._calculatedTargetType = this._calculateTargetType(this.ann.resourceUrl);
+        } else if (this.ann) {
+            this._calculatedTypeName = null;
+            this._calculatedLabel = 'not and entity annotation (invalid object type)';
+            this._calculatedTargetType = "not an entity annotation (invalid data)";
+        } else {
+            //no object has been passed
+            this._calculatedTypeName = null;
+            this._calculatedLabel = 'no data';
+            this._calculatedTargetType = "no data";
+        }
+    },
+
+    _getDepiction: function(change, index) {
+        return change.base[index];
+    },
+
+    _calculateTargetType: function(url) {
+        if (this.isSocialMediaItemUrl(url)) return 'social-media';
+        if (this.isNewsArticleItemUrl(url)) return 'news';
+        if (this.isTVProgItemUrl(url)) return 'tv';
+    },
+      
+    _calculateTypeName: function(ent) {
+        if (ent && ent.types) {
+            var result = null;
+            for (var i = 0; i < ent.types.length; i++) {
+                if (ent.types[i] === "http://schema.org/Event") return "event";
+                if (ent.types[i] === "http://schema.org/Place") return "place";
+                if (ent.types[i] === "http://schema.org/Person") return "person";
+                if (ent.types[i] === "http://schema.org/Organization") return "organization";                
+            }
+        } else return null;
+    },
+
+    _calculateLabel: function(ent) {
+        return this.getKBEntityLabel(ent);
+    },
+      
+    _typeNameChanged: function(e) {
+        function typeNameToIconName(tn) {
+            if (tn === "event") return "event";
+            if (tn === "place") return "maps:place";
+            if (tn === "person") return "social:person";
+            if (tn === "organization") return "communication:business";      
+            return null;
+        }
+        console.log('typeName changed to ', this._calculatedTypeName);
+        if (this._calculatedTypeName) {
+            this._calculatedIcon = typeNameToIconName(this._calculatedTypeName);
+        } else this._calculatedIcon = "radio-button-unchecked"; //default icon
+    },
+
+    _getPlaceHolderUrl: function(entAnnObj) {
+      return this.getThumbnailUrl(entAnnObj, this.svgDataUri("xlime-svg:logo"));
+    },
+      
+    // Element Behavior
+
+    /**
+     * E.g. Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'xlime-entity-annotation-item says, ' + response;
+    },
+     */
+
+  });
+
+</script>

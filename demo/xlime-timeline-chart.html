@@ -1,0 +1,92 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-timeline-chart Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../xlime-timeline-chart.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       
+      </style>
+
+      <dom-module id="demo-timeline-app">
+          <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               xlime-timeline-chart {
+                   max-width: 500px;
+               }
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+              </style>
+
+              <h3>An example of <code>&lt;xlime-timeline-chart&gt;</code></h3>
+              <iron-ajax url="data/example-timeline-chart.json" last-response="{{sampleData}}" auto></iron-ajax>
+
+              <div class="horizontal-section-container">
+                  <div class="vertical-snippet">
+                      <xlime-timeline-chart data='[[sampleData]]'></xlime-timeline-chart>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe timeline chart object" value='{{toJsonStr(sampleData)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
+              </div>
+
+          </template>
+      </dom-module>
+
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'demo-timeline-app',
+               properties: {
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.sampleData = this._updateTextChange(this.$.textarea, this.sampleData);
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
+               }
+           });
+       });
+      </script>
+      
+  </head>
+  <body unresolved>
+      <demo-timeline-app></demo-timeline-app>
+  </body>
+</html>

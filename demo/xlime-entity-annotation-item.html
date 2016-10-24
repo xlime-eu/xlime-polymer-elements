@@ -1,0 +1,145 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 Expert System Iberia. All rights reserved.
+-->
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+      <title>xlime-entity-annotation-item Demo</title>
+      <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+      <link rel="import" href="../../polymer/polymer.html">
+      <link rel="import" href="../../iron-ajax/iron-ajax.html">
+      <link rel="import" href="../xlime-entity-annotation-item.html">
+      <link rel="import" href="../../paper-listbox/paper-listbox.html">
+      <link rel="import" href="../../paper-input/paper-textarea.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+      
+      <style is="custom-style" include="demo-pages-shared-styles">
+       body {
+           background-color: var(--paper-grey-50);
+       }
+       #cards {
+           @apply(--layout-vertical);
+           @apply(--center-justified);
+           max-width: 400px;
+           margin-left: auto;
+           margin-right: auto;
+       }
+       :root{
+           --iron-image-width: 80px;
+           --iron-image-height: 60px;
+       }
+       demo-snippet {
+           --demo-snippet-code: {
+               max-height:300px;
+           };
+       }
+      </style>
+      <dom-module id="x-app">
+          <template>
+              <!-- 
+              <iron-ajax url="data/kb-entity-annotations.json" last-response="{{data}}" auto></iron-ajax>
+               -->
+              <iron-ajax url="data/example-recent-annotations.json" last-response="{{data}}" auto></iron-ajax>
+              <paper-listbox multi>
+                  <template is="dom-repeat" items="{{_getEntityAnnots(data.annotations)}}">
+                      <!-- 
+                      <paper-item>index: {{index}}. url: {{item.url}}</paper-item>
+                      -->
+                      <xlime-entity-annotation-item ann="{{item}}"></xlime-entity-annotation-item>
+                  </template>
+              </paper-listbox>
+          </template>
+      </dom-module>
+      
+      <script>
+       HTMLImports.whenReady(function() {
+           Polymer({
+               is: 'x-app',
+               properties: {
+               },
+               _getEntityAnnots: function(annArray) {
+                   var result = [];
+                   for (var i=0; i < annArray.length; i++) {
+                       var item = annArray[i];
+                       if (this.isEntityAnnotation(item)) {
+                           result.push(item);
+                       }
+                   }
+                   return result;
+               },
+               isEntityAnnotation: function(object) {
+                   if (object && object['@type'] &&
+                       object['@type'] === "http://xlime.eu/vocab/EntityAnnotation") {
+                           return true;
+                   } else return false;
+               },
+               
+           });
+       });
+      </script>
+  </head>
+  
+  <body unresolved>
+
+      <x-app></x-app>
+      
+      <!-- 
+      <h3>A smple-entity-annotation-item</h3>
+      <demo-snippet class="centered-demo">
+          <template>
+              <div class="horizontal-section">
+                  <xlime-entity-annotation-item id="sample-kb-entity-item" entity="{}"></xlime-entity-annotation-item>
+              </div>
+              <div class="vertical-section">
+                  <p></p>
+                <paper-textarea id="inputObj" label="xLiMe Entity Object"
+                                   value='{
+ "url":"http://dbpedia.org/resource/Albert_Einstein",
+ "label":"Albert Einstein",
+ "depictions":[
+    "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg?width=300",
+    "http://en.wikipedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg"],
+ "types":["http://umbel.org/umbel/rc/PersonWithOccupation",
+    "http://dbpedia.org/ontology/Agent",
+    "http://xmlns.com/foaf/0.1/Person",
+    "http://dbpedia.org/ontology/Person",
+    "http://schema.org/Person",
+    "http://www.wikidata.org/entity/Q901"]
+}'></paper-textarea>
+                <button id="update" onclick="updateItem()">Update Item</button></p>
+              </div>
+          </template>
+      </demo-snippet>
+      
+      <script>
+       var demoSnippet = document.querySelector('demo-snippet');
+       
+       function updateItem() {
+           var item = document.querySelector('#sample-entity-annotation-item');
+           console.log("updating media item component ", item);
+           var inElt = document.querySelector('#inputObj');
+           if (item.entity) {
+               console.log("using entity object:", inElt);
+               console.log("old entity: ", item.entity);
+               console.log("new entity: ", inElt.value.trim());
+           }
+           var newObj = {};
+           try {
+               newObj = JSON.parse(inElt.value);
+           } catch (err) {
+               console.log("error parsing input value", err);
+               newObj = {};
+           }
+           item.entity = newObj;
+       }
+      </script>
+      -->
+      
+
+
+  </body>
+</html>

@@ -79,6 +79,8 @@
                  return this.svgDataUri("fa:cc");
              } else if (this.isOCRAnnotation(object)) {
                  return this.svgDataUri("fa:file-text-o");
+             } else if (this.isEntityAnnotation(object)) {
+                 return this.svgDataUri("fa:tag");
              }
          }
          console.log("Could not determine thumbnail for object", object);
@@ -184,6 +186,22 @@
          } else return false;
      },
 
+     getKBEntityLabel: function(object) {
+         if (this.isKBEntity(object)) {
+             if (object.label && object.label.length > 0) {
+                 return object.label;
+             } else {
+                 return object.url;
+             }
+         } else {
+             console.error("Not a KBEntity", object);
+             if (object && object.label) return object.label;
+             else if (object && object.url) return object.url;
+             else if (object) return 'unknown data';
+             else return 'null data';
+         }
+     },
+
      isSearchString: function(object) {
          if (object && object['@type'] &&
              object['@type'] === "http://xlime.eu/vocab/searchString") {
@@ -201,6 +219,13 @@
      isSubtitleSegment: function(object) {
          if (object && object['@type'] &&
              object['@type'] === "http://xlime.eu/vocab/SubtitleSegment") {
+             return true;
+         } else return false;
+     },
+
+     isEntityAnnotation: function(object) {
+         if (object && object['@type'] &&
+             object['@type'] === "http://xlime.eu/vocab/EntityAnnotation") {
              return true;
          } else return false;
      },
@@ -224,13 +249,25 @@
      
      isSocialMediaItem: function(object) {
          if (object && object.url) {
-             return object.url.startsWith("http://vico-research.com/social/");
+             return this.isSocialMediaItemUrl(object.url);
          } else return false;
      },
 
+     isSocialMediaItemUrl: function(url) {
+         if (url) {
+             return url.startsWith("http://vico-research.com/social/");
+         } else return false;
+     },
+     
      isNewsArticleItem: function(object) {
          if (object && object.url) {
-             return object.url.startsWith("http://ijs.si/article/");
+             return this.isNewsArticleItemUrl(object.url);
+         } else return false;
+     },
+
+     isNewsArticleItemUrl: function(url) {
+         if (url) {
+             return url.startsWith("http://ijs.si/article/");
          } else return false;
      },
 
@@ -238,6 +275,12 @@
          if (object && object['@type'] &&
              object['@type'] === "http://xlime.eu/vocab/MediaResource") {
              return true;
+         } else return false;
+     },
+
+     isTVProgItemUrl: function(url)  {
+         if (url) {
+             return url.startsWith("http://zattoo.com/program");
          } else return false;
      },
 

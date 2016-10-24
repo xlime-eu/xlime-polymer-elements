@@ -12,61 +12,25 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="../iron-icons/notification-icons.html">
 
 <!--
-`xlime-tv-program-item` is a web component, which renders an xLiMe tv-program, i.e.
+`xlime-ocr-annotation-item` is a web component, which renders an xLiMe tv-program, i.e.
 
 zattoo-tv-program (or segment?).
 
 Example:
 
-    <xlime-tv-program-item
-      item-obj='{
-         "url": "http://zattoo.com/program/111277860", //xlime url for this media item
-         "type": "http://www.w3.org/ns/ma-ont#MediaResource",
-         "title": "Title for TV programme",
-         "description": { 
-            "full": "some long.... full description",
-            "preview": "short preview of full",
-          },
-          "broadcastDate": {
-             "timestamp": 0,
-             "formatted": "01/01/1970 00:00:00",
-             "timeAgo": "46 years ago"
-          },
-          "relatedImage": "http://example.com/example.png", //
-          "publisher": {
-             "label": "some publisher",
-             "url": "http://example.com/"
-          },
-          "duration": {
-             "totalSeconds": 1800,
-             "hours": 0,
-             "minutes": 30,
-             "seconds": 0
-          },
-          "source": {
-             "label": "source label",
-             "url": "http://example.com/article"
-          },
-          "relatedLocation": {
-             "lon": 0,
-             "lat": 0,
-             "label": "GB"
-          }
-       }'>
-    </xlime-tv-program-item>
 
 Example using polymer binding (Where `myItemObj` is an object like the one shown above):
 
-    <xlime-tv-program-item
+    <xlime-ocr-annotation-item
       item-obj='{{myItemObj}}'>
-    </xlime-tv-program-item>
+    </xlime-ocr-annotation-item>
 
 @group xLiMe
-@element xlime-tv-program-item
-@demo demo/xlime-tv-program-item.html
+@element xlime-ocr-annotation-item
+@demo demo/xlime-ocr-annotation-item.html
 @hero hero.svg
 -->
-<dom-module id="xlime-tv-program-item">
+<dom-module id="xlime-ocr-annotation-item">
 
   <template>
     <style include="xlime-shared-styles"></style>
