@@ -146,6 +146,14 @@ news article:
           type: Object,
           observer: '_itemObjChanged'
       },
+        /**
+         * Whether this card should provide an option for viewing the
+         * full content.
+         */
+        expandable: {
+            type: Boolean,
+            value: false
+        },
       /**
        * Private variable used for toggling the full and preview modes of the content.
        */
@@ -206,8 +214,10 @@ news article:
 
     _itemObjChanged: function(e) {
         function shouldHideTogglePreviewBtn(content) {
-            if (content && content.full && content.preview) return false;
-            else return true;
+            if (this.expandable) {
+                if (content && content.full && content.preview) return false;
+                else return true;
+            } else return true;
         }
 
         function calcCurrent(content) {

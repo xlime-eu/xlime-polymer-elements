@@ -151,7 +151,16 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       itemObj: {
           type: Object,
           observer: '_itemObjChanged'
-      }, 
+      },
+        
+     /**
+      * Whether this card should provide an option for viewing the
+      * full content.
+      */
+      expandable: {
+          type: Boolean,
+          value: false
+      },
 
      /**
       * Whether the `itemObj` has a valid `relatedImage` property.
@@ -201,8 +210,10 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
     _itemObjChanged: function(e) {
         function shouldHideTogglePreviewBtn(content) {
-            if (content && content.full && content.preview) return false;
-            else return true;
+            if (this.expandable) {
+                if (content && content.full && content.preview) return false;
+                else return true;
+            } else return true;
         }
 
         function calcCurrent(content) {

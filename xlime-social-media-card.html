@@ -67,7 +67,6 @@ Height and width are specified as style attributes:
 
   <template>
     <style include="xlime-shared-styles"></style>
-    <content></content>
     <paper-card id="socMediaCard" class='fancy'>
       <div class="card-content">
         <div class="avatar">{{itemObj.lang}}</div>
@@ -79,10 +78,11 @@ Height and width are specified as style attributes:
 
       <div class="card-content">
         <div class="medium">{{_currentContent}}</div>
+        <content></content>
       </div>
       <div class="card-actions">
-        <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
-        <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
+          <a href='{{itemObj.source}}' target='_blank'>Visit original</a>
+          <paper-button id="togglePreviewBtn" toggles raised on-click="_togglePreview">{{_togglePreviewLabel(_currentContent)}}</paper-button>
       </div>
     </paper-card>
   </template>
@@ -134,6 +134,14 @@ Height and width are specified as style attributes:
           observer: '_itemObjChanged'
       }, 
 
+     /**
+      * Whether this card should provide an option for viewing the
+      * full content.
+      */
+      expandable: {
+          type: Boolean,
+          value: false
+      },
       /**
        * Private variable used for toggling the full and preview modes of the content.
        */
@@ -187,8 +195,10 @@ Height and width are specified as style attributes:
         }
 
         function shouldHideTogglePreviewBtn(content) {
-            if (content && content.full && content.preview) return false;
-            else return true;
+            if (this.expandable) {
+                if (content && content.full && content.preview) return false;
+                else return true;
+            } else return true;
         }
 
         function calcCurrent(content) {
