@@ -14,6 +14,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       <link rel="import" href="../../paper-input/paper-textarea.html">
       <link rel="import" href="../../iron-ajax/iron-ajax.html">
       <link rel="import" href="../../paper-toast/paper-toast.html">      
+      <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
 
       <style is="custom-style">
        :root {
@@ -25,10 +26,15 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                border-style: solid;
                border-color: #679B00;
            }
+           --paper-card-header-text: {
+               background-color: var(--xlime-primary-background-color, black);
+               color: var(--xlime-highlight-color, white);
+           }
        }
        body {
            background-color: var(#FFFFB2);
        }
+       
        #cards {
            @apply(--layout-vertical);
            @apply(--center-justified);
@@ -39,11 +45,28 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
       </style>
       <dom-module id="demo-kb-entity-app">
           <template>
+              <style is="custom-style" include="demo-pages-shared-styles">
+               paper-textarea {
+                   margin-left: 3em;
+                   max-width: 500px;
+               }
+               xlime-kb-entity-card {
+                   max-width: 500px;
+               }
+               
+              </style>
               <iron-ajax url="data/example-entity-summary.json" last-response="{{sampleEntSumma}}" auto></iron-ajax>
 
-              <iron-ajax id="ajax" url="[[baseXlimeServiceUrl]]/services/entities" params='{ "url": "http://dbpedia.org/resource/Berlin"}'  last-response="{{entities}}" auto on-error='handleAjaxError'></iron-ajax>
-              <xlime-kb-entity-card entity="[[getEntity(entities.*, 0)]]" on-statement-related-tap="myHandleStatementRelatedTap">
-              </xlime-kb-entity-card>
+              <div class="horizontal-section-container">
+                  <iron-ajax id="ajax" url="data/example-kb-entity-sum.json"   last-response="{{entities}}" on-error='handleAjaxError' auto></iron-ajax>
+                  <div class="vertical-snippet">
+                      <xlime-kb-entity-card entity="[[currentEntSum]]" on-statement-related-tap="myHandleStatementRelatedTap">
+                      </xlime-kb-entity-card>
+                  </div>
+                  <div class="vertical-snippet">
+                      <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Entity Summary object" value='{{toJsonStr(currentEntSum)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="10"></paper-textarea>
+                  </div>
+              </div>
               <paper-toast id="toast0" text="This toast auto-closes after 3 seconds"></paper-toast>
           </template>
       </dom-module>
@@ -54,12 +77,30 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                is: 'demo-kb-entity-app',
                properties: {
                    entities: {
-                       type: Array
+                       type: Array,
+                       observer: '_handleNewEntities'
                    },
+                   currentEntSum: Object,
+                   
                    baseXlimeServiceUrl: {
                        type: String,
-                       value: "http://expertsystemlab.com:8080/frontend-services"
+                       value: "http://expertsystemlab.com/frontend-services"
                    }
+               },
+               toJsonStr: function(obj) {
+                   console.log("strinfigying obj");
+                   return JSON.stringify(obj, null, 4);
+               },
+               _handleNewEntities: function(newValue, oldValue) {
+                   if (newValue) {
+                       this.currentEntSum = this.getEntity(newValue, 0);
+                   } else this.currentEntSum = {
+                       entity: {}
+                   };
+               },
+               handleTextChange: function(e, detail) {
+                   console.log("Handling update of text area", e, detail);
+                   this.currentEntSum = this._updateTextChange(this.$.textarea, this.currentEntSum);
                },
                handleAjaxError: function(e, detail) {
                    console.log("Ajax Error ", e, this.$.toast0);
@@ -69,10 +110,14 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                myHandleStatementRelatedTap: function(e, detail) {
                    console.log("Handling statementRelatedTap", e);
                    console.log("Handling statementRelatedTap", detail);
+                   this.$.toast0.text = "Not connected to a server to retrieve new entity information";
+                   this.$.toast0.open();
+                   /*
                    var ajax = this.$.ajax;
                    var params = {};
                    params.url = detail.obj.url;
                    ajax.params = params;
+                   */
                },
                getEntity: function(change, index) {
                    if (change && change.base) {
@@ -81,7 +126,20 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                        console.log("No valid change, use ", this.sampleEntSumma);
                        return this.sampleEntSumma[index];
                    }
+               },
+               _updateTextChange: function(textareaElt, miObj) {
+                   var newObj = {};
+                   try {
+                       newObj = JSON.parse(textareaElt.value);
+                       textareaElt.invalid = false;
+                       return newObj;
+                   } catch (err) {
+                       console.log("error parsing input value", err);
+                       textareaElt.invalid = true;
+                       return miObj;
+                   }
                }
+               
            });
        });
       </script>

@@ -62,10 +62,12 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
                opacity: 0.95;
            }
            --paper-card-header-image-text: {
-               bottom: 1em;
-               left: 5px;
+               width: 100%;
                color: var(--paper-card-header-color, white);
-               background: var(--xlime-primary-background-color, black);
+               # define scrim for background to make text stand out against image in background
+               # (see https://material.google.com/style/imagery.html#imagery-ui-integration)
+               #               background: linear-gradient(to bottom, rgba(255,0,0,0), var(--xlime-primary-background-color, black));
+               background: linear-gradient(to bottom, rgba(255,0,0,0), black);
            }
        }
       </style>
@@ -75,6 +77,11 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
         -->
     <paper-card id="entityCard" heading="{{entity.entity.label}}" image="[[_getDepiction(entity.entity.depictions.*, 0)]]">
         <div class="card-content">
+          <template is="dom-if" if="[[!_hasStatements(entity)]]">
+              <div class="statement">
+                  No statements known for [[entity.entity.label]]
+              </div>
+          </template>
           <template is="dom-repeat" items="{{entity.statements}}">
               <div class="statement">
                   <xlime-value on-tap="_handleRelationTap" url-target="_blank" class="relation" style="display: inline;" obj="{{item.relation}}"></xlime-value>
@@ -181,7 +188,9 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
       //
       // Use this to clean up anything you did in `attached`.
     },
-
+    _hasStatements: function(entSumObj) {
+       return (entSumObj && entSumObj.statements && entSumObj.statements.length > 0);
+    }, 
     /**
      * Handles changes to the `itemObj`ect
      */  
@@ -194,7 +203,9 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
     },
 
     _getDepiction: function(change, index) {
-        return change.base[index];
+        if (change && change.base) {
+            return change.base[index];
+        } else null; //"app/images/xLiMe_Showcase_logo.png";
     },
 
     _handleRelationTap: function(e, detail) {
