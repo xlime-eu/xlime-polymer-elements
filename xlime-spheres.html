@@ -180,6 +180,32 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
           return result;
     },
 
+    /**
+      * Returns the number of resources contained in the inner circle
+      */
+    innerCount: function() {
+        if (this.obj && this.obj.inner && this.obj.inner.length) {
+            return this.obj.inner.length;
+        } else return 0;
+    },
+      
+    referToSameResource: function(resourceObjA, resourceObjB) {
+          if (resourceObjA && resourceObjA.url && resourceObjB && resourceObjB.url) {
+              return resourceObjA.url === resourceObjB.url;
+          } else {
+              return false;
+          }
+    },
+
+    isInInner: function(resourceObj) {
+        if (resourceObj && resourceObj.url) {
+            var index = this._indexOfResource(this.obj.inner, toRemove);
+            return (index >= 0);
+        }
+    },
+
+    
+      
     addToInner: function(resourceObj) {
       this.push("obj.inner", resourceObj);
     },
@@ -197,7 +223,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 
     _indexOfResource: function(array, resourceObj) {
         for (var i=0; i< array.length; i++){
-            if (array[i].recommended == resourceObj) return i;
+            if (this.referToSameResource(array[i].recommended, resourceObj)) return i;
         }
     },
       
