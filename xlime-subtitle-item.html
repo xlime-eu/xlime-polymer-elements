@@ -88,7 +88,8 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled())
+            console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -99,8 +100,8 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
         if (this.isLogTraceEnabled()) {
-            console.log(this.localName + '#' + this.id + ' is ready');
-            console.log('with logLevel', this.logLevel);
+            console.debug(this.localName + '#' + this.id + ' is ready');
+            console.debug('with logLevel', this.logLevel);
          }
     },
 
@@ -110,9 +111,11 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
       //
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-        console.log(this.localName + '#' + this.id + ' is attached');
-        console.log('with logLevel', this.logLevel);        
+        // loading resources, etc).
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' is attached');
+            console.debug('with logLevel', this.logLevel);
+        }
     },
 
     detached: function() {
@@ -124,11 +127,9 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
 
     _objChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('objChanged evt', e);
-        }
-        if (this.obj) {
-            if (this.isLogDebugEnabled()) {
-                console.log('updated obj ', this.obj);
+            console.debug('objChanged evt', e);
+            if (this.obj) {
+                console.debug('updated obj ', this.obj);
             }
         }
     },

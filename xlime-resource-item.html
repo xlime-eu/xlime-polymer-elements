@@ -116,7 +116,7 @@ Example:
       
     // Element Lifecycle
     created: function() {
-        if (this.isLogDebugEnabled) console.debug(this.localName + '#' + this.id + ' was created ');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created ');
     },
       
     ready: function() {
@@ -126,9 +126,9 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug(this.localName + '#' + this.id + ' is ready');
-//        console.log('with item.url', item.url);
+//        console.debug('with item.url', item.url);
         }
     },
 
@@ -139,7 +139,7 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
         // loading resources, etc).
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug(this.localName + '#' + this.id + ' is attached');
             console.debug('with item', this.resource);
             if (this.resource) {
@@ -156,8 +156,8 @@ Example:
     },
 
     attributeChanged: function(name, type) {
-        if (this.isLogDebugEnabled) {
-            console.log(this.localName + '#' + this.id + ' attribute ' + name +
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' attribute ' + name +
                         ' was changed to ' + this.getAttribute(name));
         }
     },
@@ -166,10 +166,10 @@ Example:
      * Triggered when the `resource` property changes. 
      */
     _resObjChanged: function(e) {
-        if (this.isLogDebugEnabled) console.log("ResourceObj changed, determining new type");
+        if (this.isLogDebugEnabled()) console.debug("ResourceObj changed, determining new type");
         if (typeof this.resource == 'undefined') {
-            if (this.isLogDebugEnabled) console.log("component not ready yet");
-            if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+            if (this.isLogDebugEnabled()) console.debug("component not ready yet");
+            if (this.isLogDebugEnabled()) console.debug("after itemObjChanged", this);
             return;
         }
         if (this.resource) {
@@ -185,7 +185,7 @@ Example:
             this._isSubtitleSegment = false;
             this._isEntityAnnotation = false;
         }
-        if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+        if (this.isLogDebugEnabled()) console.debug("after itemObjChanged", this);
     },
 
       

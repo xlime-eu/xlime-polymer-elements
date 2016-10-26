@@ -124,7 +124,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
     // Element Lifecycle
     created: function() {
           if (this.isLogDebugEnabled()) {
-              console.log(this.localName + '#' + this.id + ' was created');
+              console.debug(this.localName + '#' + this.id + ' was created');
           }
     },
       
@@ -156,12 +156,12 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
 
     _valueObjChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('valueObjChanged evt', e);
+            console.debug('valueObjChanged evt', e);
         }
         if (this.obj) {
             if (this.isLogDebugEnabled()) {
-                console.log('updated value obj ', this.obj);
-                console.log('itemObj.label', this.obj.label);
+                console.debug('updated value obj ', this.obj);
+                console.debug('itemObj.label', this.obj.label);
             }
             this._hasUrl = this._calcHasUrl(this.obj);
         }
@@ -169,7 +169,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
 
     _updateModeVars: function(obj, mode) {
         if (this.isLogDebugEnabled()) {
-            console.log('mode or obj changed', mode);
+            console.debug('mode or obj changed', mode);
         }
         if (this.mode === "link") {
             this._renderAsLink = this._calcHasUrl(obj);
@@ -182,7 +182,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
             this._appendLink = false;
         } else {
             if (this.isLogDebugEnabled()) {
-                console.log('invalid mode', this.mode);
+                console.debug('invalid mode', this.mode);
             }
             this._renderAsLink = false;
             this._appendLink = this._calcHasUrl(obj);
@@ -191,7 +191,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
       
     _modeChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('mode changed', e);
+            console.debug('mode changed', e);
         }
         if (this.mode === "link") {
             this._renderAsLink = this._hasUrl;
@@ -204,7 +204,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
             this._appendLink = false;
         } else {
             if (this.isLogDebugEnabled()) {
-                console.log('invalid mode', this.mode);
+                console.debug('invalid mode', this.mode);
             }
             this._renderAsLink = false;
             this._appendLink = this._hasUrl;
@@ -215,7 +215,7 @@ Example using polymer binding (Where `myValueObj` is an object like the one show
         if (item) {
             var result = !(typeof item.url == 'undefined' || item.url == null || item.url == '');
             if (this.isLogDebugEnabled()) {
-                console.log('value has url: ' + result, item);
+                console.debug('value has url: ' + result, item);
             }
             return result;
         } else return false;

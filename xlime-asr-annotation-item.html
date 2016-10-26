@@ -90,7 +90,8 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled())
+            console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -102,8 +103,8 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
         // necessary), or kick off any processes the element wants to perform.
         //console.log("The jassa attribute ", _jassa);
         if (this.isLogTraceEnabled()) {
-            console.log(this.localName + '#' + this.id + ' is ready');
-            console.log('with logLevel', this.logLevel);
+            console.debug(this.localName + '#' + this.id + ' is ready');
+            console.debug('with logLevel', this.logLevel);
          }
     },
 
@@ -113,9 +114,11 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
       //
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-        console.log(this.localName + '#' + this.id + ' is attached');
-        console.log('with logLevel', this.logLevel);        
+        // loading resources, etc).
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' is attached');
+            console.debug('with logLevel', this.logLevel);
+        }
     },
 
     detached: function() {

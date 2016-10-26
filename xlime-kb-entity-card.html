@@ -159,8 +159,10 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
     },
       
     // Element Lifecycle
-    created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+      created: function() {
+          if (isLogDebugEnabled()) {
+              console.debug(this.localName + '#' + this.id + ' was created');
+          }
     },
       
     ready: function() {
@@ -194,8 +196,9 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
     /**
      * Handles changes to the `itemObj`ect
      */  
-    _entityObjChanged: function(e) {
-        console.log('entityObjChanged evt', e);
+      _entityObjChanged: function(e) {
+        if (isLogDebugEnabled())
+              console.debug('entityObjChanged evt', e);
         if (this.entity) {
 //            console.log('updated itemObj ', this.itemObj);
 //            console.log('itemObj.content', contentObj);

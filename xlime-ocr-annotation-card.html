@@ -84,7 +84,7 @@ Example using polymer binding (Where `myOCRAnnotationObj` is an object as define
       
     // Element Lifecycle
     created: function() {
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug(this.localName + '#' + this.id + ' was created');
         }
     },
@@ -116,7 +116,7 @@ Example using polymer binding (Where `myOCRAnnotationObj` is an object as define
     },
 
     _objChanged: function(e) {
-        if (this.isLogDebugEnabled) console.debug('itemObjChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('itemObjChanged evt', e);
         if (this.obj) {
             if (this.isLogDebugEnabled()) {
                 console.debug('updated itemObj ', this.itemObj);

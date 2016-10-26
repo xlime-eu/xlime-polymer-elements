@@ -173,7 +173,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       
     // Element Lifecycle
     created: function() {
-        if (this.isLogDebugEnabled) console.debug(this.localName + '#' + this.id + ' was created ');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created ');
     },
       
     ready: function() {
@@ -183,7 +183,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       //
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug(this.localName + '#' + this.id + ' is ready');
 //        console.log('with item.url', item.url);
 //        console.log('with _mediaTypeIndex', _mediaTypeIndex);
@@ -197,7 +197,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
         // loading resources, etc).
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug(this.localName + '#' + this.id + ' is attached');
             console.debug('with item', this.item);
             console.debug('with item.url', this.item.url);
@@ -213,10 +213,11 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     },
 
     attributeChanged: function(name, type) {
-        if (this.isLogDebugEnabled) {
+/*        if (this.isLogDebugEnabled()) {
             console.log(this.localName + '#' + this.id + ' attribute ' + name +
                         ' was changed to ' + this.getAttribute(name));
-        }
+ }
+        */
     },
       
     /**
@@ -232,11 +233,11 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
             return 0;
         }
 
-        if (this.isLogDebugEnabled) console.log("ItemObj changed, determining new _mediaTypeIndex");
+//        if (this.isLogDebugEnabled()) console.log("ItemObj changed, determining new _mediaTypeIndex");
         if (typeof this.item == 'undefined') {
-            if (this.isLogDebugEnabled) console.log("component not ready yet");
+//            if (this.isLogDebugEnabled) console.log("component not ready yet");
             this._mediaTypeIndex = 0;
-            if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+//            if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
             return;
         }
         if (this.item) {
@@ -244,39 +245,39 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
         } else {
             this._mediaTypeIndex = 0;
         }
-        if (this.isLogDebugEnabled) console.log("after itemObjChanged", this);
+//        if (this.isLogDebugEnabled()) console.log("after itemObjChanged", this);
     },
 
     _mediaTypeIndexChanged: function() {
         function doIsSocMedia(index) {
-            if (this.isLogDebugEnabled) console.log("determining isSocMedia");
+//            if (this.isLogDebugEnabled()) console.debug("determining isSocMedia");
             var result = false;
             if (typeof index == 'undefined') {} else {
                 result = (index == 1);
             }
-            if (this.isLogDebugEnabled) console.log("isSocMedia: " + result);
+//            if (this.isLogDebugEnabled()) console.debug("isSocMedia: " + result);
             return result;
         }
 
         function doIsNewsArticle(index) {
-            if (this.isLogDebugEnabled) console.log("determining isNewsArticle");
+//            if (this.isLogDebugEnabled()) console.debug("determining isNewsArticle");
             if (typeof index == 'undefined') return false;
             return index == 2;
         }
 
         function doIsTVProgram(index) {
-            if (this.isLogDebugEnabled) console.log("determining isTVProgram");
+//            if (this.isLogDebugEnabled()) console.debug("determining isTVProgram");
             if (typeof index == 'undefined') return false;
             return index == 3;
         }
 
         function doIsInvalidOrEmpty(index) {
-            if (this.isLogDebugEnabled) console.log("determining isInvalidOrEmpty");          
+//            if (this.isLogDebugEnabled()) console.debug("determining isInvalidOrEmpty");          
             if (typeof index == 'undefined') return true;
             return index == 0;
         }
           
-        if (this.isLogDebugEnabled) console.log("mediaType index changed, current value:", this._mediaTypeIndex);
+        if (this.isLogDebugEnabled()) console.debug("mediaType index changed, current value:", this._mediaTypeIndex);
         this._isSocMedia = doIsSocMedia(this._mediaTypeIndex);
         this._isNewsArticle = doIsNewsArticle(this._mediaTypeIndex);
         this._isTVProgram = doIsTVProgram(this._mediaTypeIndex);

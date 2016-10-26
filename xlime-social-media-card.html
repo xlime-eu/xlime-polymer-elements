@@ -153,7 +153,7 @@ Height and width are specified as style attributes:
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -202,9 +202,7 @@ Height and width are specified as style attributes:
         }
 
         function calcCurrent(content) {
-            if (this.isLogDebugEnabled) {
-                console.debug("Calculating currentContent for", content);
-            }
+            //console.debug("Calculating currentContent for", content);
             if (content && content.full) {
                 if (content.preview) {
                     return content.preview;
@@ -216,7 +214,7 @@ Height and width are specified as style attributes:
             }
         }
 
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug('itemObjChanged evt', e);
         }
         if (this.itemObj) {
@@ -229,22 +227,22 @@ Height and width are specified as style attributes:
     },
       
     _togglePreview: function() {
-        if (this.isLogDebugEnabled) {
+        if (this.isLogDebugEnabled()) {
             console.debug('toggling preview');
         }
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             if (contentObj.current === contentObj.full) {
-                if (this.isLogDebugEnabled)
+                if (this.isLogDebugEnabled())
                     console.debug('Showing preview object');
                 contentObj.current = contentObj.preview;
             } else {
-                if (this.isLogDebugEnabled)
+                if (this.isLogDebugEnabled())
                     console.debug('Showing full object');
                 contentObj.current = contentObj.full;
             }
         } else {
-            if (this.isLogDebugEnabled)
+            if (this.isLogDebugEnabled())
                 console.debug('No itemObj available', this.itemObj);
         }
     },

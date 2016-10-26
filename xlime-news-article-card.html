@@ -4,6 +4,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="xlime-value.html">
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
@@ -107,6 +108,7 @@ news article:
   Polymer({
 
     is: 'xlime-news-article-card',
+    behaviors: [XLiMe.LogBehavior],
 
     properties: {
 
@@ -168,7 +170,9 @@ news article:
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' was created');
+        }
     },
       
     ready: function() {
@@ -221,7 +225,7 @@ news article:
         }
 
         function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
+//            console.log("Calculating currentContent for", content);
             if (typeof content == 'undefined') return "Missing content";
             if (content.full) {
                 if (content.preview) {
@@ -233,28 +237,37 @@ news article:
                 return "Missing content";
             }
         }
-        
-        console.log('itemObjChanged evt', e);
+
+        if (this.isLogDebugEnabled()) {
+            console.debug('itemObjChanged evt', e);
+        }
         if (this.itemObj) {
             this._currentContent = calcCurrent(this.itemObj.content);
             this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.content);
-            console.log('updated itemObj ', this.itemObj);
-            console.log('itemObj.content', this.itemObj.content);
+            if (this.isLogDebugEnabled()) {
+                console.debug('updated itemObj ', this.itemObj);
+                console.debug('itemObj.content', this.itemObj.content);
+            }
         } else this._currentContent = "Empty"
     },
 
     _togglePreview: function() {
-        console.log('toggling preview');
+        if (this.isLogDebugEnabled()) {
+            console.debug('toggling preview');
+        }
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             if (this._currentContent === contentObj.full) {
-                console.log('Showing preview object');
+                if (this.isLogDebugEnabled()) console.debug('Showing preview object');
                 this._currentContent = contentObj.preview;
             } else {
-                console.log('Showing full object');
+                if (this.isLogDebugEnabled()) console.debug('Showing full object');
                 this._currentContent = contentObj.full;
             }
-        } else console.log('No itemObj available', this.itemObj);
+        } else {
+            if (this.isLogDebugEnabled())
+                console.debug('No itemObj available', this.itemObj);
+        }
     },
 
     _togglePreviewLabel: function(currentContent) {

@@ -119,7 +119,7 @@ See the [xLiMe Frontend services project](https://github.com/xlime-eu/xlime-fron
     },
 
     _objChanged: function(e) {
-        if (this.isLogDebugEnabled) console.log('objChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('objChanged evt', e);
         if (this.itemObj) {
             if (this.isLogDebugEnabled()) {
                 console.log('updated itemObj ', this.itemObj);

@@ -6,6 +6,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="xlime-value.html">
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
@@ -90,7 +91,7 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
 
     is: 'xlime-social-media-item',
 
-    behaviors: [XLiMe.ObjectInspectorBehavior],
+    behaviors: [XLiMe.LogBehavior,XLiMe.ObjectInspectorBehavior],
       
     properties: {
         
@@ -149,7 +150,7 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -191,7 +192,7 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
         }
 
         function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
+//            console.log("Calculating currentContent for", content);
             if (content && content.full) {
                 if (content.preview) {
                     return content.preview;
@@ -203,12 +204,12 @@ The `itemObj` follows the format returned by the `xlime public webserver`.
             }
         }
         
-        console.log('itemObjChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('itemObjChanged evt', e);
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             this._currentContent = calcCurrent(contentObj);
-//            console.log('updated itemObj ', this.itemObj);
-//            console.log('itemObj.content', contentObj);
+//            console.debug('updated itemObj ', this.itemObj);
+//            console.debug('itemObj.content', contentObj);
         } else this._currentContent = "Empty"
     },
             

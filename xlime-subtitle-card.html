@@ -112,7 +112,7 @@ Example using polymer binding (Where `subtitleObj` is an object as defined by th
     },
 
     _objChanged: function(e) {
-        if (this.isLogDebugEnabled) console.log('objChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('objChanged evt', e);
         if (this.obj) {
             if (this.isLogDebugEnabled()) {
                 console.log('updated obj ', this.obj);

@@ -138,7 +138,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     // Element Lifecycle
     created: function() {
           if (this.isLogDebugEnabled()) {
-              console.log(this.localName + '#' + this.id + ' was created');
+              console.debug(this.localName + '#' + this.id + ' was created');
           }
     },
       
@@ -175,7 +175,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     isSelected: function(item, selected) {
           var result = this.referToSameResource(item.recommended, selected);
           if (this.isLogDebugEnabled()) {
-              console.log("Item is selected ", item, selected, result);
+              console.debug("Item is selected ", item, selected, result);
           }
           return result;
     },
@@ -187,9 +187,9 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     _handleResourceTap: function(e, detail) {
         if (this.isLogDebugEnabled()) {
             if (this.selected) {
-                console.log("deselecting ", this.selected);
+                console.debug("deselecting ", this.selected);
             } else {
-                console.log("no previous selection");
+                console.debug("no previous selection");
             }
         }
         this._setSelected(detail.obj);
@@ -204,10 +204,10 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     _handleResourceRemove: function(e, detail) {
         var toRemove = detail.obj;
         if (this.isLogDebugEnabled()) {
-            console.log("Handling removal of resource.", toRemove);
+            console.debug("Handling removal of resource.", toRemove);
+            console.debug("old spheres obj: ", this.obj);
         }
 
-        console.log("old spheres obj: ", this.obj);
         var index = this._indexOfResource(this.obj.inner, toRemove);
 
         if (index < 0) {
@@ -216,10 +216,10 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         }
         
         var removed = this.splice('obj.inner', index, 1);
-        console.log("new spheres obj: ", this.obj);
+        if (this.isLogDebugEnabled()) console.debug("new spheres obj: ", this.obj);
         
         if (removed) {
-            console.log("Removed ", removed);
+            if (this.isLogDebugEnabled()) console.debug("Removed ", removed);
 //            this.set('obj.inner', this.obj.inner);
             // do I need to fire a change event for `obj`?
             // do I need to update the `selected`?
@@ -230,7 +230,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
             }
             this.fire('spheres-resource-removed', newDetail);
         } else {
-            console.log("Could not remove object", removed);
+            if (this.isLogDebugEnabled()) console.debug("Could not remove object", removed);
         }
     },
       
@@ -292,9 +292,11 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     },
       
     _valueObjChanged: function(e) {
-        console.log('valueObjChanged evt', e);
-        if (this.obj) {
-            console.log('updated value obj ', this.obj);
+        if (this.isLogDebugEnabled()) {
+            console.debug('valueObjChanged evt', e);
+            if (this.obj) {
+                console.debug('updated value obj ', this.obj);
+            }
         }
     },
 
@@ -310,9 +312,9 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 	          var normalFactor=0;
             
             var intermediateCircle = obj.inter;
-            console.log("intermediateCircle", intermediateCircle);
+//            console.debug("intermediateCircle", intermediateCircle);
             var externalCircle = obj.outer;
-            console.log("externalCircle", externalCircle);
+  //          console.debug("externalCircle", externalCircle);
 	          if (intermediateCircle && intermediateCircle.length>0){
 		            var topScore=parseFloat(intermediateCircle[0].score);
 		            var lastItem = intermediateCircle[intermediateCircle.length-1];
@@ -363,8 +365,8 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
        
 	      var grid=this.$.myCanvas;
         if (this.isLogDebugEnabled()) {
-            console.log("clientWidth of myCanvas: ", grid.clientWidth, grid);
-            console.log("width of myCanvas: ", grid.width);
+            console.debug("clientWidth of myCanvas: ", grid.clientWidth, grid);
+            console.debug("width of myCanvas: ", grid.width);
         }
 	      var params = calcSpheresParams(grid.clientWidth / 2, grid.clientHeight / 2, this.obj);
         var radius = calcRadius(circle, params);
@@ -373,7 +375,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         var position = calcPosition(params, radius, index, totalValsInCircle);
         var result = "margin-left:"+position.x+"px; margin-top:"+position.y+"px; position:absolute";
         if (this.isLogDebugEnabled()) {
-            console.log("style for item " + index + " in " + circle, result);
+            console.debug("style for item " + index + " in " + circle, result);
         }
         return result;
     },

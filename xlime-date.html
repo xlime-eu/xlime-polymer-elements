@@ -117,7 +117,7 @@ Example using polymer binding (Where `myDateObj` is an object like the one shown
     // Element Lifecycle
     created: function() {
           if (this.isLogDebugEnabled()) {
-              console.log(this.localName + '#' + this.id + ' was created');
+              console.debug(this.localName + '#' + this.id + ' was created');
           }
     },
       
@@ -148,12 +148,12 @@ Example using polymer binding (Where `myDateObj` is an object like the one shown
 
     _dateObjChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('valueObjChanged evt', e);
+            console.debug('valueObjChanged evt', e);
         }
         if (this.obj) {
             if (this.isLogDebugEnabled()) {
-                console.log('updated value obj ', this.obj);
-                console.log('itemObj.label', this.obj.label);
+                console.debug('updated value obj ', this.obj);
+                console.debug('itemObj.label', this.obj.label);
             }
         }
     },

@@ -242,9 +242,9 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
       
     _itemObjChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('itemObjChanged evt', e);
+            console.debug('itemObjChanged evt', e);
             if (this.obj) {
-                console.log('updated item obj ', this.obj);
+                console.debug('updated item obj ', this.obj);
             }
         }
     },
@@ -266,7 +266,7 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
     _calcSelectedClass: function() {
         var result = "circular";
         if (this.selected) result = "circular selected";
-        console.log("calculated class", result);
+        if (this.isLogDebugEnabled()) console.debug("calculated class", result);
         return result;
     },
 

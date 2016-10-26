@@ -114,7 +114,9 @@ The `entityAnnotationObj` follows the `entity annotation` format returned by the
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' was created');
+        }
     },
       
     ready: function() {
@@ -147,7 +149,7 @@ The `entityAnnotationObj` follows the `entity annotation` format returned by the
      * Handles changes to the `entity` property
      */  
     _entityAnnChanged: function(e) {
-        console.log('entityAnnObjChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('entityAnnObjChanged evt', e);
         if (this.ann && this.isEntityAnnotation(this.ann)) {
             //            console.log('updated entity obj ', this.ann);
             this._calculatedTypeName = this._calculateTypeName(this.ann.entity);
@@ -199,7 +201,9 @@ The `entityAnnotationObj` follows the `entity annotation` format returned by the
             if (tn === "organization") return "communication:business";      
             return null;
         }
-        console.log('typeName changed to ', this._calculatedTypeName);
+        if (this.isLogDebugEnabled()) {
+            console.debug('typeName changed to ', this._calculatedTypeName);
+        }
         if (this._calculatedTypeName) {
             this._calculatedIcon = typeNameToIconName(this._calculatedTypeName);
         } else this._calculatedIcon = "radio-button-unchecked"; //default icon

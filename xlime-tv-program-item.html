@@ -171,7 +171,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -183,8 +183,8 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
         // necessary), or kick off any processes the element wants to perform.
         //console.log("The jassa attribute ", _jassa);
         if (this.isLogTraceEnabled()) {
-            console.log(this.localName + '#' + this.id + ' is ready');
-            console.log('with logLevel', this.logLevel);
+            console.debug(this.localName + '#' + this.id + ' is ready');
+            console.debug('with logLevel', this.logLevel);
          }
     },
 
@@ -194,9 +194,11 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       //
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-        console.log(this.localName + '#' + this.id + ' is attached');
-        console.log('with logLevel', this.logLevel);        
+        // loading resources, etc).
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' is attached');
+            console.debug('with logLevel', this.logLevel);
+        }
     },
 
     detached: function() {
@@ -208,17 +210,17 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
 
     _itemObjChanged: function(e) {
         if (this.isLogDebugEnabled()) {
-            console.log('itemObjChanged evt', e);
+            console.debug('itemObjChanged evt', e);
         }
         if (this.itemObj) {
             if (this.isLogDebugEnabled()) {
-                console.log('updated itemObj ', this.itemObj);
-                console.log('itemObj.description', this.itemObj.description);
+                console.debug('updated itemObj ', this.itemObj);
+                console.debug('itemObj.description', this.itemObj.description);
             }
             if (this.itemObj.relatedImage) this._imageAvailable = true;
             else this._imageAvailable = false;
             if (this.isLogDebugEnabled()) {
-                console.log('imageAvailable', this._imageAvailable);
+                console.debug('imageAvailable', this._imageAvailable);
             }
         } else this._imageAvailable = false;
     },

@@ -3,6 +3,7 @@
 Copyright (c) 2016 Expert System Iberia. All rights reserved.
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="xlime-social-media-card.html">
 <link rel="import" href="xlime-tv-program-card.html">
 <link rel="import" href="xlime-news-article-card.html">
@@ -110,7 +111,8 @@ Height and width are specified as style attributes:
   Polymer({
 
     is: 'xlime-media-item-card',
-
+    behaviors: [XLiMe.LogBehavior],
+    
     properties: {
 
       /**
@@ -194,8 +196,10 @@ Height and width are specified as style attributes:
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created ');
-//        console.log("with local static map: ", this.$);        
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' was created ');
+          //        console.debug("with local static map: ", this.$);
+        }
     },
       
     ready: function() {
@@ -205,8 +209,10 @@ Height and width are specified as style attributes:
       //
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
-        console.log(this.localName + '#' + this.id + ' is ready');
-//        console.log("with local static map: ", this.$);
+        if (this.isLogDebugEnabled()) {
+            console.debug(this.localName + '#' + this.id + ' is ready');
+            //        console.log("with local static map: ", this.$);
+        }
     },
 
     attached: function() {
@@ -229,8 +235,10 @@ Height and width are specified as style attributes:
      * Triggered when the `href` property changes. Requests an item object for the new 
      * `href` value from the `xLiMe public server`.
      */
-    _itemUrlChanged: function() {
-        console.log("Item url changed");
+      _itemUrlChanged: function() {
+        if (this.isLogDebugEnabled()) {
+            console.log("Item url changed");
+        }
         if (typeof this.$ != 'undefined') {
             this._errorMessage = null;
             this.itemObj = null;
@@ -239,12 +247,17 @@ Height and width are specified as style attributes:
             params.url = this.href;
 
             this.$.ajax.params = params;
-            console.log("Set ajax params to ", params);
-            console.log("Generating ajax request for ", this.href);
+            if (this.isLogDebugEnabled()) {
+                console.debug("Set ajax params to ", params);
+                console.debug("Generating ajax request for ", this.href);
+            }
             this.$.ajax.generateRequest();
-            console.log("Generated ajax request for ", this.href);
+            if (this.isLogDebugEnabled()) {
+                console.debug("Generated ajax request for ", this.href);
+            }
         } else {
-            console.log("Component not ready yet");
+            if (this.isLogDebugEnabled())
+                console.debug("Component not ready yet");
         }
     },
 
@@ -267,8 +280,10 @@ Height and width are specified as style attributes:
             if (aDelegateIndex == 3) return staticMap.tvDelegateCard;
             throw "Invalid delegatIndex " + aDelegateIndex;
         }
-        
-        console.log("ItemObj changed");
+
+        if (this.isLogDebugEnabled()) {
+            console.debug("ItemObj changed");
+        }
         if (typeof this.$ == 'undefined') {
             console.log("component not ready yet");
             return;
@@ -277,7 +292,8 @@ Height and width are specified as style attributes:
 //        console.log("Static map", this.$);        
         if (this.itemObj) {
             var delegateIndex = findDelegateIndex(this.itemObj);
-            console.log("Determined delegateIndex " + delegateIndex);
+            if (this.isLogDebugEnabled())
+                console.debug("Determined delegateIndex " + delegateIndex);
             var pages = this.$.delegateCard;
             if (delegateIndex == 0) {
                 this._errorMessage = "Could not detect media item type for " + this.itemObj;
@@ -297,7 +313,7 @@ Height and width are specified as style attributes:
                 this.$.delegateCard.selected = 0;
 //                this.$.delegateCard.select(0);
             } catch (e) {
-               console.log("Caught error trying to select error: ", e);
+               console.log("Caught error trying to select card: ", e);
             }
         }
     },
@@ -308,13 +324,13 @@ Height and width are specified as style attributes:
      * the `delegateCard` component.
      */  
     _externalDataLoaded: function(e) {
-        console.log('Ajax request response: ', e.detail.response);
+        if (this.isLogDebugEnabled()) console.debug('Ajax request response: ', e.detail.response);
         if (e.detail.response && e.detail.response.mediaItems && e.detail.response.mediaItems.length == 1) {
             var mit = e.detail.response.mediaItems[0];
-            console.log('Found media item: ', mit);
+            if (this.isLogDebugEnabled()) console.debug('Found media item: ', mit);
             if (mit) {
                 this.itemObj = mit;
-                console.log('updated itemObj ', this.itemObj);
+                if (this.isLogDebugEnabled()) console.debug('updated itemObj ', this.itemObj);
             } else {
                 this._errorMessage = "Error retrieving information about mediaItem  " + href;
                 this.$.delegateCard.select(0);

@@ -4,6 +4,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 -->
 <link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="xlime-date.html">
 <link rel="import" href="xlime-value.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
@@ -92,6 +93,7 @@ Example:
   Polymer({
 
     is: 'xlime-news-article-item',
+    behaviors: [XLiMe.LogBehavior],
 
     properties: {
 
@@ -144,7 +146,7 @@ Example:
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled()) console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -174,10 +176,12 @@ Example:
     },
 
     _itemObjChanged: function(e) {        
-        console.log('itemObjChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('itemObjChanged evt', e);
         if (this.itemObj) {
-            console.log('updated itemObj ', this.itemObj);
-            console.log('itemObj.content', this.itemObj.content);
+            if (this.isLogDebugEnabled()) {
+                console.debug('updated itemObj ', this.itemObj);
+                console.debug('itemObj.content', this.itemObj.content);
+            }
         } else this._currentContent = "Empty"
     },
       

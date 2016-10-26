@@ -179,7 +179,8 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
       
     // Element Lifecycle
     created: function() {
-        console.log(this.localName + '#' + this.id + ' was created');
+        if (this.isLogDebugEnabled())
+            console.debug(this.localName + '#' + this.id + ' was created');
     },
       
     ready: function() {
@@ -217,7 +218,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
         }
 
         function calcCurrent(content) {
-            console.log("Calculating currentContent for", content);
+//            console.log("Calculating currentContent for", content);
             if (content && content.full) {
                 if (content.preview) {
                     return content.preview;
@@ -229,7 +230,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
             }
         }
 
-        if (this.isLogDebugEnabled) console.log('itemObjChanged evt', e);
+        if (this.isLogDebugEnabled()) console.debug('itemObjChanged evt', e);
         if (this.itemObj) {
             this._currentContent = calcCurrent(this.itemObj.description);
             this.$.togglePreviewBtn.hidden = shouldHideTogglePreviewBtn(this.itemObj.description);
@@ -237,9 +238,9 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
             else this._imageAvailable = false;
             
             if (this.isLogDebugEnabled()) {
-                console.log('updated itemObj ', this.itemObj);
-                console.log('itemObj.description', this.itemObj.description);
-                console.log('imageAvailable', this._imageAvailable);
+                console.debug('updated itemObj ', this.itemObj);
+                console.debug('itemObj.description', this.itemObj.description);
+                console.debug('imageAvailable', this._imageAvailable);
             }
         } else {
             this._currentContent = "Empty"
@@ -248,18 +249,18 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
     },
       
       _togglePreview: function() {
-        if (this.isDebugEnabled) console.log('toggling preview');
+        if (this.isLogDebugEnabled()) console.debug('toggling preview');
           
         if (this.itemObj) {
             var contentObj = this.itemObj.content;
             if (this._currentContent === contentObj.full) {
-                if (this.isDebugEnabled) console.log('Showing preview object');
+                if (this.isLogDebugEnabled()) console.debug('Showing preview object');
                 this._currentContent = contentObj.preview;
             } else {
-                if (this.isDebugEnabled) console.log('Showing full object');
+                if (this.isLogDebugEnabled()) console.debug('Showing full object');
                 this._currentContent = contentObj.full;
             }
-        } else if (this.isDebugEnabled) console.log('No itemObj available', this.itemObj);
+        } else if (this.isLogDebugEnabled()) console.debug('No itemObj available', this.itemObj);
     },
 
     _togglePreviewLabel: function(currentContent) {
