@@ -199,9 +199,11 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 
     isInInner: function(resourceObj) {
         if (resourceObj && resourceObj.url) {
-            var index = this._indexOfResource(this.obj.inner, toRemove);
+            var index = this._indexOfResource(this.obj.inner, resourceObj);
+            if (this.isLogDebugEnabled()) log.debug("Index of object in inner:  ", index, resourceObj);
             return (index >= 0);
         }
+        return false;
     },
 
     
