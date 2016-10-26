@@ -24,31 +24,39 @@
      _updateIronMeta: function() {
          var iconset = this._ironMeta;
      },
+
+     getMediumLabel: function(object, defaultValue) {
+         return this._calcLabel(50, object, defaultValue);
+     },
+
+     _calcLabel: function(length, object, defaultValue) {
+         if (object) {
+             if (object.label) return this.strPreview(object.label, length);
+             if (object.title) return this.strPreview(object.title, length);
+             if (this.isSocialMediaItem(object)) {
+                 return "" + this.socMediaTextPreview(object, length);
+             }
+             if (this.isSearchString(object)) {
+                 return this.strPreview(object.value, length);
+             }
+             if (this.isASRAnnotation(object)) {
+                 return "" + this.asrTextPreview(object, length);
+             }
+             if (this.isSubtitleSegment(object)) {
+                 return "" + this.subtitleTextPreview(object, length);
+             }
+             if (this.isOCRAnnotation(object)) {
+                 return "" + this.ocrTextPreview(object, length);
+             }
+         } return defaultValue;
+     },
      
      /**
       * Returns a short label for identifying the object. If no such label is found, 
       * returns the defaultValue.
       */
      getShortLabel: function(object, defaultValue) {
-         if (object) {
-             if (object.label) return object.label;
-             if (object.title) return object.title;
-             if (this.isSocialMediaItem(object)) {
-                 return object.sourceType;
-             }
-             if (this.isSearchString(object)) {
-                 return object.value;
-             }
-             if (this.isASRAnnotation(object)) {
-                 return "ASR: " + this.asrTextPreview(object);
-             }
-             if (this.isSubtitleSegment(object)) {
-                 return "Subtitle: " + this.subtitleTextPreview(object);
-             }
-             if (this.isOCRAnnotation(object)) {
-                 return "OCR: " + this.ocrTextPreview(object);
-             }
-         } return defaultValue;
+         return this._calcLabel(20, object, defaultValue);
      },
 
      /**
@@ -314,22 +322,33 @@
          } else return false;
      },
 
-     asrTextPreview: function(object) {
+     newsArticleTextPreview: function(object, length) {
+         if (object && object.title) {
+             return this.strPreview(object.title, length);
+         } else return "news";
+     },
+     socMediaTextPreview: function(object, length) {
+         if (object && object.content.full) {
+             return this.strPreview(object.content.full, length);
+         } else return object.sourceType;
+     },
+     
+     asrTextPreview: function(object, length) {
          if (object && object.recognizedText) {
-             return this.strPreview(object.recognizedText, 20);
-         } else return "";
+             return this.strPreview(object.recognizedText, length);
+         } else return "Empty ASR";
      },
 
-     subtitleTextPreview: function(object) {
+     subtitleTextPreview: function(object, length) {
          if (object && object.text) {
-             return this.strPreview(object.text, 20);
-         } else return "";
+             return this.strPreview(object.text, length);
+         } else return "Empty Subtitle";
      },
 
      ocrTextPreview: function(object) {
          if (object && object.recognizedText) {
              return this.strPreview(object.recognizedText, 20);
-         } else return "";
+         } else return "Empty OCR";
      },
 
      strPreview: function(str, maxLength) {

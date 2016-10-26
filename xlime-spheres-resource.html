@@ -82,9 +82,15 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
            width: 80px;
            max-width:100px;
            text-align: center;
+           /*
            overflow: hidden;
            text-overflow: ellipsis;
            white-space: nowrap;
+            */
+           font-size: 12px;
+           color: white;
+           border-radius: 5px;
+           background-color: rgba(0,0,0, .2);
        }
       </style>
 
@@ -95,10 +101,14 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
                           preload fade placeholder='[[_getPlaceHolderUrl(item)]]'
                           on-tap="_handleResourceTap">
               </iron-image>
-              <paper-tooltip for="sphere-resource">[[getShortLabel(item)]]</paper-tooltip>
+              <template is="dom-if" if="[[_needsTooltip]]">
+                  <paper-tooltip for="sphere-resource">[[getMediumLabel(item)]]</paper-tooltip>
+              </template>
           </div>
           <figcaption id="caption">[[_getCaption(item)]]</figcaption>
-          <paper-tooltip for="caption">[[getShortLabel(item)]]</paper-tooltip>
+              <template is="dom-if" if="[[_needsTooltip]]">
+                  <paper-tooltip for="caption">[[getMediumLabel(item)]]</paper-tooltip>
+              </template>
       </figure>
       <paper-badge id="remove_button" hidden$="[[!removable]]" icon="clear" for="sphere-resource" label="remove" on-tap="_handleRemoveTap">
       </paper-badge>
@@ -174,9 +184,21 @@ Example using polymer binding (Where `xLiMeResource` is some valid xLiMe resourc
       selected: {
           type: Boolean,
           value: false
+      },
+      _needsTooltip: {
+          type: Boolean,
+          computed: '_calcNeedsTooltip(item)'
       }
     },
 
+    _calcNeedsTooltip: function(itemObj) {
+        if (itemObj) {
+            var short = this.getShortLabel(itemObj);
+            var med = this.getMediumLabel(itemObj);
+            return  (short != med);
+        } else return false;
+    },
+      
     // Element Lifecycle
     created: function() {
           if (this.isLogDebugEnabled()) {
