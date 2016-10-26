@@ -5,6 +5,7 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="xlime-shared-styles.html">
 <link rel="import" href="xlime-value.html">
+<link rel="import" href="xlime-log-behavior.html">
 <link rel="import" href="../paper-card/paper-card.html">
 
 <!--
@@ -100,6 +101,8 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
 
     is: 'xlime-kb-entity-card',
 
+    behaviors: [XLiMe.LogBehavior],
+      
     /**
      * Fired when the user taps a `relation` in one of the summary statements.
      * The event's detail contains the `x` and `y` coordinates as well as the 
@@ -160,7 +163,7 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
       
     // Element Lifecycle
       created: function() {
-          if (isLogDebugEnabled()) {
+          if (this.isLogDebugEnabled()) {
               console.debug(this.localName + '#' + this.id + ' was created');
           }
     },
@@ -197,7 +200,7 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
      * Handles changes to the `itemObj`ect
      */  
       _entityObjChanged: function(e) {
-        if (isLogDebugEnabled())
+        if (this.isLogDebugEnabled())
               console.debug('entityObjChanged evt', e);
         if (this.entity) {
 //            console.log('updated itemObj ', this.itemObj);
@@ -208,7 +211,7 @@ The `entity` object follows the `entitySummary` format returned by the `xlime pu
     _getDepiction: function(change, index) {
         if (change && change.base) {
             return change.base[index];
-        } else null; //"app/images/xLiMe_Showcase_logo.png";
+        } else null; // some default image (by type)?
     },
 
     _handleRelationTap: function(e, detail) {
