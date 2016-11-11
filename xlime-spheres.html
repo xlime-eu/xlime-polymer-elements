@@ -44,51 +44,119 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 
   <template>
       <style include="xlime-shared-styles">
-       #spherescolumn {
-           /*color: #333;
-              border: 1px solid #ccc;
-              background: #E7DBD5;*/
-           margin: 0px 5px 5px 0px;
-           padding: 10px;
-           height: 610px;
-           width: 610px;
-           float: left;
+       :host {
+           --separator-color: #dbdbdb;
+           --circle-padding: 90px;
+           --outer-color: #E8F5E9;
+           --inter-color: #AEEA00;
+           --inner-color: #A5D6A7;
+           --center-color: #F4FF81;           
+           --center-color-2: #C6FF00;
        }
 
-       #spherescontent{
+       #spherescolumn
+       {
            margin: 0px 5px 5px 0px;
-           padding: 10px;
-           height: 610px;
-           width: 610px;
-           float: left;
-           position:absolute;
-           z-index:5;
+           /* this needs to be non-static to correctly position 
+              the sphere elements, which have position absolute
+           */
+           position: relative;
        }
+
+       xlime-spheres-resource {
+           /* places elements roughtly in the center of the sphere */
+           top: 45%;
+           left: 45%;
+           position: absolute;
+       }
+       
+       .circle,
+       .outercircle,
+       .innercircle,
+       .intercircle,
+       .centercircle {
+           height: 100%;
+           width: 100%;
+	         background: #FFF;
+           border: 1px solid var(--separator-color, "#1a1a1a");
+	         border-radius: 50%;
+	         padding: var(--circle-padding, 10px);
+           box-sizing: border-box;           
+       }
+
+       .outercircle {
+           background: var(--outer-color, #999999);
+       }
+
+       .intercircle {
+           background: var(--inter-color, #666666);
+       }
+
+       .innercircle {
+           background: var(--inner-color, #333333);
+       }
+
+       .innercircle.droptarget {
+           box-shadow: 0 0 8px rgba(27, 94, 32, .8);
+       }
+       
+       .centercircle {
+           background: var(--center-color, #333333);
+           padding: 35px;
+       }
+       
       </style>
-      
+     
 		 <div id="spherescolumn">
-		    <canvas id="myCanvas" width="610" height="610"></canvas>
+         <div class="circle outercircle">
+             <template is="dom-repeat" items="[[obj.outer]]">
+                 <xlime-spheres-resource
+                     selected$="[[isSelected(item, selected)]]"
+                     item="[[item.recommended]]" style$='[[_calcStyle("outer", index, obj.outer.length)]]'
+                     on-spheres-resource-tap="_handleResourceTap"
+                     draggable="true"
+                     on-dragstart="_handleDragStart"
+                     on-dragend="_handleDragEnd"
+                     ></xlime-spheres-resource>
+             </template>
+             
+             <div class="circle intercircle">
+                 <template is="dom-repeat" items="[[obj.inter]]">
+                     <xlime-spheres-resource
+                         selected$="[[isSelected(item, selected)]]"
+                         item="[[item.recommended]]"
+                         style$='[[_calcStyle("inter", index, obj.inter.length)]]'
+                         on-spheres-resource-tap="_handleResourceTap"
+                         draggable="true"
+                         on-dragstart="_handleDragStart"
+                         on-dragend="_handleDragEnd"
+                         ></xlime-spheres-resource>
+                 </template>
+
+                 <div class="circle innercircle"
+                      on-tap="_handleCircleTap"
+                      on-dragenter="_handleDragEnter"
+                      on-dragleave="_handleDragLeave"
+                      on-dragover="_handleDragOver"
+                      on-drop="_handleDrop">
+                     <template is="dom-repeat" items="{{obj.inner}}">
+                         <xlime-spheres-resource
+                            selected$="[[isSelected(item, selected)]]"
+                            removable
+                            item="[[item.recommended]]"
+                            style$='[[_calcStyle("inner", index, obj.inner.length)]]'
+                            on-spheres-resource-tap="_handleResourceTap"
+                            on-spheres-resource-remove="_handleResourceRemove">
+                         </xlime-spheres-resource>
+                     </template>
+                     <div class="circle centercircle">
+                         
+                     </div>
+                 </div>
+             </div>
+         </div>
 		 </div>
 		 
-		 <!-- Spheres Content -->
-		 <div id="spherescontent">
-         <template is="dom-repeat" items="{{obj.inner}}">
-             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" removable item="[[item.recommended]]" style='[[_calcStyle("inner", index)]]'
-                                     on-spheres-resource-tap="_handleResourceTap"
-                                     on-spheres-resource-remove="_handleResourceRemove"></xlime-spheres-resource>
-         </template>
-         <template is="dom-repeat" items="[[obj.inter]]">
-             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("inter", index)]]'
-                                     on-spheres-resource-tap="_handleResourceTap"
-                                     ></xlime-spheres-resource>
-         </template>
-         <template is="dom-repeat" items="[[obj.outer]]">
-             <xlime-spheres-resource selected$="[[isSelected(item, selected)]]" item="[[item.recommended]]" style='[[_calcStyle("outer", index)]]'
-                                     on-spheres-resource-tap="_handleResourceTap"
-                                     ></xlime-spheres-resource>
-         </template>
-		 </div>
-
   </template>
 
 </dom-module>
@@ -150,7 +218,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
       // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
         //console.log("The jassa attribute ", _jassa);
-        this._renderCanvas();
+//        this._renderCanvas();
     },
 
     attached: function() {
@@ -209,8 +277,119 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
     
       
     addToInner: function(resourceObj) {
-      this.push("obj.inner", resourceObj);
+        this.push("obj.inner", resourceObj);
+        this._recalcStyles('inner');
     },
+
+    _recalcStyles: function(circle) {
+        const selector = '.' + circle + 'circle';
+        const circleElt = this.$$(selector);
+        const elts = circleElt.querySelectorAll('xlime-spheres-resource');
+        console.debug("TODO: recalc styles for ", elts);
+    },
+      _handleDragStart: function(e) {
+          // this /e.target is the source node (the sphere being dragged)
+          console.debug("Handling dragstart for ", e);
+          e.target.style.opacity = '0.4';
+          this.$$(".innercircle").classList.add('droptarget');
+
+          //restricts the type of drag. Possible values: none, copy, copyLink, copyMove,
+          // link, linkMove, move, all and uninitialized
+          e.dataTransfer.effectAllowed = 'move';
+          const domString = JSON.stringify(e.target.item);
+          try {
+              e.dataTransfer.setData("application/json", domString);
+          } catch (err) {
+              console.debug("Failed to set dataTransfer data");
+              /* in IE10 the data type *must* be 'text', so try it this way...
+                                                                            see http://stackoverflow.com/questions/26213011/html5-dragdrop-issue-in-internet-explorer-datatransfer-property-access-not-pos
+              */
+              e.dataTransfer.setData("text", domString);
+          }
+          console.debug("set dataTrasfer.data to application/json and the xlime-spheres-resource.item ", e.target.item, e);
+      },
+
+      _handleCircleTap: function(e) {
+        console.debug("handling circle tap", e);
+      },
+      
+      _handleDragEnd: function(e) {
+          console.debug("Handling dragend for ", e);
+          e.target.style.opacity = '1.0';
+          this.$$(".innercircle").classList.remove('droptarget');
+      },
+
+      _handleDrop: function(e) {
+          function dataTransferAsJson(dataTransfer) {
+              var json;
+              try {
+                  json = dataTransfer.getData("application/json");
+              } catch (err) {
+                  //no app/json? try text
+                  json = dataTransfer.getData("text");
+              }
+              return JSON.parse(json);
+          }
+          
+          // this / e.target is current target element.
+          console.debug("Handling drop", e);
+          if (e.stopPropagation) {
+              e.stopPropagation(); // stops the browser from redirecting.
+          }
+          
+          // See the section on the DataTransfer object.
+          var itemToAddToInner = {
+              recommended: {},
+              confidence: 1
+          };
+          try {
+              itemToAddToInner.recommended = dataTransferAsJson(e.dataTransfer);
+          } catch (err) {
+              console.debug("Failed to process the drop data", err);
+              return false;
+          }
+          
+          console.debug("TODO: remove from inter or outer and add to inter", itemToAddToInner);
+          var removed = this._removeResourceObjFromCircle('obj.inter', itemToAddToInner.recommended);
+          if (!removed) {
+              removed = this._removeResourceObjFromCircle('obj.outer', itemToAddToInner.recommended);
+              console.log("removed from outer", removed);
+          } else {
+              console.log("removed from inter", removed);
+          }
+          console.debug("Now add to inner...");
+          this.addToInner(itemToAddToInner);
+          
+          var newDetail = {
+              x: e.detail.x,
+              y: e.detail.y,
+              moved: itemToAddToInner
+          }
+          this.fire('spheres-resource-moved', newDetail);
+          
+          return false;          
+      },
+      _handleDragEnter: function(e) {
+          console.debug("Handling dragenter for ", e);
+      },
+
+      _handleDragLeave: function(e) {
+          console.debug("Handling dragleave for ", e);
+      },
+
+      _handleDragOver: function(e) {
+//          console.debug("Handling dragover for ", e);
+          if (e.preventDefault) {
+              // Necessary. Allows us to drop. Otherwise browser may navigate away
+              e.preventDefault();
+          }
+          //TODO: check dataTransfer is compatible with inner circle!!
+          
+          // let user know they can move the data here
+          // other options would be none, copy or link
+          e.dataTransfer.dropEffect = 'move';  
+          return false;          
+      },
       
     _handleResourceTap: function(e, detail) {
         if (this.isLogDebugEnabled()) {
@@ -228,6 +407,24 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
             if (this.referToSameResource(array[i].recommended, resourceObj)) return i;
         }
     },
+
+    _removeResourceObjFromCircle: function(pathToCircle, toRemove) {
+        const arr = this.get(pathToCircle);
+        if (!arr) {
+            console.error("No array found for ", pathToCircle);
+            return false;
+        }
+        var index = this._indexOfResource(arr, toRemove);        
+        console.debug("Object to remove at " + pathToCircle + "." + index);
+        if (typeof index === 'undefined' || index === null || index < 0) {
+            console.error("Object ", toRemove, "cannot be removed as it is not in ", pathToCircle, arr);
+            return false;
+        }
+        
+        var removed = this.splice(pathToCircle, index, 1);
+        if (this.isLogDebugEnabled()) console.debug("new spheres obj: ", this.obj);
+        return removed;
+    },
       
     _handleResourceRemove: function(e, detail) {
         var toRemove = detail.obj;
@@ -236,16 +433,8 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
             console.debug("old spheres obj: ", this.obj);
         }
 
-        var index = this._indexOfResource(this.obj.inner, toRemove);
-
-        if (index < 0) {
-            console.error("Object ", toRemove, "cannot be removed as it is not in the innerCircle.", this.obj.inner);
-            return;
-        }
-        
-        var removed = this.splice('obj.inner', index, 1);
-        if (this.isLogDebugEnabled()) console.debug("new spheres obj: ", this.obj);
-        
+        const pathToCircle = 'obj.inner';
+        const removed = this._removeResourceObjFromCircle(pathToCircle, toRemove);
         if (removed) {
             if (this.isLogDebugEnabled()) console.debug("Removed ", removed);
 //            this.set('obj.inner', this.obj.inner);
@@ -270,7 +459,7 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
 		    var radiusBig = 300;
 		    var radiusMid = 210;
 		    var radiusSmall = 120;
-		    var radiusCenter = 30;
+		    var radiusCenter = 30; 
 
         var separatorColor = "dbdbdb"; //divider color //"#848484";
         var outerColor = "#E8F5E9"; //green 50  //"#fff";
@@ -328,86 +517,131 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
         }
     },
 
-    _calcStyle: function(circle, index) {
-        function calcSpheresParams(centerX, centerY, obj) {
-	          var resourceWidth = 40; // resources are about 80 x 66.67 
- 	          var resourceCaptionHeight = 16.7; //was 55 in APA 
-	          
-	          ////calcular umbral de colores
-	          var minUmb=5;
-	          var medUmb=10;
-	          var topScore=50;
-	          var normalFactor=0;
-            
-            var intermediateCircle = obj.inter;
-//            console.debug("intermediateCircle", intermediateCircle);
-            var externalCircle = obj.outer;
-  //          console.debug("externalCircle", externalCircle);
-	          if (intermediateCircle && intermediateCircle.length>0){
-		            var topScore=parseFloat(intermediateCircle[0].score);
-		            var lastItem = intermediateCircle[intermediateCircle.length-1];
-		            if (externalCircle && externalCircle.length > 0)
-			              lastItem = externalCircle[externalCircle.length-1];
-		            var bottomScore = parseFloat(lastItem.score);
-		            medUmb=(topScore+bottomScore)/2.2;
-		            minUmb=(bottomScore+medUmb)/2.2;
-	          }
-	          
-	          normalFactor=100/topScore;
-	          
-	          return {
-                obj: obj,
-		            centerX : centerX-resourceWidth,
-		            centerY : centerY-resourceWidth+resourceCaptionHeight, 
-		            radiusSmall : 75,
-		            radiusMid : 165,
-		            radiusBig : 255,
-		            minUmb : minUmb,
-		            medUmb : medUmb,
-		            normalFactor: normalFactor
-	          };
-        }
+    /**
+     * Uses the scores in the inter and outer circles to calculate a `median` and
+     * `minimal` level (which can be used to calculate a 'normalized' colour 
+     * indicating the score for a resource).
+     * It also calculates a `normalFactor` which can be used to normalize the 
+     * original scores for the resources.
+     */
+    _calcNormalScores: function() {
+	      ////calcular umbral de colores
+	      var minUmb=5;
+	      var medUmb=10;
+	      var topScore=50;
+	      var normalFactor=0;
         
-        function calcPosition(params, radius, i, total) {
+        var inter = this.obj.inter;
+//            console.debug("intermediateCircle", inter);
+        var outer = this.obj.outer;
+  //          console.debug("externalCircle", outer);
+	      if (inter && inter.length>0){
+		        var topScore=parseFloat(inter[0].score);
+		        var lastItem = inter[inter.length-1];
+		        if (outer && outer.length > 0)
+			          lastItem = outer[outer.length-1];
+		        var bottomScore = parseFloat(lastItem.score);
+		        medUmb=(topScore+bottomScore)/2.2;
+		        minUmb=(bottomScore+medUmb)/2.2;
+	      }
+	          
+	      normalFactor=100/topScore;
+        return {
+            minUmb: minUmb,
+            medUmb: medUmb,
+            normalFactor: normalFactor
+        };
+    },
+    _calcSpheresParams: function() {
+        const spheresDimensions = this._calcSpheresDimensions();
+        if (this.isLogDebugEnabled()) {
+//            console.debug("spheres dimensions", spheresDimensions);
+        }
+        const normScores = this._calcNormalScores();
+          
+        const radia = {
+		        inner: spheresDimensions.radiusCenter + spheresDimensions.resourceWidth, // 75 center.style.padding + spheresDimensions.resourceWidth
+		        inter : spheresDimensions.radiusInner + spheresDimensions.resourceWidth, //165, // center.style.padding + inner.style.padding + resourceWidth
+		        outer : spheresDimensions.radiusInter + spheresDimensions.resourceWidth //255, // center.style.padding + inner.style.padding + inter.style.padding
+        }
+	      return {
+            obj: this.obj,
+		        centerX : spheresDimensions.centerX-spheresDimensions.resourceWidth,
+		        centerY : spheresDimensions.centerY-spheresDimensions.resourceWidth+spheresDimensions.resourceCaptionHeight,
+            radia: radia,
+		        minUmb : normScores.minUmb,
+		        medUmb : normScores.medUmb,
+		        normalFactor: normScores.normalFactor
+	      };
+    },
+      
+    /**
+     * Calculates the style for the resource with `index` in a given `circle` that has a 
+     * certain number of `valsInCircle`. It does this by calculating the top and left values for the 
+     * resource based on the dimensions of the spheres.
+     * @deprecated use `_calcTransformRotateResourceStyle` instead
+     */
+    _calcTopLeftResourceStyle: function(circle, index, valsInCircle) {
+        function calcPosition(params, radius, perc) {
 	          return {
-		            x : params.centerX + radius * Math.cos(Math.PI/2 + 2*Math.PI*i/total),
-		            y : params.centerY + radius * Math.sin(Math.PI/2 + 2*Math.PI*i/total)
+		            x : params.centerX + radius * Math.cos(Math.PI/2 + 2*Math.PI*perc),
+		            y : params.centerY + radius * Math.sin(Math.PI/2 + 2*Math.PI*perc)
 	          }
         }
 
-        function calcRadius(circle, params) {
-            if (circle=== "inner") {
-                return params.radiusSmall;
-            } else if (circle === "inter") {
-                return params.radiusMid;
-            } else return params.radiusBig;
-        }
-
-        function calcTotalValsInCircle(circle, obj) {
-            if (circle=== "inner") {
-                return obj.inner.length;
-            } else if (circle === "inter") {
-                return obj.inter.length;
-            } else return obj.outer.length;
-        }
-       
-	      var grid=this.$.myCanvas;
+	      const params = this._calcSpheresParams();
+        const radius = params.radia[circle];
+        const perc = index / valsInCircle;
+        const position = calcPosition(params, radius, perc);
+        var result = "left:"+position.x+"px; top:"+position.y+"px;"; 
         if (this.isLogDebugEnabled()) {
-            console.debug("clientWidth of myCanvas: ", grid.clientWidth, grid);
-            console.debug("width of myCanvas: ", grid.width);
-        }
-	      var params = calcSpheresParams(grid.clientWidth / 2, grid.clientHeight / 2, this.obj);
-        var radius = calcRadius(circle, params);
-        var totalValsInCircle = calcTotalValsInCircle(circle, this.obj);
-        
-        var position = calcPosition(params, radius, index, totalValsInCircle);
-        var result = "margin-left:"+position.x+"px; margin-top:"+position.y+"px; position:absolute";
-        if (this.isLogDebugEnabled()) {
-            console.debug("style for item " + index + " in " + circle, result);
+            console.debug("style for item " + index + " of " + valsInCircle + " in " + circle, result);
         }
         return result;
     },
-            
+
+    /**
+     * Calculates the style for the resource with `index` in a given `circle` that has a 
+     * certain number of `valsInCircle`. It does this by specifying a css rotation transform around 
+     * the center of the spheres.
+     */
+    _calcTransformRotateResourceStyle: function(circle, index, valsInCircle) {
+	      const params = this._calcSpheresParams();
+        const radius = params.radia[circle];
+        const perc = index / valsInCircle;
+        const degrees = 360 * perc;
+        var result = "left:" + params.centerX +  "px;" +
+                     "top:" + params.centerY + "px;" +
+                     "transform: rotate("+degrees+"deg) translateY(" + radius + "px) rotate(-"+degrees+"deg);";
+        if (this.isLogDebugEnabled()) {
+            console.debug("style for item " + index + " of " + valsInCircle + " in " + circle, result);
+        }
+        return result;
+    },
+    _calcStyle: function(circle, index, valsInCircle) {
+        //return this._calcTopLeftResourceStyle(circle, index, valsInCircle);
+        return this._calcTransformRotateResourceStyle(circle, index, valsInCircle);
+    },
+
+    _calcSpheresDimensions: function() {
+        const divGrid = this.$.spherescolumn;
+        const centerCircle = this.$$('.centercircle');
+        const innerCircle = this.$$('.innercircle');
+        const interCircle = this.$$('.intercircle');
+        const outerCircle = this.$$('.outercircle');
+        
+        const spheresDimensions = {
+            centerX: divGrid.clientWidth / 2,
+            centerY: divGrid.clientHeight / 2,
+            radiusCenter: centerCircle.clientWidth / 2,
+            radiusInner: innerCircle.clientWidth / 2,
+            radiusInter: interCircle.clientWidth / 2,
+            radiusOuter: outerCircle.clientWidth / 2,
+            resourceWidth: 40, // px resources are about 80 x 66.67 
+            resourceCaptionHeight: 0 //px 16.7; //was 55 in APA 
+        }
+        return spheresDimensions;
+    },
     // Element Behavior
 
     /**
