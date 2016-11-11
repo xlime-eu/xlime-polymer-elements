@@ -45,13 +45,17 @@ Example using polymer binding (Where `mySpheresObj` is an object like the one sh
   <template>
       <style include="xlime-shared-styles">
        :host {
-           --separator-color: #dbdbdb;
            --circle-padding: 90px;
+           /* recommended xlime-themed colors,
+              define this in a :root element in the page using
+              an xlime-spheres component.
+           --separator-color: #dbdbdb;
            --outer-color: #E8F5E9;
            --inter-color: #AEEA00;
            --inner-color: #A5D6A7;
            --center-color: #F4FF81;           
            --center-color-2: #C6FF00;
+           */
        }
 
        #spherescolumn
