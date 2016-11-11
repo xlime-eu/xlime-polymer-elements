@@ -13,7 +13,6 @@ Copyright (c) 2016 Expert System Iberia. All rights reserved.
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <link rel="import" href="../paper-item/paper-item.html">
 
-
 <!--
 `xlime-spheres-plus-detail` is a web component, which renders an `xlime-spheres` and links its `selected` value to a `detail` card.
 
@@ -32,9 +31,7 @@ Example:
 
   <template>
       <style include="xlime-shared-styles">
-
-       .left
-        {
+       .left  {
            max-width: 620px;
            float: left
         }
@@ -45,7 +42,6 @@ Example:
            max-height: 500px;
            float: left
        }
-       
       </style>
 
     <iron-ajax id="spheresAjax"
@@ -124,7 +120,6 @@ Example:
     },
       
     toJsonStr: function(obj) {
-//                   console.log("stringifying obj");
         return JSON.stringify(obj, null, 4);
     },
 
@@ -141,41 +136,6 @@ Example:
     _isValidButNotMediaItem: function(obj) {
         return this._isValid(obj) && !this.isMediaItem(obj);
     },
-      
-    // Element Lifecycle
-    created: function() {
-          if (this.isLogDebugEnabled()) {
-              console.debug(this.localName + '#' + this.id + ' was created');
-          }
-    },
-      
-    ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-        // necessary), or kick off any processes the element wants to perform.
-        //console.log("The jassa attribute ", _jassa);
-//        this._renderCanvas();
-    },
-
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-    },
-
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    },
-
 
   });
 
