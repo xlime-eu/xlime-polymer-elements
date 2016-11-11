@@ -1,0 +1,182 @@
+<!--
+@license
+Copyright (c) 2016 Expert System Iberia. All rights reserved.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="xlime-shared-styles.html">
+<link rel="import" href="xlime-log-behavior.html">
+<link rel="import" href="xlime-object-inspector-behavior.html">
+<link rel="import" href="xlime-spheres.html">
+<link rel="import" href="xlime-media-item-card.html">
+<link rel="import" href="../paper-input/paper-textarea.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
+<link rel="import" href="../paper-item/paper-item.html">
+
+
+<!--
+`xlime-spheres-plus-detail` is a web component, which renders an `xlime-spheres` and links its `selected` value to a `detail` card.
+
+Example:
+
+    <xlime-spheres-plus-detail
+        baseXlimeServiceUrl='http://example.com'>
+    </xlime-spheres-plus-detail>
+
+@group xLiMe
+@element xlime-spheres-plus-detail
+@demo demo/xlime-spheres-plus-detail.html
+@hero hero.svg
+-->
+<dom-module id="xlime-spheres-plus-detail">
+
+  <template>
+      <style include="xlime-shared-styles">
+
+       .left
+        {
+           max-width: 620px;
+           float: left
+        }
+
+       .right {
+           margin-left: 2em;
+           width: 500px;
+           max-height: 500px;
+           float: left
+       }
+       
+      </style>
+
+    <iron-ajax id="spheresAjax"
+               url="[[baseXlimeServiceUrl]]/services/spheres"
+               params='{"context": []}'
+               last-response="{{spheresObj}}"
+               on-error='_handleAjaxError'
+               loading="{{_spheresLoading}}"
+               auto></iron-ajax>
+    <paper-spinner alt="Loading spheres" class="center" active="[[_spheresLoading]]">Loading spheres...</paper-spinner>
+      
+    <!-- binds the `selected` property of the xlime-spheres to a local property `resourceToShow`-->
+    <div class="left">
+        <xlime-spheres obj="{{spheresObj}}"
+                       selected="{{resourceToShow}}"
+                       on-spheres-resource-removed="requestNewSpheres"
+                       on-spheres-resource-moved="requestNewSpheres">
+        </xlime-spheres>
+    </div>
+
+    <div class="right">
+      <template is="dom-if" if="{{!_isValid(resourceToShow)}}">
+          <paper-item>Invalid or empty item</paper-item>
+      </template>
+      <template is="dom-if" if="{{isMediaItem(resourceToShow)}}">
+          <xlime-media-item-card item-obj="{{resourceToShow}}"></xlime-media-item-card>
+      </template>
+      <template is="dom-if" if="{{_isValidButNotMediaItem(resourceToShow)}}">
+          <paper-textarea value="{{toJsonStr(resourceToShow)}}"
+                          readonly></paper-textarea>
+      </template>
+    </div>
+		  
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'xlime-spheres-plus-detail',
+
+    behaviors: [XLiMe.LogBehavior, XLiMe.ObjectInspectorBehavior],
+      
+    properties: {
+        
+      /**
+       */
+      baseXlimeServiceUrl: {
+          type: String,
+          value: "http://172.16.32.71:8080/frontend-services"
+      },
+
+    },
+
+    _handleSpheresChange: function(e, detail) {
+        this.requestNewSpheres();
+    },
+    requestNewSpheres: function() {
+         var context = [];
+         if (this.spheresObj && this.spheresObj.inner) {
+             for (var i = 0; i < this.spheresObj.inner.length; i++) {
+                 var rec = this.spheresObj.inner[i].recommended;
+                 if (rec && rec.url) {
+                     context.push(rec.url);
+                 }
+             }
+         }
+         var params = {
+             context: context
+         }
+         console.debug("Calling spheres with context: ", params);
+         this.$.spheresAjax.params = params;
+         this.$.spheresAjax.generateRequest(); //now this happens automatically
+    },
+      
+    toJsonStr: function(obj) {
+//                   console.log("stringifying obj");
+        return JSON.stringify(obj, null, 4);
+    },
+
+    _handleAjaxError: function(e, detail) {
+        console.error("Ajax error", detail);
+        //this.fire("ajax-error", detail);
+    },
+      
+    _isValid: function(obj) {
+        if (obj) return true;
+        else return false;
+    },
+
+    _isValidButNotMediaItem: function(obj) {
+        return this._isValid(obj) && !this.isMediaItem(obj);
+    },
+      
+    // Element Lifecycle
+    created: function() {
+          if (this.isLogDebugEnabled()) {
+              console.debug(this.localName + '#' + this.id + ' was created');
+          }
+    },
+      
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        //console.log("The jassa attribute ", _jassa);
+//        this._renderCanvas();
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+
+  });
+
+</script>
