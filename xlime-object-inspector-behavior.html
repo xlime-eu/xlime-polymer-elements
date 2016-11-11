@@ -173,10 +173,10 @@
              iconStr = svgOuterHtml(svgElt);
          }
 
-        var encIcon = encodeURI(iconStr);         
-        var svgXmlResult = "data:image/svg+xml;utf8," + encIcon;
-        //var base64Result = "data:image/svg+xml;base64," + btoa(iconStr);
-        const result = svgXmlResult;
+        //var encIcon = encodeURI(iconStr);         
+        //var svgXmlResult = "data:image/svg+xml;utf8," + encIcon;
+        var base64Result = "data:image/svg+xml;base64," + btoa(iconStr);
+        const result = base64Result;//svgXmlResult;
         // console.log("Returning svg data uri: ", result);
         return result;
      },
@@ -208,7 +208,7 @@
 //        console.debug("iconName", iconName);         
          var iconset = this._ironMeta.byKey(iconsetName);
          if (iconset) {
-             console.debug("iconset: ", iconset);
+             //console.debug("iconset: ", iconset);
              var icons = iconset._icons || iconset._createIconMap();
              var icon = icons[iconName];
              if (icon) {
