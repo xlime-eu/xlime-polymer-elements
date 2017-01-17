@@ -37,9 +37,7 @@ Example:
 
     <content></content>
     <div>
-        pre
-        <chart-line class="rectangular-chart" data="[[data]]"></chart-line>
-        post
+        <chart-line id="myChart" class="rectangular-chart" data="[[data]]" options="{{options}}"></chart-line>
     </div>
     
   </template>
@@ -62,7 +60,11 @@ Example:
       data: {
           type: Object,
           observer: '_dataChanged'
-      }
+      },
+      options: {
+          type: Object,
+            
+      },
     },
       
     // Element Lifecycle
@@ -96,10 +98,50 @@ Example:
       // Use this to clean up anything you did in `attached`.
     },
 
-    _dataChanged: function(e) {        
+    makeYLogarithmic: function() {
+        console.log("current options: ", this.options);
+        var options = this.options;
+        if (options) {
+            //already defined
+        } else options = {};
+        if (options.scales) {
+            
+        } else options.scales = {};
+        if (options.scales.yAxes) {
+                       
+        } else options.scales.yAxes = [];
+        var yAxes = options.scales.yAxes;
+        if (yAxes.length == 0) {
+            yAxes.push({});
+        }
+        yAxes[0].type='logarithmic';
+        console.log("setting options to: ", options);
+        this.options = options;
+        this.$.myChart.updateChart();
+    },
+      _dataChanged: function(e) {
+          function random(max) {
+              return Math.floor((Math.random() * max) + 1);
+          }
+          
         console.log('dataChanged evt', e);
-        if (this.summaryObj) {
+        if (this.data) {
             console.log('updated data ', this.data);
+            var data = this.data;
+            if (data && data.datasets && data.datasets.length > 1) {
+                for (var i=0; i<data.datasets.length; i++) {
+                    var ds = data.datasets[i];
+                    if (ds.backgroundColor || ds.borderColor) {
+                        //already has color, don't fix
+                    } else { //missing background or border color, assign a random one
+                        var r = random(256);
+                        var g = random(256);
+                        var b = random(256);
+                        ds.backgroundColor = "rgba(" + r + ", " + g + ", " + b + ", 0.1)";
+                        ds.borderColor     = "rgba(" + r + ", " + g + ", " + b + ", 1)";
+                    }
+                }
+            }
         } 
     }
 
