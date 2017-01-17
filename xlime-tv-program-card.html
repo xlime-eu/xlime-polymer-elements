@@ -88,7 +88,7 @@ Example using polymer binding (Where `myItemObj` is an object like the one shown
               -->
           </div>
         <div class="title">
-            <div class="big"><a href='{{itemObj.source.url}}' target='_blank'>{{itemObj.title}}</a></div>
+            <div class="big"><a href='{{itemObj.watchUrl}}' target='_blank'>{{itemObj.title}}</a></div>
             <div class="small">broadcast on: <span>{{itemObj.broadcastDate.formatted}}</span> via <xlime-value obj='{{itemObj.publisher}}' mode="link" url-target="_blank"></xlime-value> lasts: <span>{{itemObj.duration.hours}}:{{itemObj.duration.minutes}}:{{itemObj.duration.seconds}}</span></div>
         </div>
       </div>
