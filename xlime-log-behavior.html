@@ -2,6 +2,18 @@
 
 <script>
  window.XLiMe = window.XLiMe || {};
+ /**
+  * Facility to control how much information is logged by elements by setting a logLevel 
+  * property. Implementing elements must then check their level
+  * whenever calling `console.log` or `console.debug`, etc.`
+  * For example:
+  * 
+  *      if (this.isLogDebugEnabled()) {
+  *         console.debug('my debug message');
+  *      }
+  *
+  * @polymerBehavior XLiMe.LogBehavior 
+  */
  XLiMe.LogBehavior = {
      properties: {
          /**

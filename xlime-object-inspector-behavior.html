@@ -7,8 +7,11 @@
 <script>
  window.XLiMe = window.XLiMe || {};
  /**
-  * Provides methods for inspecting a JSON object, determining the type of the object and extracting default values,
-  * such as labels, or depictions.
+  * Provides methods for inspecting a JSON object, determining the type 
+  * of the object and extracting default values, such as labels, 
+  * or depictions.
+  * 
+  * @polymerBehavior XLiMe.ObjectInspectorBehavior 
   */
  XLiMe.ObjectInspectorBehavior = {
      properties: {
@@ -155,8 +158,26 @@
      _DEFAULT_ICONSET: 'xlime-svg',
      
      svgDataUri: function(icon) {
-        var result = "data:image/svg+xml;utf8," + escape(this.svgElement(icon).outerHTML);
-//        console.log("Returning svg data uri: ", result);
+         function svgOuterHtml(svgElement) {
+             var node, temp;
+             temp = document.createElement('div');
+             node = svgElement.cloneNode(true);
+             temp.appendChild(node);
+             return temp.innerHTML;
+         }             
+
+         const svgElt = this.svgElement(icon);
+         var iconStr = svgElt.outerHTML;
+         if (!iconStr) {
+             // IE10 does not provide outerHTML for svg elts, so roll our own. see http://stackoverflow.com/questions/12592417/outerhtml-of-an-svg-element#20559830
+             iconStr = svgOuterHtml(svgElt);
+         }
+
+        //var encIcon = encodeURI(iconStr);         
+        //var svgXmlResult = "data:image/svg+xml;utf8," + encIcon;
+        var base64Result = "data:image/svg+xml;base64," + btoa(iconStr);
+        const result = base64Result; //svgXmlResult;
+        // console.log("Returning svg data uri: ", result);
         return result;
      },
 
@@ -187,13 +208,13 @@
 //        console.debug("iconName", iconName);         
          var iconset = this._ironMeta.byKey(iconsetName);
          if (iconset) {
-//             console.debug("iconset: ", iconset);
+             //console.debug("iconset: ", iconset);
              var icons = iconset._icons || iconset._createIconMap();
              var icon = icons[iconName];
              if (icon) {
                  var svgElt = prepareSvgClone(icons[iconName], iconset.size);
                  // var svgElt = iconset._cloneIcon(iconName); //does not produce "correct" clone?
-                 // console.log("svgElement: ", svgElt); 
+//                 console.log("svgElement: ", svgElt); 
                  return svgElt;
              } else {
                  console.error("Invalid iconname", iconName);
@@ -292,7 +313,9 @@
 
      isSocialMediaItemUrl: function(url) {
          if (url) {
-             return url.startsWith("http://vico-research.com/social/");
+             const prefix = "http://vico-research.com/social/";
+             return url.lastIndexOf(prefix, 0) === 0;
+//             return url.startsWith(prefix);
          } else return false;
      },
      
@@ -304,7 +327,9 @@
 
      isNewsArticleItemUrl: function(url) {
          if (url) {
-             return url.startsWith("http://ijs.si/article/");
+             const prefix = "http://ijs.si/article/";
+             return url.lastIndexOf(prefix, 0) === 0;
+//             return url.startsWith(prefix);
          } else return false;
      },
 
@@ -318,7 +343,9 @@
 
      isTVProgItemUrl: function(url)  {
          if (url) {
-             return url.startsWith("http://zattoo.com/program");
+             const prefix = "http://zattoo.com/program";
+             return url.lastIndexOf(prefix, 0) === 0;
+//             return url.startsWith(prefix);
          } else return false;
      },
 

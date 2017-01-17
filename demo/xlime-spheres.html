@@ -30,9 +30,15 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
            --demo-snippet-code: {
                max-height: 300px;
            };
-       }       
+       }
        :root {
            --error-color: red;
+           --separator-color: #dbdbdb;
+           --outer-color: #E8F5E9;
+           --inter-color: #AEEA00;
+           --inner-color: #A5D6A7;
+           --center-color: #F4FF81;           
+           --center-color-2: #C6FF00;
        }
       </style>
 
@@ -43,13 +49,23 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                    margin-left: 3em;
                    max-width: 500px;
                }
+               @media (max-width: 600px) {
+                   paper-textarea {
+                       width: 100%;
+                   }
+                   xlime-spheres {
+                       transform: scale(0.7);
+                   }
+               }
               </style>
               <h4>An example of <code>&lt;xlime-spheres-resource&gt; for a tv program</code></h4>
               <iron-ajax url="data/example-spheres-response.json" last-response="{{spheresObj}}" auto></iron-ajax>
 
               <div class="horizontal-section-container">
                   <div class="vertical-snippet">
-                      <xlime-spheres log-level="TRACE" obj='[[spheresObj]]'></xlime-spheres>
+                      <xlime-spheres log-level="TRACE" obj='{{spheresObj}}'
+                                     on-spheres-resource-moved="_handleSpheresResourceMoved"
+                                     on-spheres-resource-removed="_handleSpheresResourceRemoved"></xlime-spheres>
                   </div>
                   <div class="vertical-snippet">
                       <paper-textarea class="textarea" id="textarea" label="Edit xLiMe Spheres object" value='{{toJsonStr(spheresObj)}}'' on-change='handleTextChange' error-message="Invalid json" max-rows="20"></paper-textarea>
@@ -86,6 +102,16 @@ Copyright (c) 2015 Expert System Iberia. All rights reserved.
                        textareaElt.invalid = true;
                        return miObj;
                    }
+               },
+               _handleSpheresResourceMoved: function(e) {
+                   //trigger refresh of spheresObj?
+                   //console.log("resource moved", e);
+                   this.$.textarea.value = this.toJsonStr(this.spheresObj);
+               },
+               _handleSpheresResourceRemoved: function(e) {
+                   //trigger refresh of spheresObj?
+                   //console.log("resource removed", e);
+                   this.$.textarea.value = this.toJsonStr(this.spheresObj);
                }
                
            });
